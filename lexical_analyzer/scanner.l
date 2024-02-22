@@ -17,20 +17,20 @@ static int isatty (void *i) { return 0; }
 
 %% 
 
-[0-9]+          {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"INTEGER"),yylval);}
-[a-zA-Z]+       {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"IDENTIFIER"),yylval);}
-"="             {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"ASSIGN"),yylval);}
-"+"             {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"ADD"),yylval);}
-"-"             {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"SUB"),yylval);}
-"*"             {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"MUL"),yylval);}
-"/"             {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"DIV"),yylval);}
-"("             {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_PAR"),yylval);}
-")"             {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_PAR"),yylval);}
-"\n"            /* Do nothing for newline */
-
-[ \t]+          /* Do nothing for whitespace */
-
-.               printf("ERROR\n");
+\"([^\"]|(\\\"))*\"     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"STRING"),yylval);}
+[0-9]+                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"INTCONST"),yylval);}
+[0-9]+\.[0-9]+          {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"REALCONST"),yylval);}
+[a-zA-Z]+[_0-9]*        {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"IDENTIFIER"),yylval);}
+"="                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"ASSIGN"),yylval);}
+"+"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"ADD"),yylval);}
+"-"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"SUB"),yylval);}
+"*"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"MUL"),yylval);}
+"/"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"DIV"),yylval);}
+"("                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_PAR"),yylval);}
+")"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_PAR"),yylval);}
+"\n"                    /* Do nothing for newline */
+[ \t]+                  /* Do nothing for whitespace */
+.                       {printf("Undefined input %s in line %d\n",yytext,yylineno);exit(EXIT_FAILURE);}
 
 %%
 
@@ -56,6 +56,7 @@ alpha_token_t* alpha_token_t_create(unsigned int _numline, unsigned int _numToke
     token->numline = _numline;
     token->numToken = _numToken;
     token->content = deep_copy_string(_content);
+    check_escape_characters(token->content);
     token->type = _type;
     token->next = NULL;
     return token;
@@ -74,6 +75,55 @@ char* deep_copy_string(const char* source) {
     strcpy(destination, source);
     return destination;
 }
+
+void check_escape_characters(char* str){
+    int length = strlen(str);
+    char result[length + 1]; // +1 for the null terminator
+    int j = 0;
+
+    for (int i = 0; i < length; i++) {
+        if (str[i] == '\\') {
+            switch (str[i+1]) {
+                case 'n':
+                    result[j++] = '\n';
+                    break;
+                case 't':
+                    result[j++] = '\t';
+                    break;
+                case '\"':
+                    result[j++] = '\"';
+                    break;
+                case '\\':
+                    result[j++] = 27;//escape
+                    break;
+                case 'a':
+                    result[j++] = '\a';
+                    break;
+                case 'b':
+                    result[j++] = '\b';
+                    break;
+                case 'e':
+                    result[j++] = '\e';
+                    break;
+                case 'r':
+                    result[j++] = '\r';
+                    break;
+                case 'v':
+                    result[j++] = '\v';
+                    break;
+                default:
+                    result[j++] = str[i];
+                    break;
+            }
+            i++;
+        } else {
+            result[j++] = str[i];
+        }
+    }
+
+    result[j] = '\0';
+    strcpy(str, result);
+}
   
 int main(int argc, char** argv) {
     yyin = fopen(argv[1], "r");
@@ -81,7 +131,6 @@ int main(int argc, char** argv) {
         printf("Error. Could not open input file");
         exit(EXIT_FAILURE);
     }
-
     alpha_token_t *alphaTokenList = NULL;
     alpha_yylex(&alphaTokenList);
 
