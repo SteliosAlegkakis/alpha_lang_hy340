@@ -14,8 +14,10 @@ static int isatty (void *i) { return 0; }
 %option noyywrap
 %option yylineno
 %option prefix = "alpha_yy"
-
+comment "//".*
+%x COMMENT
 %% 
+
 
 \"([^\"]|(\\\"))*\"     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"STRING"),yylval);}
 [0-9]+                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"INTCONST"),yylval);}
@@ -32,7 +34,13 @@ static int isatty (void *i) { return 0; }
 [ \t]+                  /* Do nothing for whitespace */
 .                       {printf("Undefined input %s in line %d\n",yytext,yylineno);exit(EXIT_FAILURE);}
 
+"/*" BEGIN(COMMENT);
+<COMMENT>[^*/]*
+<COMMENT>"*"+[^*/]*
+<COMMENT>"*"+"/" BEGIN(INITIAL); 
+
 %%
+
 
 void add_token_to_list(alpha_token_t* token, alpha_token_t** head){
     if(*head == NULL){
