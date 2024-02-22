@@ -14,7 +14,6 @@ static int isatty (void *i) { return 0; }
 %option noyywrap
 %option yylineno
 %option prefix = "alpha_yy"
-comment "//".*
 %x COMMENT
 %% 
 
@@ -33,7 +32,7 @@ comment "//".*
 "\n"                    /* Do nothing for newline */
 [ \t]+                  /* Do nothing for whitespace */
 .                       {printf("Undefined input %s in line %d\n",yytext,yylineno);exit(EXIT_FAILURE);}
-
+"//".*
 "/*" BEGIN(COMMENT);
 <COMMENT>[^*/]*
 <COMMENT>"*"+[^*/]*
