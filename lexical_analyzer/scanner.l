@@ -9,6 +9,10 @@ static int isatty (void *i) { return 0; }
 
 #include "./scanner.h"
 #define YY_DECL int yylex (void* yylval)
+
+int start_multi_comment,end_line_comment;
+char str[100]; 
+
 %}
 
 %option noyywrap
@@ -17,7 +21,21 @@ static int isatty (void *i) { return 0; }
 %x COMMENT
 
 %% 
-
+"if"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD IF"),yylval);}
+"else"                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD ELSE"),yylval);}
+"while"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD WHILE"),yylval);}
+"for"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FOR"),yylval);}
+"function"              {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FUNCTION"),yylval);}
+"return"                {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD RETURN"),yylval);}
+"break"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD BREAK"),yylval);}
+"continue"              {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD CONTINUE"),yylval);}
+"and"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD AND"),yylval);}
+"not"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD NOT"),yylval);}
+"or"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD OR"),yylval);}
+"local"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD LOCAL"),yylval);}
+"true"                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD TRUE"),yylval);}
+"false"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FALSE"),yylval);}
+"nil"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD NIL"),yylval);}
 \"([^\"]|(\\\"))*\"      {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"STRING"),yylval);}
 [0-9]+                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"INTCONST"),yylval);}
 [0-9]+\.[0-9]+          {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"REALCONST"),yylval);}
@@ -50,28 +68,20 @@ static int isatty (void *i) { return 0; }
 ".."                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"DOUBLE_PERIOD"),yylval);}
 "\n"                    /* Do nothing for newline */
 [ \t\n\r]+              /* Do nothing for whitespace */
-"if"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD IF"),yylval);}
-"else"                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD ELSE"),yylval);}
-"while"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD WHILE"),yylval);}
-"for"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FOR"),yylval);}
-"function"              {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FUNCTION"),yylval);}
-"return"                {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD RETURN"),yylval);}
-"break"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD BREAK"),yylval);}
-"continue"              {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD CONTINUE"),yylval);}
-"and"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD AND"),yylval);}
-"not"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD NOT"),yylval);}
-"or"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD OR"),yylval);}
-"local"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD LOCAL"),yylval);}
-"true"                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD TRUE"),yylval);}
-"false"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FALSE"),yylval);}
-"nil"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD NIL"),yylval);}
 .                       {printf("Undefined input %s in line %d\n",yytext,yylineno);exit(EXIT_FAILURE);}
 
 "//".*
-"/*" BEGIN(COMMENT);
-<COMMENT>[^*/]*
+"/*" BEGIN(COMMENT); {start_multi_comment=yylineno;} 
+<COMMENT>[^*]+
+<COMMENT>[^*/]*        
 <COMMENT>"*"+[^*/]*
-<COMMENT>"*"+"/" BEGIN(INITIAL);
+<COMMENT>"*"+"/" BEGIN(INITIAL);{
+                end_line_comment = yylineno;
+                sprintf(str,"%d - %d",start_multi_comment,end_line_comment);
+                add_token_to_list(alpha_token_t_create(start_multi_comment,++tokensCount,str,"COMMENT BLOCK_COMMENT"),yylval);
+          }  
+<COMMENT><<EOF>> {printf("There is a unclosed comment\n");exit(EXIT_FAILURE);}
+
 
 %%
 
