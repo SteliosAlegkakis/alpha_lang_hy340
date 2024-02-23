@@ -1,10 +1,15 @@
 %{
 #include "./scanner.h"
+unsigned int start_multi_comment;
+unsigned int end_line_comment;
+unsigned int tokensCount = 0;
 %}
 
 %option noyywrap
 %option yylineno
 %option prefix = "alpha_yy"
+%option outfile = "scanner.c"
+
 %x COMMENT
 
 %% 
@@ -163,20 +168,5 @@ void removeChar(char *str, char remove) {
     }
     str[j] = '\0';  // Null-terminate the new string
 }
-  
-int main(int argc, char** argv) {
-    yyin = fopen(argv[1], "r");
-    if(alpha_yyin == NULL){
-        printf("Error. Could not open input file");
-        exit(EXIT_FAILURE);
-    }
-    alpha_token_t *alphaTokenList = NULL;
-    alpha_yylex(&alphaTokenList);
 
-    while(alphaTokenList != NULL){
-        printf("%d %d %s %s <-%s\n",alphaTokenList->numline,alphaTokenList->numToken,alphaTokenList->content,alphaTokenList->type,alphaTokenList->category);
-        alphaTokenList = alphaTokenList->next;
-    }
-    fclose(yyin);
-    return 0;
-}
+void set_alpha_yyin(FILE* inputFile){ yyin = inputFile; }

@@ -11,7 +11,8 @@ static int isatty (void *i) { return 0; }
 #endif
 
 #define YY_DECL int yylex (void* yylval)
-unsigned int start_multi_comment,end_line_comment;
+int alpha_yylex(void* yylval);
+
 
 typedef struct alpha_token_t {
   unsigned int          numline;
@@ -22,9 +23,8 @@ typedef struct alpha_token_t {
   struct alpha_token_t *next;
 } alpha_token_t;
 
-unsigned int tokensCount = 0;
-
 alpha_token_t* alpha_token_t_create(unsigned int _numline, unsigned int _numToken, char *_content, char *_type, char* _category);
 void add_token_to_list(alpha_token_t* token, alpha_token_t** head);
 void check_escape_characters(char* source);
 void removeChar(char* str, char remove);
+void set_alpha_yyin(FILE* inputFile);
