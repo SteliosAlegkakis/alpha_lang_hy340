@@ -15,10 +15,10 @@ static int isatty (void *i) { return 0; }
 %option yylineno
 %option prefix = "alpha_yy"
 %x COMMENT
+
 %% 
 
-
-\"([^\"]|(\\\"))*\"     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"STRING"),yylval);}
+\"([^\"]|(\\\"))*\"      {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"STRING"),yylval);}
 [0-9]+                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"INTCONST"),yylval);}
 [0-9]+\.[0-9]+          {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"REALCONST"),yylval);}
 [a-zA-Z]+[_0-9]*        {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"IDENTIFIER"),yylval);}
@@ -30,16 +30,16 @@ static int isatty (void *i) { return 0; }
 "("                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_PAR"),yylval);}
 ")"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_PAR"),yylval);}
 "\n"                    /* Do nothing for newline */
-[ \t]+                  /* Do nothing for whitespace */
+[ \t\n\r]+              /* Do nothing for whitespace */
 .                       {printf("Undefined input %s in line %d\n",yytext,yylineno);exit(EXIT_FAILURE);}
+
 "//".*
 "/*" BEGIN(COMMENT);
 <COMMENT>[^*/]*
 <COMMENT>"*"+[^*/]*
-<COMMENT>"*"+"/" BEGIN(INITIAL); 
+<COMMENT>"*"+"/" BEGIN(INITIAL);
 
 %%
-
 
 void add_token_to_list(alpha_token_t* token, alpha_token_t** head){
     if(*head == NULL){
@@ -62,25 +62,11 @@ alpha_token_t* alpha_token_t_create(unsigned int _numline, unsigned int _numToke
     }
     token->numline = _numline;
     token->numToken = _numToken;
-    token->content = deep_copy_string(_content);
+    token->content = strdup(_content);
     check_escape_characters(token->content);
     token->type = _type;
     token->next = NULL;
     return token;
-}
-
-char* deep_copy_string(const char* source) {
-    if (source == NULL) {
-        return NULL;
-    }
-    size_t length = strlen(source);
-    char* destination = (char*) malloc(length + 1);
-    if (destination == NULL) {
-        printf("Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
-    strcpy(destination, source);
-    return destination;
 }
 
 void check_escape_characters(char* str){
