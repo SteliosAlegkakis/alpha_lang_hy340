@@ -1,18 +1,5 @@
 %{
-#if defined(WIN32)
-#define YY_NO_UNISTD_H
-static int isatty (int i) { return 0; }
-#elif defined(_WIN32_WCE)
-#define YY_NO_UNISTD_H
-static int isatty (void *i) { return 0; }
-#endif
-
 #include "./scanner.h"
-#define YY_DECL int yylex (void* yylval)
-
-int start_multi_comment,end_line_comment;
-char str[100]; 
-
 %}
 
 %option noyywrap
@@ -21,67 +8,68 @@ char str[100];
 %x COMMENT
 
 %% 
-"if"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD IF"),yylval);}
-"else"                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD ELSE"),yylval);}
-"while"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD WHILE"),yylval);}
-"for"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FOR"),yylval);}
-"function"              {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FUNCTION"),yylval);}
-"return"                {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD RETURN"),yylval);}
-"break"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD BREAK"),yylval);}
-"continue"              {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD CONTINUE"),yylval);}
-"and"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD AND"),yylval);}
-"not"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD NOT"),yylval);}
-"or"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD OR"),yylval);}
-"local"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD LOCAL"),yylval);}
-"true"                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD TRUE"),yylval);}
-"false"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FALSE"),yylval);}
-"nil"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD NIL"),yylval);}
-\"([^\"]|(\\\"))*\"      {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"STRING"),yylval);}
-[0-9]+                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"INTCONST"),yylval);}
-[0-9]+\.[0-9]+          {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"REALCONST"),yylval);}
-[a-zA-Z]+[_0-9]*        {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"IDENTIFIER"),yylval);}
-"="                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"ASSIGN"),yylval);}
-"+"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"ADD"),yylval);}
-"-"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"SUB"),yylval);}
-"*"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"MUL"),yylval);}
-"/"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"DIV"),yylval);}
-"%"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"MODULO"),yylval);}
-"=="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"EQUAL"),yylval);}
-"!="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"NOT EQUAL"),yylval);}
-"++"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PLUS_PLUS"),yylval);}
-"--"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"MINUS_MINUS"),yylval);}
-">"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"GREATER_THAN"),yylval);}
-"<"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LESSER_THAN"),yylval);}
-">="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"GREATER_OR_EQUAL"),yylval);}
-"<="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LESS_OR_EQUAL"),yylval);}
-"{"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_CURLY_BR"),yylval);}
-"}"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_CURLY_BR"),yylval);}
-"["                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_SQUARE_BR"),yylval);}
-"]"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_SQUARE_BR"),yylval);}
-"("                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_PAR"),yylval);}
-")"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_PAR"),yylval);}
-";"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"SEMICOLON"),yylval);}
-","                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"COMMA"),yylval);}
-":"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"COLON"),yylval);}
-"::"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"DOUBLE_COLON"),yylval);}
-"."                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PERIOD"),yylval);}
-".."                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"DOUBLE_PERIOD"),yylval);}
-"\n"                    /* Do nothing for newline */
+
+"if"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"IF","enumerated"),yylval);}
+"else"                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD ELSE","enumerated"),yylval);}
+"while"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD WHILE","enumerated"),yylval);}
+"for"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FOR","enumerated"),yylval);}
+"function"              {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FUNCTION","enumerated"),yylval);}
+"return"                {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD RETURN","enumerated"),yylval);}
+"break"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD BREAK","enumerated"),yylval);}
+"continue"              {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD CONTINUE","enumerated"),yylval);}
+"and"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD AND","enumerated"),yylval);}
+"not"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD NOT","enumerated"),yylval);}
+"or"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD OR","enumerated"),yylval);}
+"local"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD LOCAL","enumerated"),yylval);}
+"true"                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD TRUE","enumerated"),yylval);}
+"false"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FALSE","enumerated"),yylval);}
+"nil"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD NIL","enumerated"),yylval);}
+\"([^\"]|(\\\"))*\"     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"STRING","char*"),yylval);}
+[0-9]+                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"INTCONST","integer"),yylval);}
+[0-9]+\.[0-9]+          {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"REALCONST","real"),yylval);}
+[a-zA-Z]+[_0-9]*        {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"IDENTIFIER","char*"),yylval);}
+"="                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"ASSIGN","enumerated"),yylval);}
+"+"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"ADD","enumerated"),yylval);}
+"-"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"SUB","enumerated"),yylval);}
+"*"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"MUL","enumerated"),yylval);}
+"/"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"DIV","enumerated"),yylval);}
+"("                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_PAR","enumerated"),yylval);}
+")"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_PAR","enumerated"),yylval);}
+"%"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"MODULO","enumerated"),yylval);}
+"=="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"EQUAL","enumerated"),yylval);}
+"!="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"NOT EQUAL","enumerated"),yylval);}
+"++"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PLUS_PLUS","enumerated"),yylval);}
+"--"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"MINUS_MINUS","enumerated"),yylval);}
+">"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"GREATER_THAN","enumerated"),yylval);}
+"<"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LESSER_THAN","enumerated"),yylval);}
+">="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"GREATER_OR_EQUAL","enumerated"),yylval);}
+"<="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LESS_OR_EQUAL","enumerated"),yylval);}
+"{"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_CURLY_BR","enumerated"),yylval);}
+"}"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_CURLY_BR","enumerated"),yylval);}
+"["                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_SQUARE_BR","enumerated"),yylval);}
+"]"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_SQUARE_BR","enumerated"),yylval);}
+"("                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_PAR","enumerated"),yylval);}
+")"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_PAR","enumerated"),yylval);}
+";"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"SEMICOLON","enumerated"),yylval);}
+","                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"COMMA","enumerated"),yylval);}
+":"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"COLON","enumerated"),yylval);}
+"::"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"DOUBLE_COLON","enumerated"),yylval);}
+"."                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PERIOD","enumerated"),yylval);}
+".."                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"DOUBLE_PERIOD","enumerated"),yylval);}
 [ \t\n\r]+              /* Do nothing for whitespace */
 .                       {printf("Undefined input %s in line %d\n",yytext,yylineno);exit(EXIT_FAILURE);}
-
-"//".*
+"//".*                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,"\"\"","COMMENT LINE_COMMENT","enumerated"),yylval);}
 "/*" BEGIN(COMMENT); {start_multi_comment=yylineno;} 
 <COMMENT>[^*]+
 <COMMENT>[^*/]*        
 <COMMENT>"*"+[^*/]*
 <COMMENT>"*"+"/" BEGIN(INITIAL);{
                 end_line_comment = yylineno;
+                char str[100];
                 sprintf(str,"%d - %d",start_multi_comment,end_line_comment);
-                add_token_to_list(alpha_token_t_create(start_multi_comment,++tokensCount,str,"COMMENT BLOCK_COMMENT"),yylval);
+                add_token_to_list(alpha_token_t_create(start_multi_comment,++tokensCount,str,"COMMENT BLOCK_COMMENT","enumerated"),yylval);
           }  
 <COMMENT><<EOF>> {printf("There is a unclosed comment\n");exit(EXIT_FAILURE);}
-
 
 %%
 
@@ -94,11 +82,11 @@ void add_token_to_list(alpha_token_t* token, alpha_token_t** head){
         while(current->next != NULL){
             current = current->next;
         }
-        current->next = alpha_token_t_create(token->numline, token->numToken, token->content, token->type);
+        current->next = alpha_token_t_create(token->numline, token->numToken, token->content, token->type, token->category);
     }
 }
 
-alpha_token_t* alpha_token_t_create(unsigned int _numline, unsigned int _numToken, char *_content, char *_type){
+alpha_token_t* alpha_token_t_create(unsigned int _numline, unsigned int _numToken, char* _content, char* _type, char* _category){
     alpha_token_t *token = (alpha_token_t*) malloc(sizeof(alpha_token_t));
     if(token == NULL){
         printf("Memory allocation failed\n");
@@ -107,8 +95,10 @@ alpha_token_t* alpha_token_t_create(unsigned int _numline, unsigned int _numToke
     token->numline = _numline;
     token->numToken = _numToken;
     token->content = strdup(_content);
+    removeChar(token->content,'\"');
     check_escape_characters(token->content);
     token->type = _type;
+    token->category = _category;
     token->next = NULL;
     return token;
 }
@@ -161,6 +151,18 @@ void check_escape_characters(char* str){
     result[j] = '\0';
     strcpy(str, result);
 }
+
+void removeChar(char *str, char remove) {
+    int i, j = 0;
+    int len = strlen(str);
+    
+    for (i = 0; i < len; i++) {
+        if (str[i] != remove) {
+            str[j++] = str[i];
+        }
+    }
+    str[j] = '\0';  // Null-terminate the new string
+}
   
 int main(int argc, char** argv) {
     yyin = fopen(argv[1], "r");
@@ -172,7 +174,7 @@ int main(int argc, char** argv) {
     alpha_yylex(&alphaTokenList);
 
     while(alphaTokenList != NULL){
-        printf("%d %d %s %s\n",alphaTokenList->numline,alphaTokenList->numToken,alphaTokenList->content,alphaTokenList->type);
+        printf("%d %d %s %s <-%s\n",alphaTokenList->numline,alphaTokenList->numToken,alphaTokenList->content,alphaTokenList->type,alphaTokenList->category);
         alphaTokenList = alphaTokenList->next;
     }
     fclose(yyin);
