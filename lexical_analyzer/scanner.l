@@ -27,10 +27,44 @@ static int isatty (void *i) { return 0; }
 "-"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"SUB"),yylval);}
 "*"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"MUL"),yylval);}
 "/"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"DIV"),yylval);}
+"%"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"MODULO"),yylval);}
+"=="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"EQUAL"),yylval);}
+"!="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"NOT EQUAL"),yylval);}
+"++"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PLUS_PLUS"),yylval);}
+"--"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"MINUS_MINUS"),yylval);}
+">"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"GREATER_THAN"),yylval);}
+"<"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LESSER_THAN"),yylval);}
+">="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"GREATER_OR_EQUAL"),yylval);}
+"<="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LESS_OR_EQUAL"),yylval);}
+"{"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_CURLY_BR"),yylval);}
+"}"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_CURLY_BR"),yylval);}
+"["                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_SQUARE_BR"),yylval);}
+"]"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_SQUARE_BR"),yylval);}
 "("                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_PAR"),yylval);}
 ")"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_PAR"),yylval);}
+";"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"SEMICOLON"),yylval);}
+","                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"COMMA"),yylval);}
+":"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"COLON"),yylval);}
+"::"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"DOUBLE_COLON"),yylval);}
+"."                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PERIOD"),yylval);}
+".."                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"DOUBLE_PERIOD"),yylval);}
 "\n"                    /* Do nothing for newline */
 [ \t\n\r]+              /* Do nothing for whitespace */
+"if"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD IF"),yylval);}
+"else"                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD ELSE"),yylval);}
+"while"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD WHILE"),yylval);}
+"for"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FOR"),yylval);}
+"function"              {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FUNCTION"),yylval);}
+"return"                {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD RETURN"),yylval);}
+"break"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD BREAK"),yylval);}
+"continue"              {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD CONTINUE"),yylval);}
+"and"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD AND"),yylval);}
+"not"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD NOT"),yylval);}
+"or"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD OR"),yylval);}
+"local"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD LOCAL"),yylval);}
+"true"                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD TRUE"),yylval);}
+"false"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FALSE"),yylval);}
+"nil"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD NIL"),yylval);}
 .                       {printf("Undefined input %s in line %d\n",yytext,yylineno);exit(EXIT_FAILURE);}
 
 "//".*
