@@ -38,8 +38,6 @@ unsigned int tokensCount = 0;
 "-"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"SUB","enumerated"),yylval);}
 "*"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"MUL","enumerated"),yylval);}
 "/"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"DIV","enumerated"),yylval);}
-"("                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_PAR","enumerated"),yylval);}
-")"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_PAR","enumerated"),yylval);}
 "%"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"MODULO","enumerated"),yylval);}
 "=="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"EQUAL","enumerated"),yylval);}
 "!="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"NOT EQUAL","enumerated"),yylval);}
