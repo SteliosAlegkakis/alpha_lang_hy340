@@ -26,5 +26,5 @@ typedef struct alpha_token_t {
 alpha_token_t* alpha_token_t_create(unsigned int _numline, unsigned int _numToken, char *_content, char *_type, char* _category);
 void add_token_to_list(alpha_token_t* token, alpha_token_t** head);
 void check_escape_characters(char* source);
-void removeChar(char* str, char remove);
+void remove_quotes(char* str);
 void set_alpha_yyin(FILE* inputFile);

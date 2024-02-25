@@ -3,6 +3,7 @@
 unsigned int start_multi_comment;
 unsigned int end_line_comment;
 unsigned int tokensCount = 0;
+int quotes_removed = -1;
 %}
 
 %option noyywrap
@@ -98,11 +99,13 @@ alpha_token_t* alpha_token_t_create(unsigned int _numline, unsigned int _numToke
     token->numline = _numline;
     token->numToken = _numToken;
     token->content = strdup(_content);
-    removeChar(token->content,'\"');
-    check_escape_characters(token->content);
     token->type = _type;
     token->category = _category;
     token->next = NULL;
+    if(_type == "STRING"){ 
+        check_escape_characters(token->content);
+        remove_quotes(token->content);
+    }
     return token;
 }
 
@@ -143,7 +146,7 @@ void check_escape_characters(char* str){
                     break;
                 default:
                     result[j++] = str[i];
-                    break;
+                    continue;
             }
             i++;
         } else {
@@ -155,16 +158,16 @@ void check_escape_characters(char* str){
     strcpy(str, result);
 }
 
-void removeChar(char *str, char remove) {
-    int i, j = 0;
+void remove_quotes(char *str) {
     int len = strlen(str);
     
-    for (i = 0; i < len; i++) {
-        if (str[i] != remove) {
-            str[j++] = str[i];
+    if (len >= 2 && str[0] == '"' && str[len-1] == '"' && quotes_removed % 2 !=0 ) {
+        for (int i = 0; i < len - 1; i++) {
+            str[i] = str[i + 1];
         }
+        str[len - 2] = '\0';
     }
-    str[j] = '\0';  // Null-terminate the new string
+    quotes_removed++;
 }
 
 void set_alpha_yyin(FILE* inputFile){ yyin = inputFile; }
