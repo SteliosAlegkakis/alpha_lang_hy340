@@ -1,6 +1,8 @@
 /* this is a cooment 
 yes*/
 
+//this is a comment 
+
 x = 10 + 20 * (30 - 40)
 y = x + 5 / 2
 
@@ -16,7 +18,7 @@ while(local y != 2 and z!=7){
     if(c == true or d == false){
         continue;
     }else{
-        print("break\n");
+        print("bre\"ak\n");
         break;
     }
     return function;

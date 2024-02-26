@@ -15,7 +15,7 @@ int quotes_removed = -1;
 
 %% 
 
-"if"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"IF","enumerated"),yylval);}
+"if"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD IF","enumerated"),yylval);}
 "else"                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD ELSE","enumerated"),yylval);}
 "while"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD WHILE","enumerated"),yylval);}
 "for"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FOR","enumerated"),yylval);}
@@ -34,35 +34,35 @@ int quotes_removed = -1;
 [0-9]+                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"INTCONST","integer"),yylval);}
 [0-9]+\.[0-9]+          {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"REALCONST","real"),yylval);}
 [a-zA-Z]+[_a-zA-Z0-9]*  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"IDENTIFIER","char*"),yylval);}
-"="                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"ASSIGN","enumerated"),yylval);}
-"+"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"ADD","enumerated"),yylval);}
-"-"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"SUB","enumerated"),yylval);}
-"*"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"MUL","enumerated"),yylval);}
-"/"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"DIV","enumerated"),yylval);}
-"%"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"MODULO","enumerated"),yylval);}
-"=="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"EQUAL","enumerated"),yylval);}
-"!="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"NOT EQUAL","enumerated"),yylval);}
-"++"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PLUS_PLUS","enumerated"),yylval);}
-"--"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"MINUS_MINUS","enumerated"),yylval);}
-">"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"GREATER_THAN","enumerated"),yylval);}
-"<"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LESSER_THAN","enumerated"),yylval);}
-">="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"GREATER_OR_EQUAL","enumerated"),yylval);}
-"<="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LESS_OR_EQUAL","enumerated"),yylval);}
-"{"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_CURLY_BR","enumerated"),yylval);}
-"}"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_CURLY_BR","enumerated"),yylval);}
-"["                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_SQUARE_BR","enumerated"),yylval);}
-"]"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_SQUARE_BR","enumerated"),yylval);}
-"("                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"LEFT_PAR","enumerated"),yylval);}
-")"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"RIGHT_PAR","enumerated"),yylval);}
-";"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"SEMICOLON","enumerated"),yylval);}
-","                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"COMMA","enumerated"),yylval);}
-":"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"COLON","enumerated"),yylval);}
-"::"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"DOUBLE_COLON","enumerated"),yylval);}
-"."                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PERIOD","enumerated"),yylval);}
-".."                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"DOUBLE_PERIOD","enumerated"),yylval);}
+"="                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR ASSIGN","enumerated"),yylval);}
+"+"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR PLUS","enumerated"),yylval);}
+"-"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR MINUS","enumerated"),yylval);}
+"*"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR MUL","enumerated"),yylval);}
+"/"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR DIV","enumerated"),yylval);}
+"%"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR MODULO","enumerated"),yylval);}
+"=="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR EQUAL","enumerated"),yylval);}
+"!="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR NOT_EQUAL","enumerated"),yylval);}
+"++"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR PLUS_PLUS","enumerated"),yylval);}
+"--"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR MINUS_MINUS","enumerated"),yylval);}
+">"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR GREATER_THAN","enumerated"),yylval);}
+"<"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR LESSER_THAN","enumerated"),yylval);}
+">="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR GREATER_OR_EQUAL","enumerated"),yylval);}
+"<="                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR LESSER_OR_EQUAL","enumerated"),yylval);}
+"{"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PUNCTUATION LEFT_CURLY_BR","enumerated"),yylval);}
+"}"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PUNCTUATION RIGHT_CURLY_BR","enumerated"),yylval);}
+"["                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PUNCTUATION LEFT_SQUARE_BR","enumerated"),yylval);}
+"]"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PUNCTUATION RIGHT_SQUARE_BR","enumerated"),yylval);}
+"("                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PUNCTUATION LEFT_PAR","enumerated"),yylval);}
+")"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PUNCTUATION RIGHT_PAR","enumerated"),yylval);}
+";"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PUNCTUATION SEMICOLON","enumerated"),yylval);}
+","                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PUNCTUATION COMMA","enumerated"),yylval);}
+":"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PUNCTUATION COLON","enumerated"),yylval);}
+"::"                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PUNCTUATION DOUBLE_COLON","enumerated"),yylval);}
+"."                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PUNCTUATION PERIOD","enumerated"),yylval);}
+".."                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PUNCTUATION DOUBLE_PERIOD","enumerated"),yylval);}
 [ \t\n\r]+              /* Do nothing for whitespace */
 .                       {printf("Undefined input %s in line %d\n",yytext,yylineno);exit(EXIT_FAILURE);}
-"//".*                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,"\"\"","COMMENT LINE_COMMENT","enumerated"),yylval);}
+"//".*                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,"","COMMENT LINE_COMMENT","enumerated"),yylval);}
 "/*" BEGIN(COMMENT); {start_multi_comment=yylineno;} 
 <COMMENT>[^*]+
 <COMMENT>[^*/]*        

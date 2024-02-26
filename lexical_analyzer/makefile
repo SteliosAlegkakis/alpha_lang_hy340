@@ -1,7 +1,7 @@
 all:
 	flex scanner.l
-	gcc -o scanner scanner.c al.c
+	gcc -o al scanner.c al.c
 
 clean:
-	rm -f scanner.c scanner
+	rm -f  scanner.c al
 
