@@ -33,7 +33,7 @@ int quotes_removed = -1;
 \"([^\"]|(\\\"))*\"     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"STRING","char*"),yylval);}
 [0-9]+                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"INTCONST","integer"),yylval);}
 [0-9]+\.[0-9]+          {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"REALCONST","real"),yylval);}
-[a-zA-Z]+[_0-9a-zA-z]*  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"IDENTIFIER","char*"),yylval);}
+[a-zA-Z]+[_a-zA-Z0-9]*  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"IDENTIFIER","char*"),yylval);}
 "="                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"ASSIGN","enumerated"),yylval);}
 "+"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"ADD","enumerated"),yylval);}
 "-"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"SUB","enumerated"),yylval);}
