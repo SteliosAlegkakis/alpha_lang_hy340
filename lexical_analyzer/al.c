@@ -11,10 +11,20 @@ int main(int argc, char** argv) {
     alpha_token_t *alphaTokenList = NULL;
     alpha_yylex(&alphaTokenList);
 
-    while(alphaTokenList != NULL){
-        printf("%d %d %s %s <-%s\n",alphaTokenList->numline,alphaTokenList->numToken,alphaTokenList->content,alphaTokenList->type,alphaTokenList->category);
-        alphaTokenList = alphaTokenList->next;
+    if(argc == 2) {
+        while(alphaTokenList != NULL) {
+            printf("%d %d %s %s <-%s\n",alphaTokenList->numline,alphaTokenList->numToken,alphaTokenList->content,alphaTokenList->type,alphaTokenList->category);
+            alphaTokenList = alphaTokenList->next;
+        }
+    } else if(argc == 3) {
+        FILE* output = fopen(argv[2], "w");
+        while(alphaTokenList != NULL) {
+            fprintf(output, "%d %d %s %s <-%s\n",alphaTokenList->numline,alphaTokenList->numToken,alphaTokenList->content,alphaTokenList->type,alphaTokenList->category);
+            alphaTokenList = alphaTokenList->next;
+        }
+        fclose(output);
     }
     fclose(input);
+
     return 0;
 }
