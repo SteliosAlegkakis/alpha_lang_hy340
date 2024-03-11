@@ -13,7 +13,6 @@ unsigned int start_string;
 %option outfile = "scanner.c"
 
 %x COMMENT
-%x STRING
 
 %% 
 
