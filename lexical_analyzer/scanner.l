@@ -4,6 +4,7 @@ unsigned int start_multi_comment;
 unsigned int end_line_comment;
 unsigned int tokensCount = 0;
 int quotes_removed = -1;
+unsigned int start_string;
 %}
 
 %option noyywrap
@@ -12,6 +13,7 @@ int quotes_removed = -1;
 %option outfile = "scanner.c"
 
 %x COMMENT
+%x STRING
 
 %% 
 
@@ -30,10 +32,10 @@ int quotes_removed = -1;
 "true"                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD TRUE","enumerated"),yylval);}
 "false"                 {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD FALSE","enumerated"),yylval);}
 "nil"                   {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"KEYWORD NIL","enumerated"),yylval);}
-\"([^\"]|(\\\"))*\"     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"STRING","char*"),yylval);}
 [0-9]+                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"INTCONST","integer"),yylval);}
 [0-9]+\.[0-9]+          {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"REALCONST","real"),yylval);}
 [a-zA-Z]+[_a-zA-Z0-9]*  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"IDENTIFIER","char*"),yylval);}
+\"([^\"]|(\\\"))*\"     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"STRING","char*"),yylval);}
 "="                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR ASSIGN","enumerated"),yylval);}
 "+"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR PLUS","enumerated"),yylval);}
 "-"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR MINUS","enumerated"),yylval);}
@@ -63,8 +65,10 @@ int quotes_removed = -1;
 [ \t\n\r]+              /* Do nothing for whitespace */
 .                       {printf("Undefined input %s in line %d\n",yytext,yylineno);exit(EXIT_FAILURE);}
 "//".*                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,"","COMMENT LINE_COMMENT","enumerated"),yylval);}
+
 "/*" BEGIN(COMMENT); {start_multi_comment=yylineno;} 
 <COMMENT>[^*]+
+<COMMENT>"/*"
 <COMMENT>[^*/]*        
 <COMMENT>"*"+[^*/]*
 <COMMENT>"*"+"/" BEGIN(INITIAL);{
@@ -72,9 +76,8 @@ int quotes_removed = -1;
                 char str[100];
                 sprintf(str,"%d - %d",start_multi_comment,end_line_comment);
                 add_token_to_list(alpha_token_t_create(start_multi_comment,++tokensCount,str,"COMMENT BLOCK_COMMENT","enumerated"),yylval);
-          }  
-<COMMENT><<EOF>> {printf("There is a unclosed comment\n");exit(EXIT_FAILURE);}
-
+          }
+<COMMENT><<EOF>> {printf("There is an unclosed comment in line %d \n",start_multi_comment);exit(EXIT_FAILURE);}
 %%
 
 void add_token_to_list(alpha_token_t* token, alpha_token_t** head){
@@ -127,7 +130,7 @@ void check_escape_characters(char* str){
                     result[j++] = '\"';
                     break;
                 case '\\':
-                    result[j++] = 27;//escape
+                    result[j++] = '\\';//escape
                     break;
                 case 'a':
                     result[j++] = '\a';
