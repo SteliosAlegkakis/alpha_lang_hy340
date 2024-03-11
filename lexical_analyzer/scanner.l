@@ -4,7 +4,6 @@ unsigned int start_multi_comment;
 unsigned int end_line_comment;
 unsigned int tokensCount = 0;
 int quotes_removed = -1;
-unsigned int start_string;
 %}
 
 %option noyywrap
@@ -34,7 +33,7 @@ unsigned int start_string;
 [0-9]+                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"INTCONST","integer"),yylval);}
 [0-9]+\.[0-9]+          {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"REALCONST","real"),yylval);}
 [a-zA-Z]+[_a-zA-Z0-9]*  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"IDENTIFIER","char*"),yylval);}
-\"([^\"]|(\\\"))*\"     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"STRING","char*"),yylval);}
+\"([^\"]|"\\\"")*\"     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"STRING","char*"),yylval);}
 "="                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR ASSIGN","enumerated"),yylval);}
 "+"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR PLUS","enumerated"),yylval);}
 "-"                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"OPERATOR MINUS","enumerated"),yylval);}
@@ -62,7 +61,11 @@ unsigned int start_string;
 "."                     {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PUNCTUATION PERIOD","enumerated"),yylval);}
 ".."                    {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,yytext,"PUNCTUATION DOUBLE_PERIOD","enumerated"),yylval);}
 [ \t\n\r]+              /* Do nothing for whitespace */
-.                       {printf("Undefined input %s in line %d\n",yytext,yylineno);exit(EXIT_FAILURE);}
+.                       {
+                            if(!strcmp(yytext,"\"")) printf("There is an unclosed string in line %d",yylineno);
+                            else printf("Undefined input %s in line %d\n",yytext,yylineno);
+                            exit(EXIT_FAILURE);
+                        }
 "//".*                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,"","COMMENT LINE_COMMENT","enumerated"),yylval);}
 
 "/*" BEGIN(COMMENT); {start_multi_comment=yylineno;} 
@@ -148,7 +151,8 @@ void check_escape_characters(char* str){
                     break;
                 default:
                     result[j++] = str[i];
-                    continue;
+                    // continue;
+                    break;
             }
             i++;
         } else {
