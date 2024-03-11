@@ -4,6 +4,8 @@ unsigned int start_multi_comment;
 unsigned int end_line_comment;
 unsigned int tokensCount = 0;
 int quotes_removed = -1;
+int nested_comment = 0;
+int i=0;
 %}
 
 %option noyywrap
@@ -68,18 +70,42 @@ int quotes_removed = -1;
                         }
 "//".*                  {add_token_to_list(alpha_token_t_create(yylineno,++tokensCount,"","COMMENT LINE_COMMENT","enumerated"),yylval);}
 
-"/*" BEGIN(COMMENT); {start_multi_comment=yylineno;} 
-<COMMENT>[^*]+
-<COMMENT>"/*"
-<COMMENT>[^*/]*        
-<COMMENT>"*"+[^*/]*
-<COMMENT>"*"+"/" BEGIN(INITIAL);{
-                end_line_comment = yylineno;
+"/*" {
+    if (nested_comment == 0) {
+        // Action for entering the first level of a comment block
+        BEGIN(COMMENT); // Switch to COMMENT state
+    }
+    ++nested_comment; // Increment on entering a new nested level
+   
+    start_multi_comment=yylineno;
+}
+
+<COMMENT>{
+    "/*" {
+        ++nested_comment;
+    }
+    "*/" {
+        --nested_comment; // Decrement on exiting a nested level
+        if (nested_comment == 0) {
+            // Action for exiting the outermost comment block
+            BEGIN(INITIAL); // Return to the initial state
+            {end_line_comment = yylineno;
                 char str[100];
                 sprintf(str,"%d - %d",start_multi_comment,end_line_comment);
-                add_token_to_list(alpha_token_t_create(start_multi_comment,++tokensCount,str,"COMMENT BLOCK_COMMENT","enumerated"),yylval);
-          }
-<COMMENT><<EOF>> {printf("There is an unclosed comment in line %d \n",start_multi_comment);exit(EXIT_FAILURE);}
+                add_token_to_list(alpha_token_t_create(start_multi_comment,++tokensCount,str,"COMMENT BLOCK_COMMENT","enumerated"),yylval);}
+        }
+    }
+    .|\n {}
+}
+
+
+<COMMENT><<EOF>> {
+   
+        // Action for detecting an unclosed comment at EOF
+        printf("Unclosed comment detected starting at line %d\n", start_multi_comment);
+        exit(EXIT_FAILURE);
+    
+}
 %%
 
 void add_token_to_list(alpha_token_t* token, alpha_token_t** head){
