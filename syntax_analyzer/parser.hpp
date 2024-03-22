@@ -39,103 +39,101 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     NUMBER = 258,
-     ADD = 259,
-     SUB = 260,
-     MUL = 261,
-     DIV = 262,
-     PLUS_PLUS = 263,
-     MINUS_MINUS = 264,
-     MODULO = 265,
-     EQUAL = 266,
-     NOT_EQUAL = 267,
-     GREATER = 268,
-     LESSER = 269,
-     LESSER_EQUAL = 270,
-     GREATER_EQUAL = 271,
-     LPAREN = 272,
-     RPAREN = 273,
-     LCURLY = 274,
-     RCURLY = 275,
-     LSQUARE = 276,
-     RSQUARE = 277,
-     COLON = 278,
-     SEMICOLON = 279,
-     DCOLON = 280,
-     COMMA = 281,
-     PERIOD = 282,
-     DPERIOD = 283,
-     IF = 284,
-     ELSE = 285,
-     WHILE = 286,
-     FOR = 287,
-     FUNCTION = 288,
-     RETURN = 289,
-     BREAK = 290,
-     CONTINUE = 291,
-     AND = 292,
-     NOT = 293,
-     OR = 294,
-     LOCAL = 295,
-     ASSIGN = 296,
-     ID = 297,
-     INTEGER = 298,
-     REAL = 299,
-     NIL = 300,
-     TRUE = 301,
-     FALSE = 302,
-     STRING = 303,
-     UMINUS = 304
+     ADD = 258,
+     SUB = 259,
+     MUL = 260,
+     DIV = 261,
+     PLUS_PLUS = 262,
+     MINUS_MINUS = 263,
+     MODULO = 264,
+     EQUAL = 265,
+     NOT_EQUAL = 266,
+     GREATER = 267,
+     LESSER = 268,
+     LESSER_EQUAL = 269,
+     GREATER_EQUAL = 270,
+     LPAREN = 271,
+     RPAREN = 272,
+     LCURLY = 273,
+     RCURLY = 274,
+     LSQUARE = 275,
+     RSQUARE = 276,
+     COLON = 277,
+     SEMICOLON = 278,
+     DCOLON = 279,
+     COMMA = 280,
+     PERIOD = 281,
+     DPERIOD = 282,
+     IF = 283,
+     ELSE = 284,
+     WHILE = 285,
+     FOR = 286,
+     FUNCTION = 287,
+     RETURN = 288,
+     BREAK = 289,
+     CONTINUE = 290,
+     AND = 291,
+     NOT = 292,
+     OR = 293,
+     LOCAL = 294,
+     ASSIGN = 295,
+     ID = 296,
+     INTEGER = 297,
+     REAL = 298,
+     NIL = 299,
+     TRUE = 300,
+     FALSE = 301,
+     STRING = 302,
+     UMINUS = 303
    };
 #endif
 /* Tokens.  */
-#define NUMBER 258
-#define ADD 259
-#define SUB 260
-#define MUL 261
-#define DIV 262
-#define PLUS_PLUS 263
-#define MINUS_MINUS 264
-#define MODULO 265
-#define EQUAL 266
-#define NOT_EQUAL 267
-#define GREATER 268
-#define LESSER 269
-#define LESSER_EQUAL 270
-#define GREATER_EQUAL 271
-#define LPAREN 272
-#define RPAREN 273
-#define LCURLY 274
-#define RCURLY 275
-#define LSQUARE 276
-#define RSQUARE 277
-#define COLON 278
-#define SEMICOLON 279
-#define DCOLON 280
-#define COMMA 281
-#define PERIOD 282
-#define DPERIOD 283
-#define IF 284
-#define ELSE 285
-#define WHILE 286
-#define FOR 287
-#define FUNCTION 288
-#define RETURN 289
-#define BREAK 290
-#define CONTINUE 291
-#define AND 292
-#define NOT 293
-#define OR 294
-#define LOCAL 295
-#define ASSIGN 296
-#define ID 297
-#define INTEGER 298
-#define REAL 299
-#define NIL 300
-#define TRUE 301
-#define FALSE 302
-#define STRING 303
-#define UMINUS 304
+#define ADD 258
+#define SUB 259
+#define MUL 260
+#define DIV 261
+#define PLUS_PLUS 262
+#define MINUS_MINUS 263
+#define MODULO 264
+#define EQUAL 265
+#define NOT_EQUAL 266
+#define GREATER 267
+#define LESSER 268
+#define LESSER_EQUAL 269
+#define GREATER_EQUAL 270
+#define LPAREN 271
+#define RPAREN 272
+#define LCURLY 273
+#define RCURLY 274
+#define LSQUARE 275
+#define RSQUARE 276
+#define COLON 277
+#define SEMICOLON 278
+#define DCOLON 279
+#define COMMA 280
+#define PERIOD 281
+#define DPERIOD 282
+#define IF 283
+#define ELSE 284
+#define WHILE 285
+#define FOR 286
+#define FUNCTION 287
+#define RETURN 288
+#define BREAK 289
+#define CONTINUE 290
+#define AND 291
+#define NOT 292
+#define OR 293
+#define LOCAL 294
+#define ASSIGN 295
+#define ID 296
+#define INTEGER 297
+#define REAL 298
+#define NIL 299
+#define TRUE 300
+#define FALSE 301
+#define STRING 302
+#define UMINUS 303
 
 
 
@@ -154,7 +152,7 @@ double realValue;
 
 
 /* Line 1676 of yacc.c  */
-#line 158 "parser.hpp"
+#line 156 "parser.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

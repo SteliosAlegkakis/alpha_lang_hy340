@@ -858,17 +858,17 @@ YY_RULE_SETUP
 case 16:
 YY_RULE_SETUP
 #line 35 "scanner.l"
-{return INTEGER;}
+{alpha_yylval.intValue = atoi(alpha_yytext); return INTEGER;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 36 "scanner.l"
-{return REAL;}
+{alpha_yylval.intValue = atof(alpha_yytext); return REAL;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 37 "scanner.l"
-{return ID;}
+{alpha_yylval.stringValue = strdup(alpha_yytext); return ID;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
@@ -1007,12 +1007,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 65 "scanner.l"
+#line 66 "scanner.l"
 /* Do nothing for whitespace */
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 66 "scanner.l"
+#line 67 "scanner.l"
 {
                             if(!strcmp(yytext,"\"")) printf("There is an unclosed string in line %d",yylineno);
                             else printf("Undefined input %s in line %d\n",yytext,yylineno);
@@ -1021,12 +1021,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 71 "scanner.l"
+#line 72 "scanner.l"
 {}
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 73 "scanner.l"
+#line 74 "scanner.l"
 {
     if (nested_comment == 0) {
         BEGIN(COMMENT);
@@ -1039,14 +1039,14 @@ YY_RULE_SETUP
 
 case 50:
 YY_RULE_SETUP
-#line 83 "scanner.l"
+#line 84 "scanner.l"
 {
         ++nested_comment;
     }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 86 "scanner.l"
+#line 87 "scanner.l"
 {
         --nested_comment;
         if (nested_comment == 0) {
@@ -1060,12 +1060,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 96 "scanner.l"
+#line 97 "scanner.l"
 {}
 	YY_BREAK
 
 case YY_STATE_EOF(COMMENT):
-#line 100 "scanner.l"
+#line 101 "scanner.l"
 {
         printf("Unclosed comment detected starting at line %d\n", start_multi_comment);
         exit(EXIT_FAILURE);
@@ -1073,7 +1073,7 @@ case YY_STATE_EOF(COMMENT):
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 104 "scanner.l"
+#line 105 "scanner.l"
 ECHO;
 	YY_BREAK
 #line 1080 "scanner.cpp"
@@ -1960,7 +1960,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 104 "scanner.l"
+#line 105 "scanner.l"
 
 
 void add_token_to_list(alpha_token_t* token, alpha_token_t** head){
