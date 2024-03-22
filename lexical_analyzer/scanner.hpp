@@ -10,8 +10,8 @@ static int isatty (int i) { return 0; }
 static int isatty (void *i) { return 0; }
 #endif
 
-#define YY_DECL int yylex (void* yylval)
-int alpha_yylex(void* yylval);
+#define YY_DECL int alpha_yylex (void)
+int alpha_yylex(void);
 
 
 typedef struct alpha_token_t {

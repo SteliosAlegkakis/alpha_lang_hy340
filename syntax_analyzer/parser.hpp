@@ -1,20 +1,21 @@
-/* A Bison parser, made by GNU Bison 3.5.1.  */
 
-/* Bison interface for Yacc-like parsers in C
+/* A Bison parser, made by GNU Bison 2.4.1.  */
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
-   Inc.
-
+/* Skeleton interface for Bison's Yacc-like parsers in C
+   
+      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   Free Software Foundation, Inc.
+   
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
-
+   
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-
+   
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
@@ -27,76 +28,65 @@
    special exception, which will cause the skeleton and the resulting
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
-
+   
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
 
-#ifndef YY_YY_PARSER_HPP_INCLUDED
-# define YY_YY_PARSER_HPP_INCLUDED
-/* Debug traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 0
-#endif
-#if YYDEBUG
-extern int yydebug;
-#endif
-
-/* Token type.  */
+/* Tokens.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
-  enum yytokentype
-  {
-    NUMBER = 258,
-    ADD = 259,
-    SUB = 260,
-    MUL = 261,
-    DIV = 262,
-    PLUS_PLUS = 263,
-    MINUS_MINUS = 264,
-    MODULO = 265,
-    EQUAL = 266,
-    NOT_EQUAL = 267,
-    GREATER = 268,
-    LESSER = 269,
-    LESSER_EQUAL = 270,
-    GREATER_EQUAL = 271,
-    LPAREN = 272,
-    RPAREN = 273,
-    LCURLY = 274,
-    RCURLY = 275,
-    LSQUARE = 276,
-    RSQUARE = 277,
-    COLON = 278,
-    SEMICOLON = 279,
-    DCOLON = 280,
-    COMMA = 281,
-    PERIOD = 282,
-    DPERIOD = 283,
-    IF = 284,
-    ELSE = 285,
-    WHILE = 286,
-    FOR = 287,
-    FUNCTION = 288,
-    RETURN = 289,
-    BREAK = 290,
-    CONTINUE = 291,
-    AND = 292,
-    NOT = 293,
-    OR = 294,
-    LOCAL = 295,
-    ASSIGN = 296,
-    ID = 297,
-    INTEGER = 298,
-    REAL = 299,
-    NIL = 300,
-    TRUE = 301,
-    FALSE = 302,
-    STRING = 303,
-    UMINUS = 304
-  };
+   /* Put the tokens into the symbol table, so that GDB and other debuggers
+      know about them.  */
+   enum yytokentype {
+     NUMBER = 258,
+     ADD = 259,
+     SUB = 260,
+     MUL = 261,
+     DIV = 262,
+     PLUS_PLUS = 263,
+     MINUS_MINUS = 264,
+     MODULO = 265,
+     EQUAL = 266,
+     NOT_EQUAL = 267,
+     GREATER = 268,
+     LESSER = 269,
+     LESSER_EQUAL = 270,
+     GREATER_EQUAL = 271,
+     LPAREN = 272,
+     RPAREN = 273,
+     LCURLY = 274,
+     RCURLY = 275,
+     LSQUARE = 276,
+     RSQUARE = 277,
+     COLON = 278,
+     SEMICOLON = 279,
+     DCOLON = 280,
+     COMMA = 281,
+     PERIOD = 282,
+     DPERIOD = 283,
+     IF = 284,
+     ELSE = 285,
+     WHILE = 286,
+     FOR = 287,
+     FUNCTION = 288,
+     RETURN = 289,
+     BREAK = 290,
+     CONTINUE = 291,
+     AND = 292,
+     NOT = 293,
+     OR = 294,
+     LOCAL = 295,
+     ASSIGN = 296,
+     ID = 297,
+     INTEGER = 298,
+     REAL = 299,
+     NIL = 300,
+     TRUE = 301,
+     FALSE = 302,
+     STRING = 303,
+     UMINUS = 304
+   };
 #endif
 /* Tokens.  */
 #define NUMBER 258
@@ -147,27 +137,30 @@ extern int yydebug;
 #define STRING 303
 #define UMINUS 304
 
-/* Value type.  */
+
+
+
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-union YYSTYPE
+typedef union YYSTYPE
 {
-#line 13 "parser.y"
+
+/* Line 1676 of yacc.c  */
+#line 14 "parser.y"
 
 char* stringValue;
 int intValue;
 double realValue;
 
-#line 161 "parser.hpp"
 
-};
-typedef union YYSTYPE YYSTYPE;
+
+/* Line 1676 of yacc.c  */
+#line 158 "parser.hpp"
+} YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
+# define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
+extern YYSTYPE alpha_yylval;
 
-extern YYSTYPE yylval;
 
-int yyparse (void);
-
-#endif /* !YY_YY_PARSER_HPP_INCLUDED  */

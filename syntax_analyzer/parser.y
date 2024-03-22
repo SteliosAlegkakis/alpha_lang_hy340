@@ -1,14 +1,15 @@
 %{
 #include <stdio.h>
-#include <stdlib.h>
-int yyerror(char* yaccProvidedMessage);
+int yyerror(const char* yaccProvidedMessage);
 int yylex(void);
-
 extern int yylineno;
 extern char* yytext;
 extern FILE* yyin;
 
 %}
+
+%error-verbose
+%name-prefix="alpha_yy"
 
 %union {
 char* stringValue;
@@ -49,13 +50,13 @@ expression: INTEGER {printf("found an int");}
 
 %%
 
-int yyerror(char* yaccProvidedMessage) {
+int yyerror(const char* yaccProvidedMessage) {
   fprintf(stderr, "%s %d %s\n",yaccProvidedMessage, yylineno, yytext);
   return 0;
 }
 
-int main(void) {
-  // yyin = stdin;
+int main(int argc, char** argv) {
+  if(!(yyin = fopen(argv[1], "r"))) return 1;
   yyparse();
   return 0;
 }
