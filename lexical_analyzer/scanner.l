@@ -11,6 +11,7 @@ int nested_comment = 0;
 %option noyywrap
 %option yylineno
 %option outfile = "scanner.cpp"
+%option prefix = "alpha_yy"
 
 %x COMMENT
 
@@ -61,6 +62,7 @@ int nested_comment = 0;
 "::"                    {return DCOLON;}
 "."                     {return PERIOD;}
 ".."                    {return DPERIOD;}
+
 [ \t\n\r]+              /* Do nothing for whitespace */
 .                       {
                             if(!strcmp(yytext,"\"")) printf("There is an unclosed string in line %d",yylineno);

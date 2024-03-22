@@ -79,11 +79,11 @@
 #line 1 "parser.y"
 
 #include <stdio.h>
-int yyerror(const char* yaccProvidedMessage);
-int yylex(void);
-extern int yylineno;
-extern char* yytext;
-extern FILE* yyin;
+int alpha_yyerror(const char* yaccProvidedMessage);
+int alpha_yylex(void);
+extern int alpha_yylineno;
+extern char* alpha_yytext;
+extern FILE* alpha_yyin;
 
 
 
@@ -1663,14 +1663,14 @@ yyreturn:
 #line 51 "parser.y"
 
 
-int yyerror(const char* yaccProvidedMessage) {
-  fprintf(stderr, "%s %d %s\n",yaccProvidedMessage, yylineno, yytext);
+int alpha_yyerror(const char* yaccProvidedMessage) {
+  fprintf(stderr, "%s %d %s\n",yaccProvidedMessage, alpha_yylineno, alpha_yytext);
   return 0;
 }
 
 int main(int argc, char** argv) {
-  if(!(yyin = fopen(argv[1], "r"))) return 1;
-  yyparse();
+  if(!(alpha_yyin = fopen(argv[1], "r"))) return 1;
+  alpha_yyparse();
   return 0;
 }
 
