@@ -38,7 +38,7 @@ double realValue;
 %left LSQUARE RSQUARE 
 %left LPAREN RPAREN 
 
-%destructor {free($$);}
+
 %%
 
 program:      statements
@@ -61,7 +61,7 @@ stmt:         expr SEMICOLON
               ;
 
 expr:         assignment
-              |expr ADD expr            {$$ = $1 + $3; fprintf("Result %d\n",$$)}
+              |expr ADD expr            {$$ = $1 + $3;}
               |expr SUB expr            {$$ = $1 - $3;}
               |expr MUL expr            {$$ = $1 * $3;}
               |expr DIV expr            {$$ = $1 / $3;}
