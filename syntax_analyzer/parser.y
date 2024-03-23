@@ -41,7 +41,10 @@ double realValue;
 %%
 
 program:      statements
-              |/*empty*/
+              ;
+
+statements:   statements stmt
+              |
               ;
 
 stmt:         expr SEMICOLON
@@ -58,6 +61,7 @@ stmt:         expr SEMICOLON
 
 expr:         assignment
               |expr ADD expr
+              |expr SUB expr
               |expr MUL expr
               |expr DIV expr
               |expr MODULO expr
@@ -120,18 +124,16 @@ methodcall:   DPERIOD ID LPAREN elist RPAREN
               ;
 
 elist:        expr
-              |expr COMMA expr
-                  
+              |elist COMMA expr
+              |
               ;
 
-objectdef:    LSQUARE {} RSQUARE
-              |LSQUARE elist RSQUARE
+objectdef:    LSQUARE elist RSQUARE
               |LSQUARE indexed RSQUARE
               ;
 
 indexed:      indexedelem
-              |indexedelem COMMA indexedelem
-              
+              |indexed COMMA indexedelem
               ;
 
 indexedelem:  LCURLY expr COLON expr RCURLY
@@ -141,7 +143,7 @@ block:        LCURLY statements RCURLY
               ;
 
 funcdef:      FUNCTION ID LPAREN idlist RPAREN block
-              |FUNCTION LPAREN idlist RPAREN
+              |FUNCTION LPAREN idlist RPAREN block
               ;
 
 const:        INTEGER
@@ -153,8 +155,8 @@ const:        INTEGER
               ;
 
 idlist:       ID
-              |ID COMMA ID
-              |/*empty*/
+              |idlist COMMA ID
+              | {}/*empty*/
               ;
 
 ifstmt:       IF LPAREN expr RPAREN stmt ELSE stmt
@@ -164,31 +166,12 @@ ifstmt:       IF LPAREN expr RPAREN stmt ELSE stmt
 whilestmt:    WHILE LPAREN expr RPAREN stmt
               ;
               
-forstmt:      FOR LPAREN elist SEMICOLON expr SEMICOLON elist SEMICOLON RPAREN stmt
+forstmt:      FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN stmt
               ;
 
 returnstmt:   RETURN expr SEMICOLON
               |RETURN SEMICOLON
               ;
-
-// ides_comma:   ides_comma ID COMMA
-//               |ID COMMA
-//               |ID
-//               ;
-
-statements:   statements stmt
-              |stmt
-              ;
-
-// expressions_comma: expressions_comma expr COMMA
-//                   |expr COMMA
-//                   |expr
-//                   ;
-
-// indexedelems_comma: indexedelems_comma indexedelem COMMA
-//                     |indexedelem COMMA
-//                     |indexedelem
-//                     ;
 
 %%
 
