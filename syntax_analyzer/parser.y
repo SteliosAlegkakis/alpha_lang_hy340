@@ -38,6 +38,7 @@ double realValue;
 %left LSQUARE RSQUARE 
 %left LPAREN RPAREN 
 
+%destructor {free($$);}
 %%
 
 program:      statements
@@ -60,19 +61,19 @@ stmt:         expr SEMICOLON
               ;
 
 expr:         assignment
-              |expr ADD expr
-              |expr SUB expr
-              |expr MUL expr
-              |expr DIV expr
-              |expr MODULO expr
-              |expr GREATER expr
-              |expr GREATER_EQUAL expr
-              |expr LESSER expr
-              |expr LESSER_EQUAL expr
-              |expr EQUAL expr
-              |expr NOT_EQUAL expr
-              |expr AND expr
-              |expr OR expr
+              |expr ADD expr            {$$ = $1 + $3; fprintf("Result %d\n",$$)}
+              |expr SUB expr            {$$ = $1 - $3;}
+              |expr MUL expr            {$$ = $1 * $3;}
+              |expr DIV expr            {$$ = $1 / $3;}
+              |expr MODULO expr         {$$ = $1 % $3;}
+              |expr GREATER expr        {$$ = ($1 > $3)?1:0;}
+              |expr GREATER_EQUAL expr  {$$ = ($1 >= $3)?1:0;}
+              |expr LESSER expr         {$$ = ($1 < $3)?1:0;}
+              |expr LESSER_EQUAL expr   {$$ = ($1 <= $3)?1:0;}
+              |expr EQUAL expr          {$$ = ($1 == $3)?1:0;}
+              |expr NOT_EQUAL expr      {$$ = ($1 != $3)?1:0;}
+              |expr AND expr            {$$ = ($1 && $3)?1:0;}
+              |expr OR expr             {$$ = ($1 || $3)?1:0;}
               |term
               ;
 
@@ -134,6 +135,7 @@ objectdef:    LSQUARE elist RSQUARE
 
 indexed:      indexedelem
               |indexed COMMA indexedelem
+              
               ;
 
 indexedelem:  LCURLY expr COLON expr RCURLY
