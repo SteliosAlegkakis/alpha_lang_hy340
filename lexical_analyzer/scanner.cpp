@@ -963,7 +963,7 @@ YY_RULE_SETUP
 case 37:
 YY_RULE_SETUP
 #line 56 "scanner.l"
-{return LSQUARE;}
+{return RSQUARE;}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP

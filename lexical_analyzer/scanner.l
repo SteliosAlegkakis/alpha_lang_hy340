@@ -53,7 +53,7 @@ int nested_comment = 0;
 "{"                     {return LCURLY;}
 "}"                     {return RCURLY;}
 "["                     {return LSQUARE;}
-"]"                     {return LSQUARE;}
+"]"                     {return RSQUARE;}
 "("                     {return LPAREN;}
 ")"                     {return RPAREN;}
 ";"                     {return SEMICOLON;}
