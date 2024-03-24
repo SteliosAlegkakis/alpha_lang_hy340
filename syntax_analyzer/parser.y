@@ -8,8 +8,8 @@ extern FILE* alpha_yyin;
 
 %}
 
-%error-verbose
-%name-prefix="alpha_yy"
+%define parse.error verbose
+%define api.prefix {alpha_yy}
 
 %union {
 char* stringValue;
@@ -19,11 +19,23 @@ double realValue;
 
 %start program
 
-%token ADD SUB MUL DIV PLUS_PLUS MINUS_MINUS MODULO
-%token EQUAL NOT_EQUAL GREATER LESSER LESSER_EQUAL GREATER_EQUAL
-%token LPAREN RPAREN LCURLY RCURLY LSQUARE RSQUARE COLON SEMICOLON DCOLON COMMA PERIOD DPERIOD 
-%token IF ELSE WHILE FOR FUNCTION RETURN BREAK CONTINUE AND NOT OR LOCAL ASSIGN 
-%token ID INTEGER REAL NIL TRUE FALSE STRING 
+%token <stringValue> ADD SUB MUL DIV PLUS_PLUS MINUS_MINUS MODULO
+%token <stringValue> EQUAL NOT_EQUAL GREATER LESSER LESSER_EQUAL GREATER_EQUAL
+%token <stringValue> LPAREN RPAREN LCURLY RCURLY LSQUARE RSQUARE COLON SEMICOLON DCOLON COMMA PERIOD DPERIOD 
+%token <stringValue> IF ELSE WHILE FOR FUNCTION RETURN BREAK CONTINUE AND NOT OR LOCAL ASSIGN 
+%token <stringValue>  NIL TRUE FALSE 
+%token <stringValue> STRING 
+%token <stringValue> ID 
+%token <intValue> INTEGER 
+%token <realValue> REAL
+
+%type <stringValue> statements stmt
+%type <intValue> expr
+%type <stringValue> term assignment primary lvalue
+%type <stringValue> member call callsuffix normcall methodcall 
+%type <stringValue> elist objectdef indexed indexedelem block funcdef
+%type <stringValue> const idlist ifstmt whilestmt forstmt returnstmt
+
 
 %right ASSIGN
 %left OR
@@ -45,7 +57,7 @@ program:      statements
               ;
 
 statements:   statements stmt
-              |
+              |{}
               ;
 
 stmt:         expr SEMICOLON
@@ -126,7 +138,7 @@ methodcall:   DPERIOD ID LPAREN elist RPAREN
 
 elist:        expr
               |elist COMMA expr
-              |
+              |{}
               ;
 
 objectdef:    LSQUARE elist RSQUARE
@@ -158,7 +170,7 @@ const:        INTEGER
 
 idlist:       ID
               |idlist COMMA ID
-              | {}/*empty*/
+              | {}
               ;
 
 ifstmt:       IF LPAREN expr RPAREN stmt ELSE stmt
