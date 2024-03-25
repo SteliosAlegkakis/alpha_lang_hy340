@@ -1,5 +1,8 @@
 #include "symbol_table.hpp"
 
+unsigned int currentScope = 0;
+std::multimap<const char*, SymtabEntry*> symbolTable;
+
 void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum symbolType symboltype) {
     SymtabEntry* entry = new SymtabEntry(currentScope, name, line, uniontype, symboltype);
     symbolTable.insert({name,entry});
@@ -54,3 +57,9 @@ void symTab_print() {
         }
     }
 }
+
+void increase_scope() { currentScope++; }
+
+void decrease_scope() { currentScope++; }
+
+unsigned int get_current_scope() { return currentScope; }

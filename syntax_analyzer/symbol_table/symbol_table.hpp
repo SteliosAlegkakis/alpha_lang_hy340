@@ -3,10 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 
-unsigned int currentScope = 0;
-
-enum variableType {global, local, functionArg};
-
 typedef struct Variable {
 
     unsigned int scope;
@@ -36,7 +32,7 @@ typedef struct Function {
 
 } Function;
 
-enum symbolType { GLOBAL, LOCAL, FORMAL, USERFUNC, LIBFUNC };
+enum symbolType { global, local, formal, userfunc, libfunc };
 
 enum unionType { variable, function };
 
@@ -65,8 +61,6 @@ typedef struct SymtabEntry {
 
 } SymtabEntry;
 
-std::multimap<const char*, SymtabEntry*> symbolTable;
-
 //inserts an entry with the given arguments to the symbolTable
 void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum symbolType symboltype);
 
@@ -78,5 +72,17 @@ SymtabEntry* symTab_lookup(char*name);
 //returns the entry if it exists, else returns NULL
 SymtabEntry* symTab_lookup(char* name, unsigned int scope);
 
+//prints all the elements in the symbol table
+void symTab_print();
+
 //Hides all the symbols in the currentScope
 void symTab_hide();
+
+//increases the current scope
+void increase_scope();
+
+//decreases the current scope
+void decrease_scope();
+
+//returns current scope
+unsigned int get_current_scope();
