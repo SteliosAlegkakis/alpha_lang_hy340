@@ -1,15 +1,15 @@
 %{
 #include <stdio.h>
+#include "./symbol_table/symbol_table.hpp"
 int alpha_yyerror(const char* yaccProvidedMessage);
 int alpha_yylex(void);
 extern int alpha_yylineno;
 extern char* alpha_yytext;
 extern FILE* alpha_yyin;
-
 %}
 
-%define parse.error verbose
-%define api.prefix {alpha_yy}
+%error-verbose
+%name-prefix="alpha_yy"
 
 %union {
 char* stringValue;
@@ -53,14 +53,14 @@ double realValue;
 
 %%
 
-program:      statements
+program:      statements 
               ;
 
 statements:   statements stmt
               |{}
               ;
 
-stmt:         expr SEMICOLON
+stmt:         expr SEMICOLON 
               |ifstmt
               |whilestmt
               |forstmt
@@ -73,19 +73,19 @@ stmt:         expr SEMICOLON
               ;
 
 expr:         assignment
-              |expr ADD expr            {$$ = $1 + $3;}
-              |expr SUB expr            {$$ = $1 - $3;}
-              |expr MUL expr            {$$ = $1 * $3;}
-              |expr DIV expr            {$$ = $1 / $3;}
-              |expr MODULO expr         {$$ = $1 % $3;}
-              |expr GREATER expr        {$$ = ($1 > $3)?1:0;}
-              |expr GREATER_EQUAL expr  {$$ = ($1 >= $3)?1:0;}
-              |expr LESSER expr         {$$ = ($1 < $3)?1:0;}
-              |expr LESSER_EQUAL expr   {$$ = ($1 <= $3)?1:0;}
-              |expr EQUAL expr          {$$ = ($1 == $3)?1:0;}
-              |expr NOT_EQUAL expr      {$$ = ($1 != $3)?1:0;}
-              |expr AND expr            {$$ = ($1 && $3)?1:0;}
-              |expr OR expr             {$$ = ($1 || $3)?1:0;}
+              |expr ADD expr            
+              |expr SUB expr            
+              |expr MUL expr            
+              |expr DIV expr            
+              |expr MODULO expr         
+              |expr GREATER expr        
+              |expr GREATER_EQUAL expr 
+              |expr LESSER expr         
+              |expr LESSER_EQUAL expr   
+              |expr EQUAL expr          
+              |expr NOT_EQUAL expr      
+              |expr AND expr            
+              |expr OR expr             
               |term
               ;
 
@@ -109,8 +109,8 @@ primary:      lvalue
               |const
               ;
 
-lvalue:       ID
-              |LOCAL ID
+lvalue:       ID {symTab_insert($$,alpha_yylineno,variable,global);}
+              |LOCAL ID 
               |DCOLON ID
               |member
               ;
@@ -153,7 +153,7 @@ indexed:      indexedelem
 indexedelem:  LCURLY expr COLON expr RCURLY
               ;
 
-block:        LCURLY statements RCURLY 
+block:        LCURLY {increase_scope();} statements RCURLY {decrease_scope();} 
               ;
 
 funcdef:      FUNCTION ID LPAREN idlist RPAREN block
@@ -197,5 +197,6 @@ int alpha_yyerror(const char* yaccProvidedMessage) {
 int main(int argc, char** argv) {
   if(!(alpha_yyin = fopen(argv[1], "r"))) return 1;
   alpha_yyparse();
+  symTab_print();
   return 0;
 }
