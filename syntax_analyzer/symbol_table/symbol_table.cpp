@@ -7,7 +7,10 @@ void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum
 
 SymtabEntry* symTab_lookup(char* name) {
     auto entrys = symbolTable.equal_range(name);
-    return entrys.first->second;
+    for(auto&entry = entrys.first; entry != entrys.second; ++entry) {
+        if(entry->second->isActive) return entry->second;
+    }
+    return NULL;
 }
 
 SymtabEntry* symTab_lookup(char* name, unsigned int scope) {
@@ -16,11 +19,11 @@ SymtabEntry* symTab_lookup(char* name, unsigned int scope) {
 
     for(auto entry = entrys.first; entry != entrys.second; ++entry){
 
-        if(entry->second->uniontype == function) 
+        if(entry->second->uniontype == function && entry->second->isActive) 
             if(entry->second->symbol.function->scope == scope)
                 return entry->second;
         
-        if(entry->second->uniontype == variable) 
+        if(entry->second->uniontype == variable && entry->second->isActive) 
             if(entry->second->symbol.variable->scope == scope)
                 return entry->second;
 
