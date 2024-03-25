@@ -1,52 +1,82 @@
 #include <map>
 #include <list>
-#include <vector>
 #include <stdio.h>
+#include <string.h>
 
-using namespace std;
-
-int current_scope = 0;
+unsigned int currentScope = 0;
 
 enum variableType {global, local, functionArg};
 
 typedef struct Variable {
-    int scope;
-    char* id;
-    enum variableType type;
-    int line;
+
+    unsigned int scope;
+    char* name;
+    unsigned int line;
+
+    Variable(unsigned int _scope, char* _name, unsigned int _line) {
+        scope = _scope;
+        line = _line;
+        name = strdup(_name);
+    }
+
 } Variable;
 
-enum functionType {userFunction, libraryFunction};
-
 typedef struct Function {
-    int scope;
-    char* id;
-    list<Variable*> args;
-    enum functionType type;
-    int line;
+
+    char* name;
+    unsigned int scope;
+    std::list<Variable*> args;
+    unsigned int line;
+
+    Function(unsigned int _scope, char* _name, unsigned int _line) {
+        scope = _scope;
+        line = _line;
+        name = strdup(_name);
+    }
+
 } Function;
 
-enum symbolType { globalVar, localVar, argumentVar, userFunc, libFunc };
+enum symbolType { GLOBAL, LOCAL, FORMAL, USERFUNC, LIBFUNC };
 
 enum unionType { variable, function };
 
 typedef struct SymtabEntry {
 
-    bool isActive = true;
+    bool isActive;
 
-    enum unionType type;
+    enum unionType uniontype;
 
     union symbol{
         Function* function;
         Variable* variable;
     } symbol;
 
-    enum symbolType symbolType;
+    enum symbolType symboltype;
+
+    SymtabEntry(unsigned int _scope, char* _name, unsigned int _line, enum unionType _uniontype, enum symbolType _symboltype) {
+        isActive = true;
+        uniontype = _uniontype;
+        symboltype = _symboltype;
+        if(uniontype == variable) 
+            symbol.variable = new Variable(_scope, _name, _line);
+        if(uniontype == function)
+            symbol.function = new Function(_scope, _name, _line);
+    }
 
 } SymtabEntry;
 
-map<char*, SymtabEntry> symbolTable;
+std::multimap<const char*, SymtabEntry*> symbolTable;
 
-void symTab_insert(char* id, SymtabEntry value);
-int symTab_lookup(char* id, int scope);
-void symTab_hide(int scope);
+//inserts an entry with the given arguments to the symbolTable
+void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum symbolType symboltype);
+
+//checks if a symbol with the given name exists in the symbolTable
+//returns the first entry with given name if it exists, else returns NULL
+SymtabEntry* symTab_lookup(char*name);
+
+//checks if a symbol with the given name exists in the given scope in the symbolTable. 
+//returns the entry if it exists, else returns NULL
+SymtabEntry* symTab_lookup(char* name, unsigned int scope);
+
+//Hides all the symbols in the currentScope
+void symTab_hide();

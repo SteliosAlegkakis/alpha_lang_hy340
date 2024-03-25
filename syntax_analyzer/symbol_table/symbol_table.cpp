@@ -1,46 +1,53 @@
 #include "symbol_table.hpp"
-#include <string>
-#include <iostream>
 
-using namespace std;
+void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum symbolType symboltype) {
+    SymtabEntry* entry = new SymtabEntry(currentScope, name, line, uniontype, symboltype);
+    symbolTable.insert({name,entry});
+}
 
-void symTab_insert(char* id, SymtabEntry entry) {
-    if(entry.type == variable) {
-        entry.symbol.variable->id = id ;
-        entry.symbol.variable->scope = current_scope;
+SymtabEntry* symTab_lookup(char* name) {
+    auto entrys = symbolTable.equal_range(name);
+    return entrys.first->second;
+}
+
+SymtabEntry* symTab_lookup(char* name, unsigned int scope) {
+
+    auto entrys = symbolTable.equal_range(name);
+
+    for(auto entry = entrys.first; entry != entrys.second; ++entry){
+
+        if(entry->second->uniontype == function) 
+            if(entry->second->symbol.function->scope == scope)
+                return entry->second;
+        
+        if(entry->second->uniontype == variable) 
+            if(entry->second->symbol.variable->scope == scope)
+                return entry->second;
+
     }
-    else {
-        entry.symbol.function->id = id ;
-        entry.symbol.function->scope = current_scope;
-    }
-    symbolTable[id] = entry;
+
+    return NULL;
 }
 
-int symTab_lookup(char* id, int scope) {
-    return symbolTable.find(id) != symbolTable.end();
-}
-
-void symTab_hide(int scope) {}
-   
-
-int main() {
-    char* id = "x";
-    SymtabEntry entry1;
-    entry1.type = variable;
-    Variable var = { current_scope, id, global, 1};
-    // entry1.symbol.variable = &var;
-    entry1.symbol.variable = &var;
-    symTab_insert(id, entry1);
-
-    printf("%d\n",symTab_lookup(id,1));
-}
-
-
-/*namespace std {
-    template<>
-    struct hash<SymTabKey> {
-        std::size_t operator()(const SymTabKey& k) const {
-            return hash<std::string>()(k.id) ^ hash<int>()(k.scope);
+void symTab_hide() {
+    for(const auto& entry : symbolTable) {
+        if(entry.second->uniontype == variable) 
+            if(entry.second->symbol.variable->scope == currentScope)
+                entry.second->isActive = false;
+        else{
+            if(entry.second->symbol.function->scope == currentScope)
+                entry.second->isActive = false;
         }
-    };
-}*/
+    }
+}
+
+void symTab_print() {
+    for(const auto& entry : symbolTable) {
+        if(entry.second->uniontype == function) {
+            printf("name: %s isActive: %d scope: %d line: %d symbolType: %d\n",entry.second->symbol.function->name,entry.second->isActive,entry.second->symbol.function->scope,entry.second->symbol.function->line,entry.second->symboltype);
+        }
+        else {
+            printf("name: %s isActive: %d scope: %d line: %d symbolType: %d\n",entry.second->symbol.variable->name,entry.second->isActive,entry.second->symbol.variable->scope,entry.second->symbol.variable->line,entry.second->symboltype);
+        }
+    }
+}
