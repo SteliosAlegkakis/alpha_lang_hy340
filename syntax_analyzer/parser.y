@@ -6,6 +6,12 @@ int alpha_yylex(void);
 extern int alpha_yylineno;
 extern char* alpha_yytext;
 extern FILE* alpha_yyin;
+extern bool inFunc;
+extern bool isFunc;
+extern bool isFormal;
+extern bool increase;
+int anonymousCounter = 0;
+char* make_anonymous_func();
 %}
 
 %error-verbose
@@ -15,6 +21,7 @@ extern FILE* alpha_yyin;
 char* stringValue;
 int intValue;
 double realValue;
+typedef struct SymtabEntry* exprNode;
 }
 
 %start program
@@ -29,12 +36,12 @@ double realValue;
 %token <intValue> INTEGER 
 %token <realValue> REAL
 
-%type <stringValue> statements stmt
-%type <intValue> expr
-%type <stringValue> term assignment primary lvalue
-%type <stringValue> member call callsuffix normcall methodcall 
-%type <stringValue> elist objectdef indexed indexedelem block funcdef
-%type <stringValue> const idlist ifstmt whilestmt forstmt returnstmt
+%type <exprNode> statements stmt
+%type <exprNode> expr
+%type <exprNode> term assignment primary lvalue
+%type <exprNode> member call callsuffix normcall methodcall 
+%type <exprNode> elist objectdef indexed indexedelem block funcdef
+%type <exprNode> const idlist ifstmt whilestmt forstmt returnstmt
 
 
 %right ASSIGN
@@ -109,10 +116,10 @@ primary:      lvalue
               |const
               ;
 
-lvalue:       ID {symTab_insert($$,alpha_yylineno,variable,global);}
-              |LOCAL ID 
-              |DCOLON ID
-              |member
+lvalue:       ID {if(!symTab_lookup($1, get_current_scope())) { symTab_insert($1,alpha_yylineno,variable,local); }}
+              |LOCAL ID {if(!symTab_lookup($1, get_current_scope())) { symTab_insert($1,alpha_yylineno,variable,local); }}
+              |DCOLON ID {if((!symTab_lookup($1,0)) && (inFunc)) { alpha_yyerror("Error: Not found variable in global scope: "); } if((!symTab_lookup($1,0)) && (!inFunc)) { symTab_insert($1,alpha_yylineno,variable,global); }}
+              |member 
               ;
 
 member:       lvalue PERIOD ID
@@ -156,8 +163,8 @@ indexedelem:  LCURLY expr COLON expr RCURLY
 block:        LCURLY {increase_scope();} statements RCURLY {decrease_scope();} 
               ;
 
-funcdef:      FUNCTION ID LPAREN idlist RPAREN block
-              |FUNCTION LPAREN idlist RPAREN block
+funcdef:      FUNCTION {isFunc = true;} ID {if(!symTab_lookup($1,get_current_scope())) symTab_insert($1,alpha_yylineno,function,userfunc);} LPAREN {increase_scope();inFunc = true;isFormal = true;} idlist RPAREN {isFormal = false;} block
+              |FUNCTION {isFunc = true; symTab_insert(make_anonymous_func(),alpha_yylineno,function,userfunc);} LPAREN {increase_scope();inFunc = true;isFormal = true;} idlist RPAREN {isFormal = true;} block
               ;
 
 const:        INTEGER
@@ -194,8 +201,25 @@ int alpha_yyerror(const char* yaccProvidedMessage) {
   return 0;
 }
 
+char* make_anonymous_func() {
+  char* func = (char*)"_anonymousFunc";
+  int  length = strlen(func) + snprintf(NULL, 0, "%d", anonymousCounter) + 1;
+  char* result = (char*)malloc(length);
+
+  if(result) {
+    sprintf(result, "%s%d", func, anonymousCounter++); 
+    return result;
+  }
+  else {
+    printf("Out of memmory\n"); 
+    exit(EXIT_FAILURE);
+  }
+  
+}
+
 int main(int argc, char** argv) {
   if(!(alpha_yyin = fopen(argv[1], "r"))) return 1;
+  init_library_func();
   alpha_yyparse();
   symTab_print();
   return 0;

@@ -77,13 +77,13 @@
      OR = 293,
      LOCAL = 294,
      ASSIGN = 295,
-     ID = 296,
-     INTEGER = 297,
-     REAL = 298,
-     NIL = 299,
-     TRUE = 300,
-     FALSE = 301,
-     STRING = 302,
+     NIL = 296,
+     TRUE = 297,
+     FALSE = 298,
+     STRING = 299,
+     ID = 300,
+     INTEGER = 301,
+     REAL = 302,
      UMINUS = 303
    };
 #endif
@@ -126,13 +126,13 @@
 #define OR 293
 #define LOCAL 294
 #define ASSIGN 295
-#define ID 296
-#define INTEGER 297
-#define REAL 298
-#define NIL 299
-#define TRUE 300
-#define FALSE 301
-#define STRING 302
+#define NIL 296
+#define TRUE 297
+#define FALSE 298
+#define STRING 299
+#define ID 300
+#define INTEGER 301
+#define REAL 302
 #define UMINUS 303
 
 
@@ -143,16 +143,17 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 14 "parser.y"
+#line 19 "parser.y"
 
 char* stringValue;
 int intValue;
 double realValue;
+typedef struct SymtabEntry* exprNode;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 156 "parser.hpp"
+#line 157 "parser.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

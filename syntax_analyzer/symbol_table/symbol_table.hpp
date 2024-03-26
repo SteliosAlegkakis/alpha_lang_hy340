@@ -94,4 +94,4 @@ void init_library_func();
 
 bool check_insert(char* name,unsigned int scope, enum unionType uni_type);
 
-bool lookup_check(const std:: string name);
+bool lookup_check(char* name);
