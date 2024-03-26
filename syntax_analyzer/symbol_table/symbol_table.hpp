@@ -2,6 +2,7 @@
 #include <list>
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
 
 typedef struct Variable {
 
@@ -86,3 +87,11 @@ void decrease_scope();
 
 //returns current scope
 unsigned int get_current_scope();
+
+void library_func(std:: string name ,symbolType lib_func, unsigned int line);
+
+void init_library_func();
+
+bool check_insert(char* name,unsigned int scope, enum unionType uni_type);
+
+bool lookup_check(const std:: string name);
