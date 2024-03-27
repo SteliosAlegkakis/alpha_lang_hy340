@@ -1,38 +1,36 @@
 #include "symbol_table.hpp"
 
+struct CharPtrComparator {
+    bool operator()(const char* lhs, const char* rhs) const {
+        return strcmp(lhs, rhs) < 0;
+    }
+};
+
 unsigned int currentScope = 0;
-std::multimap<const char*, SymtabEntry*> symbolTable;
-bool inFunc = false;
-bool isFunc = false;
+std::multimap<const char*, SymtabEntry*, CharPtrComparator> symbolTable;
 bool isFormal = false;
 
-bool lookup_check(const char* name){
-    auto entries = symbolTable.equal_range(name);
-    if(entries.first == entries.second){
-        std::cerr<<"Error: Undefined symbol '"<< name << "'." << std::endl;
-        return false;
-    }
-    return true;
+const char* symbolType_toString(int symbolType) {
+    if(symbolType == 0) return "global variable";
+    else if(symbolType == 1) return "local variable";
+    else if(symbolType == 2) return "formal argument";
+    else if(symbolType == 3) return "user function";
+    else if(symbolType == 4) return "library function";
+    exit(EXIT_FAILURE);
 }
 
-
 void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum symbolType symboltype) {
-    if(isFunc) {
-        uniontype = function;
-        symboltype = userfunc;
-    }
-    else if(uniontype == variable) {
+    if(uniontype == variable) {
         if(currentScope == 0) symboltype = global;
-        if(isFormal) symboltype = formal;
+        // if(isFormal) symboltype = formal;
     }
     SymtabEntry* entry = new SymtabEntry(currentScope, name, line, uniontype, symboltype);
     symbolTable.insert({name,entry});
-    isFunc = false;
 }
 
 SymtabEntry* symTab_lookup(char* name) {
     auto entrys = symbolTable.equal_range(name);
-    for(auto&entry = entrys.first; entry != entrys.second; ++entry) {
+    for(auto entry = entrys.first; entry != entrys.second; ++entry) {
         if(entry->second->isActive) return entry->second;
     }
     return NULL;
@@ -53,26 +51,8 @@ SymtabEntry* symTab_lookup(char* name, unsigned int scope) {
             if(entry->second->symbol.variable->scope == scope) {
                 return entry->second;
             }
+        }
 
-            if (inFunc) {
-                scope--;
-
-                while(scope != 0) {
-                    if(entry->second->symbol.variable->scope == scope) {
-                        std::cerr<<"Error: No access in this variable "<< entry->second->symbol.variable->name << "." << std::endl;
-                        return entry->second;
-                    }
-
-                    scope--;
-                }
-
-                if(scope == 0) {
-                    if(entry->second->symbol.variable->scope == scope) {
-                        return entry->second;
-                    }
-                }
-            }
-        }    
     }
 
     return NULL;
@@ -90,54 +70,34 @@ void symTab_hide() {
     }
 }
 
-void symTab_print() {
-    for(const auto& entry : symbolTable) {
-        if(entry.second->uniontype == function) {
-            printf("name: %s isActive: %d scope: %d line: %d symbolType: %d\n",entry.second->symbol.function->name,entry.second->isActive,entry.second->symbol.function->scope,entry.second->symbol.function->line,entry.second->symboltype);
-        }
-        else {
-            printf("name: %s isActive: %d scope: %d line: %d symbolType: %d\n",entry.second->symbol.variable->name,entry.second->isActive,entry.second->symbol.variable->scope,entry.second->symbol.variable->line,entry.second->symboltype);
-        }
-    }
-}
+void increase_scope() { currentScope++; }
 
-void increase_scope() { 
-    if(!inFunc) currentScope++; 
-    inFunc = false;
-
-}
-
-void decrease_scope() { currentScope--; if(inFunc) inFunc = false; }
+void decrease_scope() { currentScope--; }
 
 unsigned int get_current_scope() { return currentScope; }
 
-void library_func(char* name ,symbolType lib_func, unsigned int line){
-    symTab_insert(name,line,function,lib_func);
+void symTab_print() {
+    for(const auto& entry : symbolTable) {
+        if(entry.second->uniontype == function) {
+            printf("name: %s isActive: %d scope: %d line: %d symbolType: %s\n",entry.second->symbol.function->name,entry.second->isActive,entry.second->symbol.function->scope,entry.second->symbol.function->line,symbolType_toString(entry.second->symboltype));
+        }
+        else {
+            printf("name: %s isActive: %d scope: %d line: %d symbolType: %s\n",entry.second->symbol.variable->name,entry.second->isActive,entry.second->symbol.variable->scope,entry.second->symbol.variable->line,symbolType_toString(entry.second->symboltype));
+        }
+    }
 }
 
 void init_library_func(){
-    library_func((char*)"print",libfunc,0);
-    library_func((char*)"input", libfunc,0);
-    library_func((char*)"objectmemberkeys",libfunc,0);
-    library_func((char*)"objectotalmembers",libfunc,0);
-    library_func((char*)"objectcopy",libfunc,0);
-    library_func((char*)"totalarguments",libfunc,0);
-    library_func((char*)"argument",libfunc,0);
-    library_func((char*)"typeof", libfunc,0);
-    library_func((char*)"strtonum",libfunc,0);
-    library_func((char*)"sqrt",libfunc,0);
-    library_func((char*)"cos",libfunc,0);
-    library_func((char*)"sin",libfunc,0);
-}
-
-bool check_insert(char* name,unsigned int scope, enum unionType uni_type){
-    auto entries = symbolTable.equal_range(name);
-    for(auto entry = entries.first; entry != entries.second; ++entry){
-        if(entry->second->symbol.function->scope == scope ||
-           entry->second->symbol.function->scope == scope){
-            std::cerr << "Error: Symbol ' "<< name << " ' redifinition in the same scope."<<std::endl;
-            return false;
-           }
-    }
-    return true;
+    symTab_insert((char*)"print" , 0, function, libfunc);
+    symTab_insert((char*)"input" ,0 , function, libfunc);
+    symTab_insert((char*)"objectmemberkeys", 0, function, libfunc);
+    symTab_insert((char*)"objectotalmembers",0 , function, libfunc);
+    symTab_insert((char*)"objectcopy", 0, function, libfunc);
+    symTab_insert((char*)"totalarguments", 0, function, libfunc);
+    symTab_insert((char*)"argument", 0, function, libfunc);
+    symTab_insert((char*)"typeof", 0, function, libfunc);
+    symTab_insert((char*)"strtonum", 0, function, libfunc);
+    symTab_insert((char*)"sqrt", 0, function, libfunc);
+    symTab_insert((char*)"cos", 0, function, libfunc);
+    symTab_insert((char*)"sin", 0, function,libfunc);
 }

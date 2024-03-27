@@ -88,10 +88,5 @@ void decrease_scope();
 //returns current scope
 unsigned int get_current_scope();
 
-void library_func(std:: string name ,symbolType lib_func, unsigned int line);
-
+//puts all the library functions in the symbol table
 void init_library_func();
-
-bool check_insert(char* name,unsigned int scope, enum unionType uni_type);
-
-bool lookup_check(char* name);

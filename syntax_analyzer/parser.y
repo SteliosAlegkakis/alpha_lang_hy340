@@ -6,12 +6,11 @@ int alpha_yylex(void);
 extern int alpha_yylineno;
 extern char* alpha_yytext;
 extern FILE* alpha_yyin;
-extern bool inFunc;
-extern bool isFunc;
-extern bool isFormal;
-extern bool increase;
 int anonymousCounter = 0;
+extern bool isFormal;
 char* make_anonymous_func();
+bool is_libfunc(char* id);
+void print_error(const char* msg);
 %}
 
 %error-verbose
@@ -51,8 +50,7 @@ typedef struct SymtabEntry* exprNode;
 %nonassoc GREATER GREATER_EQUAL LESSER LESSER_EQUAL
 %left ADD SUB
 %left MUL DIV MODULO
-%right NOT PLUS_PLUS MINUS_MINUS 
-%nonassoc UMINUS
+%right NOT PLUS_PLUS MINUS_MINUS UMINUS
 %left PERIOD DPERIOD
 %left LSQUARE RSQUARE 
 %left LPAREN RPAREN 
@@ -64,7 +62,7 @@ program:      statements
               ;
 
 statements:   statements stmt
-              |{}
+              |
               ;
 
 stmt:         expr SEMICOLON 
@@ -106,7 +104,7 @@ term:         LPAREN expr RPAREN
               |primary
               ;
 
-assignment:   lvalue ASSIGN expr {;}
+assignment:   lvalue ASSIGN expr {}
               ;
 
 primary:      lvalue
@@ -116,15 +114,30 @@ primary:      lvalue
               |const
               ;
 
-lvalue:       ID {if(!symTab_lookup($1, get_current_scope())) { symTab_insert($1,alpha_yylineno,variable,local); }}
-              |LOCAL ID {if(!symTab_lookup($1, get_current_scope())) { symTab_insert($1,alpha_yylineno,variable,local); }}
-              |DCOLON ID {if((!symTab_lookup($1,0)) && (inFunc)) { alpha_yyerror("Error: Not found variable in global scope: "); } if((!symTab_lookup($1,0)) && (!inFunc)) { symTab_insert($1,alpha_yylineno,variable,global); }}
+lvalue:       ID { 
+				if(!symTab_lookup($1)) {
+					symTab_insert($1, alpha_yylineno, variable, local);
+				}
+			  }
+              |LOCAL ID {
+				if(!symTab_lookup($2, get_current_scope())){
+					if(!is_libfunc($2))
+						symTab_insert($2, alpha_yylineno, variable, local);
+					else
+						print_error("Error! Cannot overide library functions: ");
+				}
+			  }
+              |DCOLON ID {
+				if(!symTab_lookup($2,0)) {
+					print_error("Error! Could not find global identifier:");
+				}
+			  }
               |member 
               ;
 
-member:       lvalue PERIOD ID
+member:       lvalue PERIOD ID {}
               |lvalue LSQUARE expr RSQUARE
-              |call PERIOD ID
+              |call PERIOD ID {}
               |call LSQUARE expr RSQUARE
               ;
 
@@ -145,7 +158,7 @@ methodcall:   DPERIOD ID LPAREN elist RPAREN
 
 elist:        expr
               |elist COMMA expr
-              |{}
+              |
               ;
 
 objectdef:    LSQUARE elist RSQUARE
@@ -160,11 +173,17 @@ indexed:      indexedelem
 indexedelem:  LCURLY expr COLON expr RCURLY
               ;
 
-block:        LCURLY {increase_scope();} statements RCURLY {decrease_scope();} 
+block:        LCURLY {increase_scope();} statements RCURLY {symTab_hide();decrease_scope();} 
               ;
 
-funcdef:      FUNCTION {isFunc = true;} ID {if(!symTab_lookup($1,get_current_scope())) symTab_insert($1,alpha_yylineno,function,userfunc);} LPAREN {increase_scope();inFunc = true;isFormal = true;} idlist RPAREN {isFormal = false;} block
-              |FUNCTION {isFunc = true; symTab_insert(make_anonymous_func(),alpha_yylineno,function,userfunc);} LPAREN {increase_scope();inFunc = true;isFormal = true;} idlist RPAREN {isFormal = true;} block
+funcdef:      FUNCTION ID {
+				if(!symTab_lookup($2, get_current_scope())) {
+					if(is_libfunc($2)) print_error("Error! Cannot override library functions:");
+					else symTab_insert($2, alpha_yylineno, function, userfunc);
+				}
+				else print_error("Error! Redefinition of identifier:");
+			  } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = false;} block
+              |FUNCTION { symTab_insert(make_anonymous_func(), alpha_yylineno, function, userfunc); } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = true; } block
               ;
 
 const:        INTEGER
@@ -175,9 +194,33 @@ const:        INTEGER
               |FALSE
               ;
 
-idlist:       ID
-              |idlist COMMA ID
-              | {}
+idlist:       ID {
+				if(isFormal){
+					if(symTab_lookup($1, get_current_scope())) {
+						print_error("Redifinition of formal argument:");
+					}
+					else {
+						symTab_insert($1, alpha_yylineno, variable, formal);
+					}
+				}
+				else if(!symTab_lookup($1, get_current_scope())) {
+					symTab_insert($1, alpha_yylineno, variable, local);
+				}
+              }
+              |idlist COMMA ID {
+				if(isFormal){
+					if(symTab_lookup($3, get_current_scope())){
+						print_error("Redifinition of formal argument:");
+					}
+					else {
+						symTab_insert($3, alpha_yylineno, variable, formal);
+					}
+				}
+				else if(!symTab_lookup($3, get_current_scope())){
+					symTab_insert($3, alpha_yylineno, variable, local);
+				}
+			  }
+              |
               ;
 
 ifstmt:       IF LPAREN expr RPAREN stmt ELSE stmt
@@ -197,30 +240,49 @@ returnstmt:   RETURN expr SEMICOLON
 %%
 
 int alpha_yyerror(const char* yaccProvidedMessage) {
-  fprintf(stderr, "%s %d %s\n",yaccProvidedMessage, alpha_yylineno, alpha_yytext);
-  return 0;
+	fprintf(stderr, "%s: %s in line: %d\n",yaccProvidedMessage, alpha_yytext, alpha_yylineno);
+	return 0;
+}
+
+void print_error(const char* msg) { printf("%s %s in line: %d\n", msg, alpha_yytext, alpha_yylineno); }
+
+bool is_libfunc(char* id) {
+	if(!strcmp(id,"print")) return true;
+	if(!strcmp(id,"input")) return true;
+	if(!strcmp(id,"objectmemberkeys")) return true;
+	if(!strcmp(id,"objectotalmember")) return true;
+	if(!strcmp(id,"objectcopy")) return true;
+	if(!strcmp(id,"totalarguments"))return true;
+	if(!strcmp(id,"argument")) return true;
+	if(!strcmp(id,"typeof")) return true;
+	if(!strcmp(id,"strtonum")) return true;
+	if(!strcmp(id,"sqrt")) return true;
+	if(!strcmp(id,"cos")) return true;
+	if(!strcmp(id,"sin")) return true;
+	return false;
 }
 
 char* make_anonymous_func() {
-  char* func = (char*)"_anonymousFunc";
-  int  length = strlen(func) + snprintf(NULL, 0, "%d", anonymousCounter) + 1;
-  char* result = (char*)malloc(length);
 
-  if(result) {
-    sprintf(result, "%s%d", func, anonymousCounter++); 
-    return result;
-  }
-  else {
-    printf("Out of memmory\n"); 
-    exit(EXIT_FAILURE);
-  }
-  
+	char* func = (char*)"_anonymousFunc";
+	int  length = strlen(func) + snprintf(NULL, 0, "%d", anonymousCounter) + 1;
+	char* result = (char*)malloc(length);
+
+	if(result) {
+		sprintf(result, "%s%d", func, anonymousCounter++); 
+		return result;
+	}
+	else {
+		printf("Out of memmory\n"); 
+		exit(EXIT_FAILURE);
+	}
+
 }
 
 int main(int argc, char** argv) {
-  if(!(alpha_yyin = fopen(argv[1], "r"))) return 1;
-  init_library_func();
-  alpha_yyparse();
-  symTab_print();
-  return 0;
+	if(!(alpha_yyin = fopen(argv[1], "r"))) return 1;
+  	yyparse();
+  	// init_library_func();
+  	symTab_print();
+  	return 0;
 }
