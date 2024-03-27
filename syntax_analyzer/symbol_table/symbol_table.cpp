@@ -22,10 +22,10 @@ const char* symbolType_toString(int symbolType) {
 void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum symbolType symboltype) {
     if(uniontype == variable) {
         if(currentScope == 0) symboltype = global;
-        // if(isFormal) symboltype = formal;
     }
     SymtabEntry* entry = new SymtabEntry(currentScope, name, line, uniontype, symboltype);
     symbolTable.insert({name,entry});
+    printf("name: '%s' line: %d scope: %d symbol type: '%s'\n", name, line, currentScope, symbolType_toString(symboltype));
 }
 
 SymtabEntry* symTab_lookup(char* name) {
@@ -59,6 +59,7 @@ SymtabEntry* symTab_lookup(char* name, unsigned int scope) {
 }
 
 void symTab_hide() {
+    if(currentScope == 0) return;
     for(const auto& entry : symbolTable) {
         if(entry.second->uniontype == variable) 
             if(entry.second->symbol.variable->scope == currentScope)

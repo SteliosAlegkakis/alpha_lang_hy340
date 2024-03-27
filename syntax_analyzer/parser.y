@@ -124,12 +124,12 @@ lvalue:       ID {
 					if(!is_libfunc($2))
 						symTab_insert($2, alpha_yylineno, variable, local);
 					else
-						print_error("Error! Cannot overide library functions: ");
+						print_error("error, cannot overide library functions: ");
 				}
 			  }
               |DCOLON ID {
 				if(!symTab_lookup($2,0)) {
-					print_error("Error! Could not find global identifier:");
+					print_error("error, could not find global identifier:");
 				}
 			  }
               |member 
@@ -178,10 +178,10 @@ block:        LCURLY {increase_scope();} statements RCURLY {symTab_hide();decrea
 
 funcdef:      FUNCTION ID {
 				if(!symTab_lookup($2, get_current_scope())) {
-					if(is_libfunc($2)) print_error("Error! Cannot override library functions:");
+					if(is_libfunc($2)) print_error("error, cannot override library functions:");
 					else symTab_insert($2, alpha_yylineno, function, userfunc);
 				}
-				else print_error("Error! Redefinition of identifier:");
+				else print_error("error, redefinition of identifier:");
 			  } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = false;} block
               |FUNCTION { symTab_insert(make_anonymous_func(), alpha_yylineno, function, userfunc); } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = true; } block
               ;
@@ -197,7 +197,10 @@ const:        INTEGER
 idlist:       ID {
 				if(isFormal){
 					if(symTab_lookup($1, get_current_scope())) {
-						print_error("Redifinition of formal argument:");
+						print_error("error, redifinition of formal argument:");
+					}
+					else if (is_libfunc($1)){
+						print_error("error, cannot override library functions:");
 					}
 					else {
 						symTab_insert($1, alpha_yylineno, variable, formal);
@@ -210,7 +213,10 @@ idlist:       ID {
               |idlist COMMA ID {
 				if(isFormal){
 					if(symTab_lookup($3, get_current_scope())){
-						print_error("Redifinition of formal argument:");
+						print_error("error, redifinition of formal argument:");
+					}
+					else if (is_libfunc($3)){
+						print_error("error, cannot override library functions:");
 					}
 					else {
 						symTab_insert($3, alpha_yylineno, variable, formal);
@@ -240,11 +246,11 @@ returnstmt:   RETURN expr SEMICOLON
 %%
 
 int alpha_yyerror(const char* yaccProvidedMessage) {
-	fprintf(stderr, "%s: %s in line: %d\n",yaccProvidedMessage, alpha_yytext, alpha_yylineno);
+	fprintf(stderr, "\033[1;31m%s: '%s' in line: %d\033[0m\n",yaccProvidedMessage, alpha_yytext, alpha_yylineno);
 	return 0;
 }
 
-void print_error(const char* msg) { printf("%s %s in line: %d\n", msg, alpha_yytext, alpha_yylineno); }
+void print_error(const char* msg) { printf("\033[1;31m%s '%s' in line: %d\033[0m\n", msg, alpha_yytext, alpha_yylineno); }
 
 bool is_libfunc(char* id) {
 	if(!strcmp(id,"print")) return true;
@@ -281,8 +287,7 @@ char* make_anonymous_func() {
 
 int main(int argc, char** argv) {
 	if(!(alpha_yyin = fopen(argv[1], "r"))) return 1;
+	init_library_func();
   	yyparse();
-  	// init_library_func();
-  	symTab_print();
   	return 0;
 }

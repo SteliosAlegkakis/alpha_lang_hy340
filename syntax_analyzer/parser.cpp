@@ -578,8 +578,8 @@ static const yytype_uint8 yyrline[] =
      140,   141,   144,   145,   146,   149,   150,   153,   156,   159,
      160,   161,   164,   165,   168,   169,   173,   176,   176,   179,
      185,   185,   179,   186,   186,   186,   186,   189,   190,   191,
-     192,   193,   194,   197,   210,   223,   226,   227,   230,   233,
-     236,   237
+     192,   193,   194,   197,   213,   229,   232,   233,   236,   239,
+     242,   243
 };
 #endif
 
@@ -1710,7 +1710,7 @@ yyreduce:
 					if(!is_libfunc((yyvsp[(2) - (2)].stringValue)))
 						symTab_insert((yyvsp[(2) - (2)].stringValue), alpha_yylineno, variable, local);
 					else
-						print_error("Error! Cannot overide library functions: ");
+						print_error("error, Cannot overide library functions: ");
 				}
 			  }
     break;
@@ -1721,7 +1721,7 @@ yyreduce:
 #line 130 "parser.y"
     {
 				if(!symTab_lookup((yyvsp[(2) - (2)].stringValue),0)) {
-					print_error("Error! Could not find global identifier:");
+					print_error("error, could not find global identifier:");
 				}
 			  }
     break;
@@ -1760,10 +1760,10 @@ yyreduce:
 #line 179 "parser.y"
     {
 				if(!symTab_lookup((yyvsp[(2) - (2)].stringValue), get_current_scope())) {
-					if(is_libfunc((yyvsp[(2) - (2)].stringValue))) print_error("Error! Cannot override library functions:");
+					if(is_libfunc((yyvsp[(2) - (2)].stringValue))) print_error("error, cannot override library functions:");
 					else symTab_insert((yyvsp[(2) - (2)].stringValue), alpha_yylineno, function, userfunc);
 				}
-				else print_error("Error! Redefinition of identifier:");
+				else print_error("error, redefinition of identifier:");
 			  }
     break;
 
@@ -1809,7 +1809,10 @@ yyreduce:
     {
 				if(isFormal){
 					if(symTab_lookup((yyvsp[(1) - (1)].stringValue), get_current_scope())) {
-						print_error("Redifinition of formal argument:");
+						print_error("error, redifinition of formal argument:");
+					}
+					else if (is_libfunc((yyvsp[(1) - (1)].stringValue))){
+						print_error("error, cannot override library functions:");
 					}
 					else {
 						symTab_insert((yyvsp[(1) - (1)].stringValue), alpha_yylineno, variable, formal);
@@ -1824,11 +1827,14 @@ yyreduce:
   case 84:
 
 /* Line 1455 of yacc.c  */
-#line 210 "parser.y"
+#line 213 "parser.y"
     {
 				if(isFormal){
 					if(symTab_lookup((yyvsp[(3) - (3)].stringValue), get_current_scope())){
-						print_error("Redifinition of formal argument:");
+						print_error("error, redifinition of formal argument:");
+					}
+					else if (is_libfunc((yyvsp[(3) - (3)].stringValue))){
+						print_error("error, cannot override library functions:");
 					}
 					else {
 						symTab_insert((yyvsp[(3) - (3)].stringValue), alpha_yylineno, variable, formal);
@@ -1843,7 +1849,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1847 "parser.cpp"
+#line 1853 "parser.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2055,15 +2061,15 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 240 "parser.y"
+#line 246 "parser.y"
 
 
 int alpha_yyerror(const char* yaccProvidedMessage) {
-	fprintf(stderr, "%s: %s in line: %d\n",yaccProvidedMessage, alpha_yytext, alpha_yylineno);
+	fprintf(stderr, "\033[1;31m%s: '%s' in line: %d\033[0m\n",yaccProvidedMessage, alpha_yytext, alpha_yylineno);
 	return 0;
 }
 
-void print_error(const char* msg) { printf("%s %s in line: %d\n", msg, alpha_yytext, alpha_yylineno); }
+void print_error(const char* msg) { printf("\033[1;31m%s '%s' in line: %d\033[0m\n", msg, alpha_yytext, alpha_yylineno); }
 
 bool is_libfunc(char* id) {
 	if(!strcmp(id,"print")) return true;
@@ -2100,8 +2106,7 @@ char* make_anonymous_func() {
 
 int main(int argc, char** argv) {
 	if(!(alpha_yyin = fopen(argv[1], "r"))) return 1;
+	init_library_func();
   	yyparse();
-  	// init_library_func();
-  	symTab_print();
   	return 0;
 }
