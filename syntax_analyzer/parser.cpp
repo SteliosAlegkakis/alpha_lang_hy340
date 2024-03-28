@@ -78,13 +78,13 @@
 /* Line 189 of yacc.c  */
 #line 1 "parser.y"
 
-#include <stdio.h>
 #include "./symbol_table/symbol_table.hpp"
 int alpha_yyerror(const char* yaccProvidedMessage);
 int alpha_yylex(void);
 extern int alpha_yylineno;
 extern char* alpha_yytext;
 extern FILE* alpha_yyin;
+FILE* rulesFile = fopen("rules.txt", "w");
 int anonymousCounter = 0;
 extern bool isFormal;
 char* make_anonymous_func();
@@ -225,7 +225,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 20 "parser.y"
+#line 22 "parser.y"
 
 char* stringValue;
 int intValue;
@@ -572,16 +572,16 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    62,    62,    65,    66,    69,    70,    71,    72,    73,
-      74,    75,    76,    77,    78,    81,    82,    83,    84,    85,
-      86,    87,    88,    89,    90,    91,    92,    93,    94,    95,
-      98,    99,   100,   101,   102,   102,   103,   104,   104,   105,
-     108,   108,   111,   112,   113,   114,   115,   118,   127,   140,
-     148,   151,   152,   153,   154,   157,   158,   158,   159,   162,
-     163,   166,   169,   172,   173,   174,   177,   178,   181,   182,
-     186,   189,   189,   192,   198,   198,   192,   199,   199,   199,
-     199,   202,   203,   204,   205,   206,   207,   210,   226,   242,
-     245,   246,   249,   252,   255,   256
+       0,    64,    64,    67,    68,    71,    72,    73,    74,    75,
+      76,    77,    78,    79,    80,    83,    84,    85,    86,    87,
+      88,    89,    90,    91,    92,    93,    94,    95,    96,    97,
+     100,   101,   102,   103,   104,   104,   105,   106,   106,   107,
+     110,   110,   113,   114,   115,   116,   117,   120,   130,   144,
+     153,   156,   157,   158,   159,   162,   163,   163,   164,   167,
+     168,   171,   174,   177,   178,   179,   182,   183,   186,   187,
+     190,   193,   193,   196,   202,   202,   196,   203,   203,   203,
+     203,   206,   207,   208,   209,   210,   211,   214,   231,   248,
+     251,   252,   255,   258,   261,   262
 };
 #endif
 
@@ -1682,45 +1682,318 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 33:
+        case 2:
+
+/* Line 1455 of yacc.c  */
+#line 64 "parser.y"
+    {fprintf(rulesFile, "program -> statements\n");}
+    break;
+
+  case 3:
+
+/* Line 1455 of yacc.c  */
+#line 67 "parser.y"
+    {fprintf(rulesFile, "statements -> statements stmt\n");}
+    break;
+
+  case 5:
+
+/* Line 1455 of yacc.c  */
+#line 71 "parser.y"
+    {fprintf(rulesFile, "stmt -> expr SEMICOLON\n");}
+    break;
+
+  case 6:
+
+/* Line 1455 of yacc.c  */
+#line 72 "parser.y"
+    {fprintf(rulesFile, "stmt -> ifstmt\n");}
+    break;
+
+  case 7:
+
+/* Line 1455 of yacc.c  */
+#line 73 "parser.y"
+    {fprintf(rulesFile, "stmt -> whilestmt\n");}
+    break;
+
+  case 8:
+
+/* Line 1455 of yacc.c  */
+#line 74 "parser.y"
+    {fprintf(rulesFile, "stmt -> forstmt\n");}
+    break;
+
+  case 9:
+
+/* Line 1455 of yacc.c  */
+#line 75 "parser.y"
+    {fprintf(rulesFile, "stmt -> returnstmt\n");}
+    break;
+
+  case 10:
+
+/* Line 1455 of yacc.c  */
+#line 76 "parser.y"
+    {fprintf(rulesFile, "stmt -> BREAK SEMICOLON\n");}
+    break;
+
+  case 11:
+
+/* Line 1455 of yacc.c  */
+#line 77 "parser.y"
+    {fprintf(rulesFile, "stmt -> CONTINUE SEMICOLON\n");}
+    break;
+
+  case 12:
+
+/* Line 1455 of yacc.c  */
+#line 78 "parser.y"
+    {fprintf(rulesFile, "stmt -> block\n");}
+    break;
+
+  case 13:
+
+/* Line 1455 of yacc.c  */
+#line 79 "parser.y"
+    {fprintf(rulesFile, "stmt -> funcdef\n");}
+    break;
+
+  case 14:
+
+/* Line 1455 of yacc.c  */
+#line 80 "parser.y"
+    {fprintf(rulesFile, "stmt -> SEMICOLON\n");}
+    break;
+
+  case 15:
+
+/* Line 1455 of yacc.c  */
+#line 83 "parser.y"
+    {fprintf(rulesFile, "expr -> assignment\n");}
+    break;
+
+  case 16:
+
+/* Line 1455 of yacc.c  */
+#line 84 "parser.y"
+    {fprintf(rulesFile, "expr -> expr ADD expr\n");}
+    break;
+
+  case 17:
+
+/* Line 1455 of yacc.c  */
+#line 85 "parser.y"
+    {fprintf(rulesFile, "expr -> expr SUB expr\n");}
+    break;
+
+  case 18:
+
+/* Line 1455 of yacc.c  */
+#line 86 "parser.y"
+    {fprintf(rulesFile, "expr -> expr MUL expr\n");}
+    break;
+
+  case 19:
+
+/* Line 1455 of yacc.c  */
+#line 87 "parser.y"
+    {fprintf(rulesFile, "expr -> expr DIV expr\n");}
+    break;
+
+  case 20:
+
+/* Line 1455 of yacc.c  */
+#line 88 "parser.y"
+    {fprintf(rulesFile, "expr -> expr MODULO expr\n");}
+    break;
+
+  case 21:
+
+/* Line 1455 of yacc.c  */
+#line 89 "parser.y"
+    {fprintf(rulesFile, "expr -> expr GREATER expr\n");}
+    break;
+
+  case 22:
+
+/* Line 1455 of yacc.c  */
+#line 90 "parser.y"
+    {fprintf(rulesFile, "expr -> expr GREATER_EQUAL expr\n");}
+    break;
+
+  case 23:
+
+/* Line 1455 of yacc.c  */
+#line 91 "parser.y"
+    {fprintf(rulesFile, "expr -> expr LESSER expr\n");}
+    break;
+
+  case 24:
+
+/* Line 1455 of yacc.c  */
+#line 92 "parser.y"
+    {fprintf(rulesFile, "expr -> expr LESSER_EQUAL expr\n");}
+    break;
+
+  case 25:
+
+/* Line 1455 of yacc.c  */
+#line 93 "parser.y"
+    {fprintf(rulesFile, "expr -> expr EQUAL expr\n");}
+    break;
+
+  case 26:
+
+/* Line 1455 of yacc.c  */
+#line 94 "parser.y"
+    {fprintf(rulesFile, "expr -> expr NOT_EQUAL expr\n");}
+    break;
+
+  case 27:
+
+/* Line 1455 of yacc.c  */
+#line 95 "parser.y"
+    {fprintf(rulesFile, "expr -> expr AND expr\n");}
+    break;
+
+  case 28:
+
+/* Line 1455 of yacc.c  */
+#line 96 "parser.y"
+    {fprintf(rulesFile, "expr -> expr OR expr\n");}
+    break;
+
+  case 29:
+
+/* Line 1455 of yacc.c  */
+#line 97 "parser.y"
+    {fprintf(rulesFile, "expr -> term\n");}
+    break;
+
+  case 30:
+
+/* Line 1455 of yacc.c  */
+#line 100 "parser.y"
+    {fprintf(rulesFile, "term -> LPAREN expr RPAREN\n");}
+    break;
+
+  case 31:
 
 /* Line 1455 of yacc.c  */
 #line 101 "parser.y"
-    {if((yyvsp[(2) - (2)].exprNode)->uniontype == function) print_error("error, function id used as lvalue");}
+    {fprintf(rulesFile, "term -> SUB expr\n");}
     break;
 
-  case 34:
+  case 32:
 
 /* Line 1455 of yacc.c  */
 #line 102 "parser.y"
-    {if((yyvsp[(1) - (1)].exprNode)->uniontype == function) print_error("error, function id used as lvalue");}
+    {fprintf(rulesFile, "term -> NOT expr\n");}
     break;
 
-  case 36:
+  case 33:
 
 /* Line 1455 of yacc.c  */
 #line 103 "parser.y"
-    {if((yyvsp[(2) - (2)].exprNode)->uniontype == function) print_error("error, function id used as lvalue");}
+    {if((yyvsp[(2) - (2)].exprNode)->uniontype == function) print_error("error, function id used as lvalue"); fprintf(rulesFile, "term -> PLUS_PLUS lvalue\n");}
     break;
 
-  case 37:
+  case 34:
 
 /* Line 1455 of yacc.c  */
 #line 104 "parser.y"
     {if((yyvsp[(1) - (1)].exprNode)->uniontype == function) print_error("error, function id used as lvalue");}
     break;
 
+  case 35:
+
+/* Line 1455 of yacc.c  */
+#line 104 "parser.y"
+    {fprintf(rulesFile, "term -> lvalue PLUS_PLUS\n");}
+    break;
+
+  case 36:
+
+/* Line 1455 of yacc.c  */
+#line 105 "parser.y"
+    {if((yyvsp[(2) - (2)].exprNode)->uniontype == function) print_error("error, function id used as lvalue");fprintf(rulesFile, "term -> MINUS_MINUS lvalue\n");}
+    break;
+
+  case 37:
+
+/* Line 1455 of yacc.c  */
+#line 106 "parser.y"
+    {if((yyvsp[(1) - (1)].exprNode)->uniontype == function) print_error("error, function id used as lvalue");}
+    break;
+
+  case 38:
+
+/* Line 1455 of yacc.c  */
+#line 106 "parser.y"
+    {fprintf(rulesFile, "term -> lvalue MINUS_MINUS\n");}
+    break;
+
+  case 39:
+
+/* Line 1455 of yacc.c  */
+#line 107 "parser.y"
+    {fprintf(rulesFile, "term -> primary\n");}
+    break;
+
   case 40:
 
 /* Line 1455 of yacc.c  */
-#line 108 "parser.y"
+#line 110 "parser.y"
     {if((yyvsp[(1) - (1)].exprNode)->uniontype == function) print_error("error, function id used as lvalue");}
+    break;
+
+  case 41:
+
+/* Line 1455 of yacc.c  */
+#line 110 "parser.y"
+    {fprintf(rulesFile, "assignment -> lvalue ASSIGN expr\n");}
+    break;
+
+  case 42:
+
+/* Line 1455 of yacc.c  */
+#line 113 "parser.y"
+    {fprintf(rulesFile, "primary -> lvalue\n");}
+    break;
+
+  case 43:
+
+/* Line 1455 of yacc.c  */
+#line 114 "parser.y"
+    {fprintf(rulesFile, "primary -> call\n");}
+    break;
+
+  case 44:
+
+/* Line 1455 of yacc.c  */
+#line 115 "parser.y"
+    {fprintf(rulesFile, "primary -> objectdef\n");}
+    break;
+
+  case 45:
+
+/* Line 1455 of yacc.c  */
+#line 116 "parser.y"
+    {fprintf(rulesFile, "primary -> LPAREN funcdef RPAREN\n");}
+    break;
+
+  case 46:
+
+/* Line 1455 of yacc.c  */
+#line 117 "parser.y"
+    {fprintf(rulesFile, "primary -> const\n");}
     break;
 
   case 47:
 
 /* Line 1455 of yacc.c  */
-#line 118 "parser.y"
+#line 120 "parser.y"
     { 
                 if(!symTab_lookup((yyvsp[(1) - (1)].stringValue))) {
                   symTab_insert((yyvsp[(1) - (1)].stringValue), alpha_yylineno, variable, local);
@@ -1729,13 +2002,14 @@ yyreduce:
                 else{
                   (yyval.exprNode) = symTab_lookup((yyvsp[(1) - (1)].stringValue), get_current_scope());
                 }
+                 fprintf(rulesFile, "lvalue -> ID\n");
 			        }
     break;
 
   case 48:
 
 /* Line 1455 of yacc.c  */
-#line 127 "parser.y"
+#line 130 "parser.y"
     {
                 if(!symTab_lookup((yyvsp[(2) - (2)].stringValue), get_current_scope())){
                   if(!is_libfunc((yyvsp[(2) - (2)].stringValue))){
@@ -1748,13 +2022,14 @@ yyreduce:
                 else {
                   (yyval.exprNode) = symTab_lookup((yyvsp[(2) - (2)].stringValue), get_current_scope());
                 }
+                fprintf(rulesFile, "lvalue -> LOCAL ID\n");
               }
     break;
 
   case 49:
 
 /* Line 1455 of yacc.c  */
-#line 140 "parser.y"
+#line 144 "parser.y"
     {
                 if(!symTab_lookup((yyvsp[(2) - (2)].stringValue),0)) {
                   print_error("error, could not find global identifier:");
@@ -1762,34 +2037,175 @@ yyreduce:
                 else{
                   (yyval.exprNode) = symTab_lookup((yyvsp[(2) - (2)].stringValue), 0);
                 }
+                fprintf(rulesFile, "lvalue -> DCOLON ID\n");
               }
+    break;
+
+  case 50:
+
+/* Line 1455 of yacc.c  */
+#line 153 "parser.y"
+    {fprintf(rulesFile, "lvalue -> member\n");}
+    break;
+
+  case 51:
+
+/* Line 1455 of yacc.c  */
+#line 156 "parser.y"
+    {fprintf(rulesFile, "member -> lvalue PERIOD ID\n");}
+    break;
+
+  case 52:
+
+/* Line 1455 of yacc.c  */
+#line 157 "parser.y"
+    {fprintf(rulesFile, "member -> lvalue LSQUARE expr RSQUARE\n");}
+    break;
+
+  case 53:
+
+/* Line 1455 of yacc.c  */
+#line 158 "parser.y"
+    {fprintf(rulesFile, "member -> call PERIOD ID\n");}
+    break;
+
+  case 54:
+
+/* Line 1455 of yacc.c  */
+#line 159 "parser.y"
+    {fprintf(rulesFile, "member -> call LSQUARE expr RSQUARE\n");}
+    break;
+
+  case 55:
+
+/* Line 1455 of yacc.c  */
+#line 162 "parser.y"
+    {fprintf(rulesFile, "call -> call LPAREN elist RPAREN\n");}
     break;
 
   case 56:
 
 /* Line 1455 of yacc.c  */
-#line 158 "parser.y"
+#line 163 "parser.y"
     {}
+    break;
+
+  case 57:
+
+/* Line 1455 of yacc.c  */
+#line 163 "parser.y"
+    {fprintf(rulesFile, "call -> lvalue callsuffix\n");}
+    break;
+
+  case 58:
+
+/* Line 1455 of yacc.c  */
+#line 164 "parser.y"
+    {fprintf(rulesFile, "call -> LPAREN funcdef RPAREN LPAREN elist RPAREN\n");}
+    break;
+
+  case 59:
+
+/* Line 1455 of yacc.c  */
+#line 167 "parser.y"
+    {fprintf(rulesFile, "callsuffix -> normcall\n");}
+    break;
+
+  case 60:
+
+/* Line 1455 of yacc.c  */
+#line 168 "parser.y"
+    {fprintf(rulesFile, "callsuffix -> methodcall\n");}
+    break;
+
+  case 61:
+
+/* Line 1455 of yacc.c  */
+#line 171 "parser.y"
+    {fprintf(rulesFile, "normcall -> LPAREN elist RPAREN\n");}
+    break;
+
+  case 62:
+
+/* Line 1455 of yacc.c  */
+#line 174 "parser.y"
+    {fprintf(rulesFile, "methodcall -> DPERIOD ID LPAREN elist RPAREN\n");}
+    break;
+
+  case 63:
+
+/* Line 1455 of yacc.c  */
+#line 177 "parser.y"
+    {fprintf(rulesFile, "elist -> expr\n");}
+    break;
+
+  case 64:
+
+/* Line 1455 of yacc.c  */
+#line 178 "parser.y"
+    {fprintf(rulesFile, "elist -> elist COMMA expr\n");}
+    break;
+
+  case 65:
+
+/* Line 1455 of yacc.c  */
+#line 179 "parser.y"
+    {fprintf(rulesFile, "elist -> \n");}
+    break;
+
+  case 66:
+
+/* Line 1455 of yacc.c  */
+#line 182 "parser.y"
+    {fprintf(rulesFile, "objectdef -> LSQUARE elist RSQUARE\n");}
+    break;
+
+  case 67:
+
+/* Line 1455 of yacc.c  */
+#line 183 "parser.y"
+    {fprintf(rulesFile, "objectdef -> LSQUARE indexed RSQUARE\n");}
+    break;
+
+  case 68:
+
+/* Line 1455 of yacc.c  */
+#line 186 "parser.y"
+    {fprintf(rulesFile, "indexed -> indexedelem\n");}
+    break;
+
+  case 69:
+
+/* Line 1455 of yacc.c  */
+#line 187 "parser.y"
+    {fprintf(rulesFile, "indexed -> indexed COMMA indexedelem\n");}
+    break;
+
+  case 70:
+
+/* Line 1455 of yacc.c  */
+#line 190 "parser.y"
+    {fprintf(rulesFile, "indexedelem -> LCURLY expr COLON expr RCURLY\n");}
     break;
 
   case 71:
 
 /* Line 1455 of yacc.c  */
-#line 189 "parser.y"
+#line 193 "parser.y"
     {increase_scope();}
     break;
 
   case 72:
 
 /* Line 1455 of yacc.c  */
-#line 189 "parser.y"
-    {symTab_hide();decrease_scope();}
+#line 193 "parser.y"
+    {symTab_hide();decrease_scope(); fprintf(rulesFile, "block -> LCURLY statements RCURLY\n");}
     break;
 
   case 73:
 
 /* Line 1455 of yacc.c  */
-#line 192 "parser.y"
+#line 196 "parser.y"
     {
               if(!symTab_lookup((yyvsp[(2) - (2)].stringValue), get_current_scope())) {
                 if(is_libfunc((yyvsp[(2) - (2)].stringValue))) print_error("error, cannot override library functions:");
@@ -1802,42 +2218,98 @@ yyreduce:
   case 74:
 
 /* Line 1455 of yacc.c  */
-#line 198 "parser.y"
+#line 202 "parser.y"
     {increase_scope(); isFormal = true; }
     break;
 
   case 75:
 
 /* Line 1455 of yacc.c  */
-#line 198 "parser.y"
+#line 202 "parser.y"
     {decrease_scope(); isFormal = false;}
+    break;
+
+  case 76:
+
+/* Line 1455 of yacc.c  */
+#line 202 "parser.y"
+    {fprintf(rulesFile, "funcdef -> FUNCTION ID LPAREN idlist RPAREN block\n");}
     break;
 
   case 77:
 
 /* Line 1455 of yacc.c  */
-#line 199 "parser.y"
+#line 203 "parser.y"
     { symTab_insert(make_anonymous_func(), alpha_yylineno, function, userfunc); }
     break;
 
   case 78:
 
 /* Line 1455 of yacc.c  */
-#line 199 "parser.y"
+#line 203 "parser.y"
     {increase_scope(); isFormal = true; }
     break;
 
   case 79:
 
 /* Line 1455 of yacc.c  */
-#line 199 "parser.y"
+#line 203 "parser.y"
     {decrease_scope(); isFormal = true; }
+    break;
+
+  case 80:
+
+/* Line 1455 of yacc.c  */
+#line 203 "parser.y"
+    {fprintf(rulesFile, "funcdef -> FUNCTION LPAREN idlist RPAREN block\n");}
+    break;
+
+  case 81:
+
+/* Line 1455 of yacc.c  */
+#line 206 "parser.y"
+    {fprintf(rulesFile, "const -> INTEGER\n");}
+    break;
+
+  case 82:
+
+/* Line 1455 of yacc.c  */
+#line 207 "parser.y"
+    {fprintf(rulesFile, "const -> REAL\n");}
+    break;
+
+  case 83:
+
+/* Line 1455 of yacc.c  */
+#line 208 "parser.y"
+    {fprintf(rulesFile, "const -> STRING\n");}
+    break;
+
+  case 84:
+
+/* Line 1455 of yacc.c  */
+#line 209 "parser.y"
+    {fprintf(rulesFile, "const -> NIL\n");}
+    break;
+
+  case 85:
+
+/* Line 1455 of yacc.c  */
+#line 210 "parser.y"
+    {fprintf(rulesFile, "const -> TRUE\n");}
+    break;
+
+  case 86:
+
+/* Line 1455 of yacc.c  */
+#line 211 "parser.y"
+    {fprintf(rulesFile, "const -> FALSE\n");}
     break;
 
   case 87:
 
 /* Line 1455 of yacc.c  */
-#line 210 "parser.y"
+#line 214 "parser.y"
     {
                 if(isFormal){
                   if(symTab_lookup((yyvsp[(1) - (1)].stringValue), get_current_scope())) {
@@ -1853,13 +2325,14 @@ yyreduce:
                 else if(!symTab_lookup((yyvsp[(1) - (1)].stringValue), get_current_scope())) {
                   symTab_insert((yyvsp[(1) - (1)].stringValue), alpha_yylineno, variable, local);
                 }
+                {fprintf(rulesFile, "idlist -> ID\n");}
               }
     break;
 
   case 88:
 
 /* Line 1455 of yacc.c  */
-#line 226 "parser.y"
+#line 231 "parser.y"
     {
                 if(isFormal){
                   if(symTab_lookup((yyvsp[(3) - (3)].stringValue), get_current_scope())){
@@ -1875,13 +2348,63 @@ yyreduce:
                 else if(!symTab_lookup((yyvsp[(3) - (3)].stringValue), get_current_scope())){
                   symTab_insert((yyvsp[(3) - (3)].stringValue), alpha_yylineno, variable, local);
                 }
+                {fprintf(rulesFile, "idlist -> idlist COMMA ID\n");}
 			        }
+    break;
+
+  case 89:
+
+/* Line 1455 of yacc.c  */
+#line 248 "parser.y"
+    {fprintf(rulesFile, "idlist -> \n");}
+    break;
+
+  case 90:
+
+/* Line 1455 of yacc.c  */
+#line 251 "parser.y"
+    {fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt ELSE stmt\n");}
+    break;
+
+  case 91:
+
+/* Line 1455 of yacc.c  */
+#line 252 "parser.y"
+    {fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt\n");}
+    break;
+
+  case 92:
+
+/* Line 1455 of yacc.c  */
+#line 255 "parser.y"
+    {fprintf(rulesFile, "whilestmt -> WHILE LPAREN expr RPAREN stmt\n");}
+    break;
+
+  case 93:
+
+/* Line 1455 of yacc.c  */
+#line 258 "parser.y"
+    {fprintf(rulesFile, "forstmt -> FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN stmt\n");}
+    break;
+
+  case 94:
+
+/* Line 1455 of yacc.c  */
+#line 261 "parser.y"
+    {fprintf(rulesFile, "returnstmt -> RETURN expr SEMICOLON\n");}
+    break;
+
+  case 95:
+
+/* Line 1455 of yacc.c  */
+#line 262 "parser.y"
+    {fprintf(rulesFile, "returnstmt -> RETURN SEMICOLON\n");}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 1885 "parser.cpp"
+#line 2408 "parser.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2093,7 +2616,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 259 "parser.y"
+#line 265 "parser.y"
 
 
 int alpha_yyerror(const char* yaccProvidedMessage) {
@@ -2137,8 +2660,13 @@ char* make_anonymous_func() {
 }
 
 int main(int argc, char** argv) {
-	if(!(alpha_yyin = fopen(argv[1], "r"))) return 1;
+	if(!(alpha_yyin = fopen(argv[1], "r"))){
+    printf("Could not open file\n");
+    return 1;
+  }
 	init_library_func();
-  	yyparse();
-  	return 0;
+  yyparse();
+  fprintf(rulesFile, "EOF\n");
+  fclose(rulesFile);
+  return 0;
 }

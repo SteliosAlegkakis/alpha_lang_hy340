@@ -1,11 +1,11 @@
 %{
-#include <stdio.h>
 #include "./symbol_table/symbol_table.hpp"
 int alpha_yyerror(const char* yaccProvidedMessage);
 int alpha_yylex(void);
 extern int alpha_yylineno;
 extern char* alpha_yytext;
 extern FILE* alpha_yyin;
+FILE* rulesFile = fopen("rules.txt", "w");
 int anonymousCounter = 0;
 extern bool isFormal;
 char* make_anonymous_func();
@@ -13,6 +13,8 @@ bool is_libfunc(char* id);
 void print_error(const char* msg);
 const char* unionType_toString(int union_type);
 %}
+
+
 
 %error-verbose
 %name-prefix="alpha_yy"
@@ -59,60 +61,60 @@ double realValue;
 
 %%
 
-program:      statements 
+program:      statements {fprintf(rulesFile, "program -> statements\n");}
               ;
 
-statements:   statements stmt
+statements:   statements stmt {fprintf(rulesFile, "statements -> statements stmt\n");}
               |
               ;
 
-stmt:         expr SEMICOLON 
-              |ifstmt
-              |whilestmt
-              |forstmt
-              |returnstmt
-              |BREAK SEMICOLON
-              |CONTINUE SEMICOLON
-              |block
-              |funcdef
-              |SEMICOLON
+stmt:         expr SEMICOLON {fprintf(rulesFile, "stmt -> expr SEMICOLON\n");}
+              |ifstmt {fprintf(rulesFile, "stmt -> ifstmt\n");}
+              |whilestmt {fprintf(rulesFile, "stmt -> whilestmt\n");}
+              |forstmt {fprintf(rulesFile, "stmt -> forstmt\n");}
+              |returnstmt {fprintf(rulesFile, "stmt -> returnstmt\n");}
+              |BREAK SEMICOLON {fprintf(rulesFile, "stmt -> BREAK SEMICOLON\n");}
+              |CONTINUE SEMICOLON {fprintf(rulesFile, "stmt -> CONTINUE SEMICOLON\n");}
+              |block {fprintf(rulesFile, "stmt -> block\n");}
+              |funcdef {fprintf(rulesFile, "stmt -> funcdef\n");} 
+              |SEMICOLON {fprintf(rulesFile, "stmt -> SEMICOLON\n");}
               ;
 
-expr:         assignment
-              |expr ADD expr            
-              |expr SUB expr            
-              |expr MUL expr            
-              |expr DIV expr            
-              |expr MODULO expr         
-              |expr GREATER expr        
-              |expr GREATER_EQUAL expr 
-              |expr LESSER expr         
-              |expr LESSER_EQUAL expr   
-              |expr EQUAL expr          
-              |expr NOT_EQUAL expr      
-              |expr AND expr            
-              |expr OR expr             
-              |term
+expr:         assignment {fprintf(rulesFile, "expr -> assignment\n");}
+              |expr ADD expr {fprintf(rulesFile, "expr -> expr ADD expr\n");}
+              |expr SUB expr {fprintf(rulesFile, "expr -> expr SUB expr\n");}           
+              |expr MUL expr {fprintf(rulesFile, "expr -> expr MUL expr\n");}           
+              |expr DIV expr {fprintf(rulesFile, "expr -> expr DIV expr\n");}           
+              |expr MODULO expr {fprintf(rulesFile, "expr -> expr MODULO expr\n");}        
+              |expr GREATER expr {fprintf(rulesFile, "expr -> expr GREATER expr\n");}       
+              |expr GREATER_EQUAL expr {fprintf(rulesFile, "expr -> expr GREATER_EQUAL expr\n");}
+              |expr LESSER expr {fprintf(rulesFile, "expr -> expr LESSER expr\n");}        
+              |expr LESSER_EQUAL expr {fprintf(rulesFile, "expr -> expr LESSER_EQUAL expr\n");}  
+              |expr EQUAL expr {fprintf(rulesFile, "expr -> expr EQUAL expr\n");}         
+              |expr NOT_EQUAL expr {fprintf(rulesFile, "expr -> expr NOT_EQUAL expr\n");}     
+              |expr AND expr {fprintf(rulesFile, "expr -> expr AND expr\n");}           
+              |expr OR expr  {fprintf(rulesFile, "expr -> expr OR expr\n");}           
+              |term {fprintf(rulesFile, "expr -> term\n");}
               ;
 
-term:         LPAREN expr RPAREN
-              |SUB expr %prec UMINUS
-              |NOT expr
-              |PLUS_PLUS lvalue {if($2->uniontype == function) print_error("error, function id used as lvalue");}
-              |lvalue {if($1->uniontype == function) print_error("error, function id used as lvalue");} PLUS_PLUS
-              |MINUS_MINUS lvalue {if($2->uniontype == function) print_error("error, function id used as lvalue");}
-              |lvalue {if($1->uniontype == function) print_error("error, function id used as lvalue");} MINUS_MINUS
-              |primary
+term:         LPAREN expr RPAREN {fprintf(rulesFile, "term -> LPAREN expr RPAREN\n");}
+              |SUB expr %prec UMINUS {fprintf(rulesFile, "term -> SUB expr\n");}
+              |NOT expr  {fprintf(rulesFile, "term -> NOT expr\n");}
+              |PLUS_PLUS lvalue {if($2->uniontype == function) print_error("error, function id used as lvalue"); fprintf(rulesFile, "term -> PLUS_PLUS lvalue\n");}
+              |lvalue {if($1->uniontype == function) print_error("error, function id used as lvalue");} PLUS_PLUS {fprintf(rulesFile, "term -> lvalue PLUS_PLUS\n");}
+              |MINUS_MINUS lvalue {if($2->uniontype == function) print_error("error, function id used as lvalue");fprintf(rulesFile, "term -> MINUS_MINUS lvalue\n");}
+              |lvalue {if($1->uniontype == function) print_error("error, function id used as lvalue");} MINUS_MINUS {fprintf(rulesFile, "term -> lvalue MINUS_MINUS\n");} 
+              |primary {fprintf(rulesFile, "term -> primary\n");}
               ;
 
-assignment:   lvalue {if($1->uniontype == function) print_error("error, function id used as lvalue");} ASSIGN expr 
+assignment:   lvalue {if($1->uniontype == function) print_error("error, function id used as lvalue");} ASSIGN expr   {fprintf(rulesFile, "assignment -> lvalue ASSIGN expr\n");}
               ;
 
-primary:      lvalue
-              |call
-              |objectdef
-              |LPAREN funcdef RPAREN
-              |const
+primary:      lvalue {fprintf(rulesFile, "primary -> lvalue\n");}
+              |call {fprintf(rulesFile, "primary -> call\n");}
+              |objectdef {fprintf(rulesFile, "primary -> objectdef\n");}
+              |LPAREN funcdef RPAREN {fprintf(rulesFile, "primary -> LPAREN funcdef RPAREN\n");}
+              |const {fprintf(rulesFile, "primary -> const\n");}
               ;
 
 lvalue:       ID { 
@@ -123,6 +125,7 @@ lvalue:       ID {
                 else{
                   $$ = symTab_lookup($1, get_current_scope());
                 }
+                 fprintf(rulesFile, "lvalue -> ID\n");
 			        }
               |LOCAL ID {
                 if(!symTab_lookup($2, get_current_scope())){
@@ -136,6 +139,7 @@ lvalue:       ID {
                 else {
                   $$ = symTab_lookup($2, get_current_scope());
                 }
+                fprintf(rulesFile, "lvalue -> LOCAL ID\n");
               }
               |DCOLON ID {
                 if(!symTab_lookup($2,0)) {
@@ -144,49 +148,49 @@ lvalue:       ID {
                 else{
                   $$ = symTab_lookup($2, 0);
                 }
+                fprintf(rulesFile, "lvalue -> DCOLON ID\n");
               }
-              |member 
+              |member  {fprintf(rulesFile, "lvalue -> member\n");}
               ;
 
-member:       lvalue PERIOD ID
-              |lvalue LSQUARE expr RSQUARE
-              |call PERIOD ID 
-              |call LSQUARE expr RSQUARE
+member:       lvalue PERIOD ID {fprintf(rulesFile, "member -> lvalue PERIOD ID\n");}
+              |lvalue LSQUARE expr RSQUARE {fprintf(rulesFile, "member -> lvalue LSQUARE expr RSQUARE\n");}
+              |call PERIOD ID {fprintf(rulesFile, "member -> call PERIOD ID\n");}
+              |call LSQUARE expr RSQUARE {fprintf(rulesFile, "member -> call LSQUARE expr RSQUARE\n");}
               ;
 
-call:         call LPAREN elist RPAREN
-              |lvalue {} callsuffix
-              |LPAREN funcdef RPAREN LPAREN elist RPAREN
+call:         call LPAREN elist RPAREN {fprintf(rulesFile, "call -> call LPAREN elist RPAREN\n");}
+              |lvalue {} callsuffix {fprintf(rulesFile, "call -> lvalue callsuffix\n");}
+              |LPAREN funcdef RPAREN LPAREN elist RPAREN {fprintf(rulesFile, "call -> LPAREN funcdef RPAREN LPAREN elist RPAREN\n");}
               ;
               
-callsuffix:   normcall
-              |methodcall
+callsuffix:   normcall {fprintf(rulesFile, "callsuffix -> normcall\n");}
+              |methodcall {fprintf(rulesFile, "callsuffix -> methodcall\n");}
               ;
             
-normcall:     LPAREN elist RPAREN
+normcall:     LPAREN elist RPAREN {fprintf(rulesFile, "normcall -> LPAREN elist RPAREN\n");}
               ;
  
-methodcall:   DPERIOD ID LPAREN elist RPAREN
+methodcall:   DPERIOD ID LPAREN elist RPAREN {fprintf(rulesFile, "methodcall -> DPERIOD ID LPAREN elist RPAREN\n");}
               ;
 
-elist:        expr
-              |elist COMMA expr
-              |
+elist:        expr {fprintf(rulesFile, "elist -> expr\n");}
+              |elist COMMA expr {fprintf(rulesFile, "elist -> elist COMMA expr\n");}
+              | {fprintf(rulesFile, "elist -> \n");}
               ;
 
-objectdef:    LSQUARE elist RSQUARE
-              |LSQUARE indexed RSQUARE
+objectdef:    LSQUARE elist RSQUARE {fprintf(rulesFile, "objectdef -> LSQUARE elist RSQUARE\n");}
+              |LSQUARE indexed RSQUARE {fprintf(rulesFile, "objectdef -> LSQUARE indexed RSQUARE\n");}
               ;
 
-indexed:      indexedelem
-              |indexed COMMA indexedelem
-              
+indexed:      indexedelem {fprintf(rulesFile, "indexed -> indexedelem\n");}
+              |indexed COMMA indexedelem  {fprintf(rulesFile, "indexed -> indexed COMMA indexedelem\n");}
               ;
 
-indexedelem:  LCURLY expr COLON expr RCURLY
+indexedelem:  LCURLY expr COLON expr RCURLY {fprintf(rulesFile, "indexedelem -> LCURLY expr COLON expr RCURLY\n");}
               ;
 
-block:        LCURLY {increase_scope();} statements RCURLY {symTab_hide();decrease_scope();} 
+block:        LCURLY {increase_scope();} statements RCURLY {symTab_hide();decrease_scope(); fprintf(rulesFile, "block -> LCURLY statements RCURLY\n");} 
               ;
 
 funcdef:      FUNCTION ID {
@@ -195,16 +199,16 @@ funcdef:      FUNCTION ID {
                 else symTab_insert($2, alpha_yylineno, function, userfunc);
               }
 				      else print_error("error, redefinition of identifier:");
-			        } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = false;} block
-              |FUNCTION { symTab_insert(make_anonymous_func(), alpha_yylineno, function, userfunc); } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = true; } block
+			        } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = false;} block {fprintf(rulesFile, "funcdef -> FUNCTION ID LPAREN idlist RPAREN block\n");}
+              |FUNCTION { symTab_insert(make_anonymous_func(), alpha_yylineno, function, userfunc); } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = true; } block {fprintf(rulesFile, "funcdef -> FUNCTION LPAREN idlist RPAREN block\n");}
               ;
 
-const:        INTEGER
-              |REAL
-              |STRING
-              |NIL
-              |TRUE
-              |FALSE
+const:        INTEGER {fprintf(rulesFile, "const -> INTEGER\n");}
+              |REAL {fprintf(rulesFile, "const -> REAL\n");}
+              |STRING {fprintf(rulesFile, "const -> STRING\n");}
+              |NIL {fprintf(rulesFile, "const -> NIL\n");}
+              |TRUE {fprintf(rulesFile, "const -> TRUE\n");}
+              |FALSE {fprintf(rulesFile, "const -> FALSE\n");}
               ;
 
 idlist:       ID {
@@ -222,6 +226,7 @@ idlist:       ID {
                 else if(!symTab_lookup($1, get_current_scope())) {
                   symTab_insert($1, alpha_yylineno, variable, local);
                 }
+                {fprintf(rulesFile, "idlist -> ID\n");}
               }
               |idlist COMMA ID {
                 if(isFormal){
@@ -238,22 +243,23 @@ idlist:       ID {
                 else if(!symTab_lookup($3, get_current_scope())){
                   symTab_insert($3, alpha_yylineno, variable, local);
                 }
+                {fprintf(rulesFile, "idlist -> idlist COMMA ID\n");}
 			        }
-              |
+              | {fprintf(rulesFile, "idlist -> \n");}
               ;
 
-ifstmt:       IF LPAREN expr RPAREN stmt ELSE stmt
-              |IF LPAREN expr RPAREN stmt
+ifstmt:       IF LPAREN expr RPAREN stmt ELSE stmt {fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt ELSE stmt\n");}
+              |IF LPAREN expr RPAREN stmt {fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt\n");}
               ;
               
-whilestmt:    WHILE LPAREN expr RPAREN stmt
+whilestmt:    WHILE LPAREN expr RPAREN stmt {fprintf(rulesFile, "whilestmt -> WHILE LPAREN expr RPAREN stmt\n");}
               ;
               
-forstmt:      FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN stmt
+forstmt:      FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN stmt {fprintf(rulesFile, "forstmt -> FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN stmt\n");}
               ;
 
-returnstmt:   RETURN expr SEMICOLON
-              |RETURN SEMICOLON
+returnstmt:   RETURN expr SEMICOLON {fprintf(rulesFile, "returnstmt -> RETURN expr SEMICOLON\n");}
+              |RETURN SEMICOLON {fprintf(rulesFile, "returnstmt -> RETURN SEMICOLON\n");}
               ;
 
 %%
@@ -299,8 +305,13 @@ char* make_anonymous_func() {
 }
 
 int main(int argc, char** argv) {
-	if(!(alpha_yyin = fopen(argv[1], "r"))) return 1;
+	if(!(alpha_yyin = fopen(argv[1], "r"))){
+    printf("Could not open file\n");
+    return 1;
+  }
 	init_library_func();
-  	yyparse();
-  	return 0;
+  yyparse();
+  fprintf(rulesFile, "EOF\n");
+  fclose(rulesFile);
+  return 0;
 }
