@@ -19,6 +19,12 @@ const char* symbolType_toString(int symbolType) {
     exit(EXIT_FAILURE);
 }
 
+const char* unionType_toString(int union_type) {
+    if(union_type == 0) return "variable";
+    else if(union_type == 1)return "function";
+    exit(EXIT_FAILURE);
+}
+
 void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum symbolType symboltype) {
     if(uniontype == variable) {
         if(currentScope == 0) symboltype = global;

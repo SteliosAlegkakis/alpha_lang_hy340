@@ -11,6 +11,7 @@ extern bool isFormal;
 char* make_anonymous_func();
 bool is_libfunc(char* id);
 void print_error(const char* msg);
+const char* unionType_toString(int union_type);
 %}
 
 %error-verbose
@@ -20,7 +21,7 @@ void print_error(const char* msg);
 char* stringValue;
 int intValue;
 double realValue;
-typedef struct SymtabEntry* exprNode;
+ struct SymtabEntry* exprNode;
 }
 
 %start program
@@ -97,14 +98,14 @@ expr:         assignment
 term:         LPAREN expr RPAREN
               |SUB expr %prec UMINUS
               |NOT expr
-              |PLUS_PLUS lvalue
-              |lvalue PLUS_PLUS
-              |MINUS_MINUS lvalue
-              |lvalue MINUS_MINUS
+              |PLUS_PLUS lvalue {if($2->uniontype == function) print_error("error, function id used as lvalue");}
+              |lvalue {if($1->uniontype == function) print_error("error, function id used as lvalue");} PLUS_PLUS
+              |MINUS_MINUS lvalue {if($2->uniontype == function) print_error("error, function id used as lvalue");}
+              |lvalue {if($1->uniontype == function) print_error("error, function id used as lvalue");} MINUS_MINUS
               |primary
               ;
 
-assignment:   lvalue ASSIGN expr {}
+assignment:   lvalue {if($1->uniontype == function) print_error("error, function id used as lvalue");} ASSIGN expr 
               ;
 
 primary:      lvalue
@@ -115,34 +116,46 @@ primary:      lvalue
               ;
 
 lvalue:       ID { 
-				if(!symTab_lookup($1)) {
-					symTab_insert($1, alpha_yylineno, variable, local);
-				}
-			  }
+                if(!symTab_lookup($1)) {
+                  symTab_insert($1, alpha_yylineno, variable, local);
+                  $$ = symTab_lookup($1, get_current_scope());
+                }
+                else{
+                  $$ = symTab_lookup($1, get_current_scope());
+                }
+			        }
               |LOCAL ID {
-				if(!symTab_lookup($2, get_current_scope())){
-					if(!is_libfunc($2))
-						symTab_insert($2, alpha_yylineno, variable, local);
-					else
-						print_error("error, cannot overide library functions: ");
-				}
-			  }
+                if(!symTab_lookup($2, get_current_scope())){
+                  if(!is_libfunc($2)){
+                    symTab_insert($2, alpha_yylineno, variable, local);
+                    $$ = symTab_lookup($2, get_current_scope());
+                  }
+                  else
+                    print_error("error, cannot overide library functions:");
+                }
+                else {
+                  $$ = symTab_lookup($2, get_current_scope());
+                }
+              }
               |DCOLON ID {
-				if(!symTab_lookup($2,0)) {
-					print_error("error, could not find global identifier:");
-				}
-			  }
+                if(!symTab_lookup($2,0)) {
+                  print_error("error, could not find global identifier:");
+                }
+                else{
+                  $$ = symTab_lookup($2, 0);
+                }
+              }
               |member 
               ;
 
-member:       lvalue PERIOD ID {}
+member:       lvalue PERIOD ID
               |lvalue LSQUARE expr RSQUARE
-              |call PERIOD ID {}
+              |call PERIOD ID 
               |call LSQUARE expr RSQUARE
               ;
 
 call:         call LPAREN elist RPAREN
-              |lvalue callsuffix
+              |lvalue {} callsuffix
               |LPAREN funcdef RPAREN LPAREN elist RPAREN
               ;
               
@@ -177,12 +190,12 @@ block:        LCURLY {increase_scope();} statements RCURLY {symTab_hide();decrea
               ;
 
 funcdef:      FUNCTION ID {
-				if(!symTab_lookup($2, get_current_scope())) {
-					if(is_libfunc($2)) print_error("error, cannot override library functions:");
-					else symTab_insert($2, alpha_yylineno, function, userfunc);
-				}
-				else print_error("error, redefinition of identifier:");
-			  } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = false;} block
+              if(!symTab_lookup($2, get_current_scope())) {
+                if(is_libfunc($2)) print_error("error, cannot override library functions:");
+                else symTab_insert($2, alpha_yylineno, function, userfunc);
+              }
+				      else print_error("error, redefinition of identifier:");
+			        } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = false;} block
               |FUNCTION { symTab_insert(make_anonymous_func(), alpha_yylineno, function, userfunc); } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = true; } block
               ;
 
@@ -195,37 +208,37 @@ const:        INTEGER
               ;
 
 idlist:       ID {
-				if(isFormal){
-					if(symTab_lookup($1, get_current_scope())) {
-						print_error("error, redifinition of formal argument:");
-					}
-					else if (is_libfunc($1)){
-						print_error("error, cannot override library functions:");
-					}
-					else {
-						symTab_insert($1, alpha_yylineno, variable, formal);
-					}
-				}
-				else if(!symTab_lookup($1, get_current_scope())) {
-					symTab_insert($1, alpha_yylineno, variable, local);
-				}
+                if(isFormal){
+                  if(symTab_lookup($1, get_current_scope())) {
+                    print_error("error, redifinition of formal argument:");
+                  }
+                  else if (is_libfunc($1)){
+                    print_error("error, cannot override library functions:");
+                  }
+                  else {
+                    symTab_insert($1, alpha_yylineno, variable, formal);
+                  }
+                }
+                else if(!symTab_lookup($1, get_current_scope())) {
+                  symTab_insert($1, alpha_yylineno, variable, local);
+                }
               }
               |idlist COMMA ID {
-				if(isFormal){
-					if(symTab_lookup($3, get_current_scope())){
-						print_error("error, redifinition of formal argument:");
-					}
-					else if (is_libfunc($3)){
-						print_error("error, cannot override library functions:");
-					}
-					else {
-						symTab_insert($3, alpha_yylineno, variable, formal);
-					}
-				}
-				else if(!symTab_lookup($3, get_current_scope())){
-					symTab_insert($3, alpha_yylineno, variable, local);
-				}
-			  }
+                if(isFormal){
+                  if(symTab_lookup($3, get_current_scope())){
+                    print_error("error, redifinition of formal argument:");
+                  }
+                  else if (is_libfunc($3)){
+                    print_error("error, cannot override library functions:");
+                  }
+                  else {
+                    symTab_insert($3, alpha_yylineno, variable, formal);
+                  }
+                }
+                else if(!symTab_lookup($3, get_current_scope())){
+                  symTab_insert($3, alpha_yylineno, variable, local);
+                }
+			        }
               |
               ;
 

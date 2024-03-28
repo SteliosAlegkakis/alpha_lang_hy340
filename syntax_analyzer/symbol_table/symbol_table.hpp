@@ -62,6 +62,10 @@ typedef struct SymtabEntry {
 
 } SymtabEntry;
 
+const char* symbolType_toString(int symbolType);
+
+const char* unionType_toString(int union_type);
+
 //inserts an entry with the given arguments to the symbolTable
 void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum symbolType symboltype);
 
