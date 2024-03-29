@@ -1,4 +1,5 @@
 #include "symbol_table.hpp"
+#include <cassert>
 
 struct CharPtrComparator {
     bool operator()(const char* lhs, const char* rhs) const {
@@ -8,7 +9,6 @@ struct CharPtrComparator {
 
 unsigned int currentScope = 0;
 std::multimap<const char*, SymtabEntry*, CharPtrComparator> symbolTable;
-bool isFormal = false;
 
 const char* symbolType_toString(int symbolType) {
     if(symbolType == 0) return "global variable";
@@ -45,7 +45,7 @@ SymtabEntry* symTab_lookup(char* name) {
 SymtabEntry* symTab_lookup(char* name, unsigned int scope) {
 
     auto entrys = symbolTable.equal_range(name);
-
+    // assert(entrys.first != symbolTable.end() && entrys.second != symbolTable.end());
     for(auto entry = entrys.first; entry != entrys.second; ++entry){
 
         if(entry->second->uniontype == function && entry->second->isActive) { 
@@ -66,7 +66,7 @@ SymtabEntry* symTab_lookup(char* name, unsigned int scope) {
 
 void symTab_hide() {
     if(currentScope == 0) return;
-    for(const auto& entry : symbolTable) {
+    for(auto& entry : symbolTable) {
         if(entry.second->uniontype == variable) 
             if(entry.second->symbol.variable->scope == currentScope)
                 entry.second->isActive = false;

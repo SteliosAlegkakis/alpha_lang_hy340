@@ -4,6 +4,8 @@
 #include <string.h>
 #include <iostream>
 
+#define GLOBAL_SCOPE 0
+
 typedef struct Variable {
 
     unsigned int scope;

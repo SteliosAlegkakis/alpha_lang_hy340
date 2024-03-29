@@ -143,12 +143,12 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 22 "parser.y"
+#line 13 "parser.y"
 
-char* stringValue;
-int intValue;
-double realValue;
- struct SymtabEntry* exprNode;
+  char* stringValue;
+  int intValue;
+  double realValue;
+  struct SymtabEntry* exprNode;
 
 
 
