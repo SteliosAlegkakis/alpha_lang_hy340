@@ -2,6 +2,8 @@
 #include "./parser_lib/parser_lib.hpp"
 FILE* rulesFile;
 bool isFormal = false;
+int loopCounter = 0;
+int functionCounter = 0;
 SymtabEntry* lookup_tmp;
 %}
 
@@ -109,7 +111,21 @@ primary:      lvalue {fprintf(rulesFile, "primary -> lvalue\n");}
               ;
 
 lvalue:       ID { 
-                if(!symTab_lookup($1)) {
+                if(functionCounter){
+                  if(symTab_lookup_infunc($1)) print_error("error, cannot acces identifier: ");
+                  else if(symTab_lookup($1, GLOBAL_SCOPE)) {
+                    lookup_tmp = symTab_lookup($1, GLOBAL_SCOPE);
+                    $$ = lookup_tmp;
+                  }
+                  else {
+                    if(!is_libfunc($1)){
+                      symTab_insert($1, alpha_yylineno, variable, local);
+                      lookup_tmp = symTab_lookup($1, get_current_scope());
+                      $$ = lookup_tmp;
+                    }
+                  }
+                }
+                else if(!symTab_lookup($1)) {
                   symTab_insert($1, alpha_yylineno, variable, local);
                   lookup_tmp = symTab_lookup($1, get_current_scope());
                   $$ = lookup_tmp;
@@ -157,7 +173,7 @@ member:       lvalue PERIOD ID {fprintf(rulesFile, "member -> lvalue PERIOD ID\n
               ;
 
 call:         call LPAREN elist RPAREN {fprintf(rulesFile, "call -> call LPAREN elist RPAREN\n");}
-              |lvalue callsuffix {if($1 != NULL) $1->uniontype = variable;fprintf(rulesFile, "call -> lvalue callsuffix\n");}
+              |lvalue callsuffix {if(!($1 == NULL)) $1->uniontype = variable; fprintf(rulesFile, "call -> lvalue callsuffix\n");}
               |LPAREN funcdef RPAREN LPAREN elist RPAREN {fprintf(rulesFile, "call -> LPAREN funcdef RPAREN LPAREN elist RPAREN\n");}
               ;
               
@@ -191,13 +207,14 @@ block:        LCURLY {increase_scope();} statements RCURLY {symTab_hide();decrea
               ;
 
 funcdef:      FUNCTION ID {
+              functionCounter++;
               if(!symTab_lookup($2, get_current_scope())) {
                 if(is_libfunc($2)) print_error("error, cannot override library functions:");
                 else symTab_insert($2, alpha_yylineno, function, userfunc);
               }
 				      else print_error("error, redefinition of identifier:");
-			        } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = false;} block {fprintf(rulesFile,"funcdef -> FUNCTION ID LPAREN idlist RPAREN block\n");}
-              |FUNCTION { symTab_insert(make_anonymous_func(), alpha_yylineno, function, userfunc); } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = true; } block {fprintf(rulesFile,"funcdef -> FUNCTION LPAREN idlist RPAREN block\n");}
+			        } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = false;} block {functionCounter--;fprintf(rulesFile,"funcdef -> FUNCTION ID LPAREN idlist RPAREN block\n");}
+              |FUNCTION { functionCounter++; symTab_insert(make_anonymous_func(), alpha_yylineno, function, userfunc); } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = true; } block {functionCounter--; fprintf(rulesFile,"funcdef -> FUNCTION LPAREN idlist RPAREN block\n");}
               ;
 
 const:        INTEGER {fprintf(rulesFile, "const -> INTEGER\n");}
@@ -248,11 +265,21 @@ idlist:       ID {
 ifstmt:       IF LPAREN expr RPAREN stmt ELSE stmt {fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt ELSE stmt\n");}
               |IF LPAREN expr RPAREN stmt {fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt\n");}
               ;
-              
-whilestmt:    WHILE LPAREN expr RPAREN stmt {fprintf(rulesFile, "whilestmt -> WHILE LPAREN expr RPAREN stmt\n");}
+
+loopstart:    {++loopCounter;}
               ;
-              
-forstmt:      FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN stmt {fprintf(rulesFile, "forstmt -> FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN stmt\n");}
+loopend:      {--loopCounter;}
+              ;
+loopstmt:     loopstart stmt loopend {}
+              ;
+
+whilestmt:    WHILE LPAREN expr RPAREN loopstmt
+              ;
+
+forstmt:      FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN loopstmt
+              ;
+
+whilestmt:    WHILE LPAREN expr RPAREN loopstmt
               ;
 
 returnstmt:   RETURN expr SEMICOLON {fprintf(rulesFile, "returnstmt -> RETURN expr SEMICOLON\n");}

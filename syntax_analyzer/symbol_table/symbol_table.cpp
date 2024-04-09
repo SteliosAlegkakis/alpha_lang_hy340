@@ -64,6 +64,15 @@ SymtabEntry* symTab_lookup(char* name, unsigned int scope) {
     return NULL;
 }
 
+SymtabEntry* symTab_lookup_infunc(char* name) {
+    SymtabEntry* result = nullptr;
+    for(int scope = currentScope - 1; scope > 0; scope--) {
+        if(result = symTab_lookup(name, scope)) 
+            return result;
+    }
+    return result;
+}
+
 void symTab_hide() {
     if(currentScope == 0) return;
     for(auto& entry : symbolTable) {

@@ -79,6 +79,8 @@ SymtabEntry* symTab_lookup(char*name);
 //returns the entry if it exists, else returns NULL
 SymtabEntry* symTab_lookup(char* name, unsigned int scope);
 
+SymtabEntry* symTab_lookup_infunc(char* name);
+
 //prints all the elements in the symbol table
 void symTab_print();
 
