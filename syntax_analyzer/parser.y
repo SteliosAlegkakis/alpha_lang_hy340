@@ -151,15 +151,20 @@ indexedelem:  LCURLY expr COLON expr RCURLY {fprintf(rulesFile, "indexedelem -> 
 block:        LCURLY {if(!block_b) increase_scope();} statements RCURLY {if(!block_b){symTab_hide();decrease_scope();} fprintf(rulesFile, "block -> LCURLY statements RCURLY\n");} 
               ;
 
-funcdef:      FUNCTION ID {
-              functionCounter++;
-              if(!symTab_lookup($2, get_current_scope())) {
-                if(is_libfunc($2)) print_error("error, cannot override library functions:");
-                else symTab_insert($2, alpha_yylineno, function, userfunc);
-              }
-				      else print_error("error, redefinition of identifier:");
-			        } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = false; loopCounterStack.push(loopCounter); loopCounter=0;} block {functionCounter--; loopCounter = loopCounterStack.top(); loopCounterStack.pop(); fprintf(rulesFile,"funcdef -> FUNCTION ID LPAREN idlist RPAREN block\n");}
-              |FUNCTION { functionCounter++; symTab_insert(make_anonymous_func(), alpha_yylineno, function, userfunc); } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = true; loopCounterStack.push(loopCounter); loopCounter = 0; } block {functionCounter--; loopCounter = loopCounterStack.top(); loopCounterStack.pop(); fprintf(rulesFile,"funcdef -> FUNCTION LPAREN idlist RPAREN block\n");}
+funcname:     ID {manage_funcname_named($1); fprintf(rulesFile, "funcname -> ID\n");}
+              |  {manage_funcname_anonymous(); fprintf(rulesFile, "funcname -> \n");}
+              ;
+
+funcprefix:   FUNCTION funcname {manage_funcprefix(); fprintf(rulesFile, "funcprefix -> FUNCTION funcname\n");}
+              ;
+
+funcargs:     LPAREN idlist RPAREN {manage_funcargs(); fprintf(rulesFile, "funcargs -> LPAREN idlist RPAREN\n");}
+              ;
+
+funcbody:     block {manage_funcbody(); fprintf(rulesFile, "funcbody -> block\n");}
+              ;
+
+funcdef:      funcprefix funcargs funcbody
               ;
 
 const:        INTEGER   {fprintf(rulesFile, "const -> INTEGER\n");}

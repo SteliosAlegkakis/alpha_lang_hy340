@@ -57,6 +57,8 @@ SymtabEntry* manage_lvalue_id(char *name) {
                 exit(EXIT_FAILURE);
             }
         }
+        else if(symTab_lookup(name, get_current_scope()))
+            return symTab_lookup(name, get_current_scope());
         else if(symTab_lookup(name, GLOBAL_SCOPE))
             return symTab_lookup(name, GLOBAL_SCOPE);
         else {
@@ -124,4 +126,36 @@ void manage_idlist_comma_id(char* name) {
     }
     else if(!symTab_lookup(name, get_current_scope()))
         symTab_insert(name, alpha_yylineno, variable, local);
+}
+
+void manage_funcname_named(char* name) {
+    functionCounter++;
+    if(!symTab_lookup(name, get_current_scope())) {
+        if(is_libfunc(name)) print_error("error, cannot override library functions:");
+        else symTab_insert(name, alpha_yylineno, function, userfunc);
+    }
+	else print_error("error, redefinition of identifier:");
+}
+
+void manage_funcname_anonymous() {
+    functionCounter++; 
+    symTab_insert(make_anonymous_func(), alpha_yylineno, function, userfunc);
+}
+
+void manage_funcprefix() {
+    increase_scope();
+    isFormal = true;
+}
+
+void manage_funcargs() {
+    decrease_scope(); 
+    isFormal = false; 
+    loopCounterStack.push(loopCounter); 
+    loopCounter=0;
+}
+
+void manage_funcbody() {
+    functionCounter--; 
+    loopCounter = loopCounterStack.top(); 
+    loopCounterStack.pop();
 }

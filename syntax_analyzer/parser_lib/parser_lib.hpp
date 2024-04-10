@@ -25,3 +25,9 @@ SymtabEntry* manage_lvalue_global_id(char *name);
 
 void manage_idlist_id(char *name);
 void manage_idlist_comma_id(char* name);
+
+void manage_funcname_named(char* name);
+void manage_funcname_anonymous();
+void manage_funcprefix();
+void manage_funcargs();
+void manage_funcbody();
