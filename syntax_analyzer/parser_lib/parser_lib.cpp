@@ -4,6 +4,7 @@ FILE* rulesFile;
 int anonymousCounter = 0;
 int functionCounter = 0;
 bool isFormal = false;
+bool block_b = false;
 int loopCounter;
 std::stack<int> loopCounterStack;
 SymtabEntry* lookup_tmp;
