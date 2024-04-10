@@ -50,20 +50,22 @@ char* make_anonymous_func() {
 }
 
 SymtabEntry* manage_lvalue_id(char *name) {
-	 if(functionCounter){
-       if(symTab_lookup_infunc(name)) print_error("error, cannot acces identifier: ");
-       else if(symTab_lookup(name, GLOBAL_SCOPE)) {
-        lookup_tmp = symTab_lookup(name, GLOBAL_SCOPE);
-       $$ = lookup_tmp;
-	   }
-       else {
-	     if(!is_libfunc(name)){
-          symTab_insert(name, alpha_yylineno, variable, local);
-           lookup_tmp = symTab_lookup(name, get_current_scope());
-           $$ = lookup_tmp;
-         }
-       }
-     }
+	if(functionCounter){
+        if(symTab_lookup_infunc(name)){
+            if(symTab_lookup_infunc(name)->uniontype == variable) {
+                print_error("error, cannot acces identifier: ");
+                exit(EXIT_FAILURE);
+            }
+        }
+        else if(symTab_lookup(name, GLOBAL_SCOPE))
+            return symTab_lookup(name, GLOBAL_SCOPE);
+        else {
+            if(!is_libfunc(name)){
+                symTab_insert(name, alpha_yylineno, variable, local);
+                return symTab_lookup(name, get_current_scope());
+            }
+        }
+    }
     else if(!symTab_lookup(name)) {
         symTab_insert(name, alpha_yylineno, variable, local);
         return symTab_lookup(name, get_current_scope());
@@ -71,6 +73,7 @@ SymtabEntry* manage_lvalue_id(char *name) {
     else{
         return symTab_lookup(name);
     }
+    return NULL;
 }
 
 SymtabEntry* manage_lvalue_local_id(char* name) {

@@ -189,7 +189,7 @@ loopstmt:     loopstart stmt loopend {}
 whilestmt:    WHILE LPAREN expr RPAREN{block_b = true;} loopstmt{block_b = false;}
               ;
 
-forstmt:      FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN {block_b = true} loopstmt {block_b = false;}
+forstmt:      FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN {block_b = true;} loopstmt {block_b = false;}
               ;
 
 returnstmt:   RETURN expr SEMICOLON {if(!functionCounter) print_error("error, cannot use return outside of function"); fprintf(rulesFile, "returnstmt -> RETURN expr SEMICOLON\n");}
