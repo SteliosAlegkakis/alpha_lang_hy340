@@ -47,3 +47,77 @@ char* make_anonymous_func() {
 	}
 
 }
+
+SymtabEntry* manage_lvalue_id(char *name) {
+	// if(functionCounter){
+    //   if(symTab_lookup_infunc($1)) print_error("error, cannot acces identifier: ");
+    //   else if(symTab_lookup($1, GLOBAL_SCOPE)) {
+    //     lookup_tmp = symTab_lookup($1, GLOBAL_SCOPE);
+    //     $$ = lookup_tmp;
+	//   }
+    //   else {
+	//     if(!is_libfunc($1)){
+    //       symTab_insert($1, alpha_yylineno, variable, local);
+    //       lookup_tmp = symTab_lookup($1, get_current_scope());
+    //       $$ = lookup_tmp;
+    //     }
+    //   }
+    // }
+    if(!symTab_lookup(name)) {
+        symTab_insert(name, alpha_yylineno, variable, local);
+        return symTab_lookup(name, get_current_scope());
+    }
+    else{
+        return symTab_lookup(name);
+    }
+}
+
+SymtabEntry* manage_lvalue_local_id(char* name) {
+	if(!symTab_lookup(name, get_current_scope())){
+        if(!is_libfunc(name)){
+        	symTab_insert(name, alpha_yylineno, variable, local);
+            return symTab_lookup(name, get_current_scope());
+        }
+        else {
+            print_error("error, cannot overide library functions:");
+			exit(EXIT_FAILURE);
+		}	
+    }
+    else 
+		return symTab_lookup(name, get_current_scope());
+}
+
+SymtabEntry* manage_lvalue_global_id(char* name) {
+	if(!symTab_lookup(name, GLOBAL_SCOPE)) {
+            print_error("error, could not find global identifier:");
+            exit(EXIT_FAILURE);
+    }
+	else
+        return symTab_lookup(name, GLOBAL_SCOPE);
+}
+
+void manage_idlist_id(char* name) {
+	if(isFormal){
+        if(symTab_lookup(name, get_current_scope()))
+            print_error("error, redifinition of formal argument:");
+        else if (is_libfunc(name))
+            print_error("error, cannot override library functions:");
+        else
+            symTab_insert(name, alpha_yylineno, variable, formal);
+    }
+    else if(!symTab_lookup(name, get_current_scope()))
+        symTab_insert(name, alpha_yylineno, variable, local);
+}
+
+void manage_idlist_comma_id(char* name) {
+	if(isFormal){
+        if(symTab_lookup(name, get_current_scope()))
+            print_error("error, redifinition of formal argument:");
+        else if (is_libfunc(name))
+            print_error("error, cannot override library functions:");
+    	else
+            symTab_insert(name, alpha_yylineno, variable, formal);
+    }
+    else if(!symTab_lookup(name, get_current_scope()))
+        symTab_insert(name, alpha_yylineno, variable, local);
+}

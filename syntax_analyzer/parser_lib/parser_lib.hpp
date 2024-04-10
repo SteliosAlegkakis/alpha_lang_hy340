@@ -17,3 +17,10 @@ int alpha_yylex(void);
 char* make_anonymous_func();
 bool is_libfunc(char* id);
 void print_error(const char* msg);
+
+SymtabEntry* manage_lvalue_id(char *name);
+SymtabEntry* manage_lvalue_local_id(char *name);
+SymtabEntry* manage_lvalue_global_id(char *name);
+
+void manage_idlist_id(char *name);
+void manage_idlist_comma_id(char* name);

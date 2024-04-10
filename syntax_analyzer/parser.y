@@ -56,123 +56,73 @@ statements:   statements stmt {fprintf(rulesFile, "statements -> statements stmt
               |
               ;
 
-stmt:         expr SEMICOLON {fprintf(rulesFile, "stmt -> expr SEMICOLON\n");}
-              |ifstmt {fprintf(rulesFile, "stmt -> ifstmt\n");}
-              |whilestmt {fprintf(rulesFile, "stmt -> whilestmt\n");}
-              |forstmt {fprintf(rulesFile, "stmt -> forstmt\n");}
-              |returnstmt {fprintf(rulesFile, "stmt -> returnstmt\n");}
-              |BREAK {if(!loopCounter) print_error("error, cannot use break outside of loop:");} SEMICOLON {fprintf(rulesFile, "stmt -> BREAK SEMICOLON\n");}
-              |CONTINUE {if(!loopCounter) print_error("error, cannot use continue outside of loop:");} SEMICOLON {fprintf(rulesFile, "stmt -> CONTINUE SEMICOLON\n");}
-              |block {fprintf(rulesFile, "stmt -> block\n");}
-              |funcdef {fprintf(rulesFile, "stmt -> funcdef\n");} 
-              |SEMICOLON {fprintf(rulesFile, "stmt -> SEMICOLON\n");}
+stmt:         expr SEMICOLON      {fprintf(rulesFile, "stmt -> expr SEMICOLON\n");}
+              |ifstmt             {fprintf(rulesFile, "stmt -> ifstmt\n");}
+              |whilestmt          {fprintf(rulesFile, "stmt -> whilestmt\n");}
+              |forstmt            {fprintf(rulesFile, "stmt -> forstmt\n");}
+              |returnstmt         {fprintf(rulesFile, "stmt -> returnstmt\n");}
+              |BREAK SEMICOLON    {if(!loopCounter) print_error("error, cannot use break outside of loop:"); fprintf(rulesFile, "stmt -> BREAK SEMICOLON\n");}
+              |CONTINUE SEMICOLON {if(!loopCounter) print_error("error, cannot use continue outside of loop:"); fprintf(rulesFile, "stmt -> CONTINUE SEMICOLON\n");}
+              |block              {fprintf(rulesFile, "stmt -> block\n");}
+              |funcdef            {fprintf(rulesFile, "stmt -> funcdef\n");} 
+              |SEMICOLON          {fprintf(rulesFile, "stmt -> SEMICOLON\n");}
               ;
 
-expr:         assignment {fprintf(rulesFile, "expr -> assignment\n");}
-              |expr ADD expr {fprintf(rulesFile, "expr -> expr ADD expr\n");}
-              |expr SUB expr {fprintf(rulesFile, "expr -> expr SUB expr\n");}           
-              |expr MUL expr {fprintf(rulesFile, "expr -> expr MUL expr\n");}           
-              |expr DIV expr {fprintf(rulesFile, "expr -> expr DIV expr\n");}           
-              |expr MODULO expr {fprintf(rulesFile, "expr -> expr MODULO expr\n");}        
-              |expr GREATER expr {fprintf(rulesFile, "expr -> expr GREATER expr\n");}       
+expr:         assignment               {fprintf(rulesFile, "expr -> assignment\n");}
+              |expr ADD expr           {fprintf(rulesFile, "expr -> expr ADD expr\n");}
+              |expr SUB expr           {fprintf(rulesFile, "expr -> expr SUB expr\n");}           
+              |expr MUL expr           {fprintf(rulesFile, "expr -> expr MUL expr\n");}           
+              |expr DIV expr           {fprintf(rulesFile, "expr -> expr DIV expr\n");}           
+              |expr MODULO expr        {fprintf(rulesFile, "expr -> expr MODULO expr\n");}        
+              |expr GREATER expr       {fprintf(rulesFile, "expr -> expr GREATER expr\n");}       
               |expr GREATER_EQUAL expr {fprintf(rulesFile, "expr -> expr GREATER_EQUAL expr\n");}
-              |expr LESSER expr {fprintf(rulesFile, "expr -> expr LESSER expr\n");}        
-              |expr LESSER_EQUAL expr {fprintf(rulesFile, "expr -> expr LESSER_EQUAL expr\n");}  
-              |expr EQUAL expr {fprintf(rulesFile, "expr -> expr EQUAL expr\n");}         
-              |expr NOT_EQUAL expr {fprintf(rulesFile, "expr -> expr NOT_EQUAL expr\n");}     
-              |expr AND expr {fprintf(rulesFile, "expr -> expr AND expr\n");}           
-              |expr OR expr  {fprintf(rulesFile, "expr -> expr OR expr\n");}           
-              |term {fprintf(rulesFile, "expr -> term\n");}
+              |expr LESSER expr        {fprintf(rulesFile, "expr -> expr LESSER expr\n");}        
+              |expr LESSER_EQUAL expr  {fprintf(rulesFile, "expr -> expr LESSER_EQUAL expr\n");}  
+              |expr EQUAL expr         {fprintf(rulesFile, "expr -> expr EQUAL expr\n");}         
+              |expr NOT_EQUAL expr     {fprintf(rulesFile, "expr -> expr NOT_EQUAL expr\n");}     
+              |expr AND expr           {fprintf(rulesFile, "expr -> expr AND expr\n");}           
+              |expr OR expr            {fprintf(rulesFile, "expr -> expr OR expr\n");}           
+              |term                    {fprintf(rulesFile, "expr -> term\n");}
               ;
 
-term:         LPAREN expr RPAREN {fprintf(rulesFile,"term -> LPAREN expr RPAREN\n");}
+term:         LPAREN expr RPAREN     {fprintf(rulesFile,"term -> LPAREN expr RPAREN\n");}
               |SUB expr %prec UMINUS {fprintf(rulesFile,"term -> SUB expr\n");}
-              |NOT expr  {fprintf(rulesFile,"term -> NOT expr\n");}
-              |PLUS_PLUS lvalue {if($2->uniontype == function) print_error("error, function id used as lvalue"); fprintf(rulesFile,"term -> PLUS_PLUS lvalue\n");}
-              |lvalue {if($1->uniontype == function) print_error("error, function id used as lvalue");} PLUS_PLUS {fprintf(rulesFile,"term -> lvalue PLUS_PLUS\n");}
-              |MINUS_MINUS lvalue {if($2->uniontype == function) print_error("error, function id used as lvalue");fprintf(rulesFile,"term -> MINUS_MINUS lvalue\n");}
-              |lvalue {if($1->uniontype == function) print_error("error, function id used as lvalue");} MINUS_MINUS {fprintf(rulesFile,"term -> lvalue MINUS_MINUS\n");} 
-              |primary {fprintf(rulesFile, "term -> primary\n");}
+              |NOT expr              {fprintf(rulesFile,"term -> NOT expr\n");}
+              |PLUS_PLUS lvalue      {if($2->uniontype == function) print_error("error, function id used as lvalue"); fprintf(rulesFile,"term -> PLUS_PLUS lvalue\n");}
+              |lvalue PLUS_PLUS      {if($1->uniontype == function) print_error("error, function id used as lvalue"); fprintf(rulesFile,"term -> lvalue PLUS_PLUS\n");}
+              |MINUS_MINUS lvalue    {if($2->uniontype == function) print_error("error, function id used as lvalue");fprintf(rulesFile,"term -> MINUS_MINUS lvalue\n");}
+              |lvalue MINUS_MINUS    {if($1->uniontype == function) print_error("error, function id used as lvalue"); fprintf(rulesFile,"term -> lvalue MINUS_MINUS\n");} 
+              |primary               {fprintf(rulesFile, "term -> primary\n");}
               ;
 
 assignment:   lvalue {if($1->uniontype == function) print_error("error, function id used as lvalue");} ASSIGN expr {fprintf(rulesFile,"assignment -> lvalue ASSIGN expr\n");}
               ;
 
-primary:      lvalue {fprintf(rulesFile, "primary -> lvalue\n");}
-              |call {fprintf(rulesFile, "primary -> call\n");}
-              |objectdef {fprintf(rulesFile, "primary -> objectdef\n");}
-              |LPAREN funcdef RPAREN {fprintf(rulesFile, "primary -> LPAREN funcdef RPAREN\n");}
-              |const {fprintf(rulesFile, "primary -> const\n");}
+primary:      lvalue                  {fprintf(rulesFile, "primary -> lvalue\n");}
+              |call                   {fprintf(rulesFile, "primary -> call\n");}
+              |objectdef              {fprintf(rulesFile, "primary -> objectdef\n");}
+              |LPAREN funcdef RPAREN  {fprintf(rulesFile, "primary -> LPAREN funcdef RPAREN\n");}
+              |const                  {fprintf(rulesFile, "primary -> const\n");}
               ;
 
-lvalue:       ID { 
-                // if(functionCounter){
-                //   if(symTab_lookup_infunc($1)) print_error("error, cannot acces identifier: ");
-                //   else if(symTab_lookup($1, GLOBAL_SCOPE)) {
-                //     lookup_tmp = symTab_lookup($1, GLOBAL_SCOPE);
-                //     $$ = lookup_tmp;
-                //   }
-                //   else {
-                //     if(!is_libfunc($1)){
-                //       symTab_insert($1, alpha_yylineno, variable, local);
-                //       lookup_tmp = symTab_lookup($1, get_current_scope());
-                //       $$ = lookup_tmp;
-                //     }
-                //   }
-                // }
-                /*else*/ if(!symTab_lookup($1)) {
-                  symTab_insert($1, alpha_yylineno, variable, local);
-                  lookup_tmp = symTab_lookup($1, get_current_scope());
-                  $$ = lookup_tmp;
-                }
-                else{
-                  lookup_tmp = symTab_lookup($1);
-                  $$ = lookup_tmp;
-                }
-                 fprintf(rulesFile, "lvalue -> ID\n");
-			        }
-              |LOCAL ID {
-                if(!symTab_lookup($2, get_current_scope())){
-                  if(!is_libfunc($2)){
-                    symTab_insert($2, alpha_yylineno, variable, local);
-                    lookup_tmp = symTab_lookup($2, get_current_scope());
-                    $$ = lookup_tmp;
-                  }
-                  else
-                    print_error("error, cannot overide library functions:");
-                }
-                else {
-                  lookup_tmp = symTab_lookup($2, get_current_scope());
-                  $$ = lookup_tmp;
-                }
-                fprintf(rulesFile,"lvalue -> LOCAL ID\n");
-              }
-              |DCOLON ID {
-                if(!symTab_lookup($2,0)) {
-                  print_error("error, could not find global identifier:");
-                  return 0;
-                }
-                else{
-                  lookup_tmp = symTab_lookup($2, 0);
-                  $$ = lookup_tmp;
-                }
-                fprintf(rulesFile,"lvalue -> DCOLON ID\n");
-              }
-              |member  {fprintf(rulesFile,"lvalue -> member\n");}
+lvalue:       ID          {$$ = manage_lvalue_id($1); fprintf(rulesFile, "lvalue -> ID\n");}
+              |LOCAL ID   {$$ = manage_lvalue_local_id($2); fprintf(rulesFile,"lvalue -> LOCAL ID\n");}
+              |DCOLON ID  {$$ = manage_lvalue_global_id($2);fprintf(rulesFile,"lvalue -> DCOLON ID\n");}
+              |member     {fprintf(rulesFile,"lvalue -> member\n");}
               ;
 
-member:       lvalue PERIOD ID {fprintf(rulesFile, "member -> lvalue PERIOD ID\n");}
+member:       lvalue PERIOD ID             {fprintf(rulesFile, "member -> lvalue PERIOD ID\n");}
               |lvalue LSQUARE expr RSQUARE {fprintf(rulesFile, "member -> lvalue LSQUARE expr RSQUARE\n");}
-              |call PERIOD ID {fprintf(rulesFile, "member -> call PERIOD ID\n");}
-              |call LSQUARE expr RSQUARE {fprintf(rulesFile, "member -> call LSQUARE expr RSQUARE\n");}
+              |call PERIOD ID              {fprintf(rulesFile, "member -> call PERIOD ID\n");}
+              |call LSQUARE expr RSQUARE   {fprintf(rulesFile, "member -> call LSQUARE expr RSQUARE\n");}
               ;
 
-call:         call LPAREN elist RPAREN {fprintf(rulesFile, "call -> call LPAREN elist RPAREN\n");}
-              |lvalue callsuffix {if(!($1 == NULL)) $1->uniontype = variable; fprintf(rulesFile, "call -> lvalue callsuffix\n");}
+call:         call LPAREN elist RPAREN                   {fprintf(rulesFile, "call -> call LPAREN elist RPAREN\n");}
+              |lvalue callsuffix                         {if(!($1 == NULL)) $1->uniontype = variable; fprintf(rulesFile, "call -> lvalue callsuffix\n");}
               |LPAREN funcdef RPAREN LPAREN elist RPAREN {fprintf(rulesFile, "call -> LPAREN funcdef RPAREN LPAREN elist RPAREN\n");}
               ;
               
-callsuffix:   normcall {fprintf(rulesFile, "callsuffix -> normcall\n");}
+callsuffix:   normcall    {fprintf(rulesFile, "callsuffix -> normcall\n");}
               |methodcall {fprintf(rulesFile, "callsuffix -> methodcall\n");}
               ;
             
@@ -182,16 +132,16 @@ normcall:     LPAREN elist RPAREN {fprintf(rulesFile, "normcall -> LPAREN elist 
 methodcall:   DPERIOD ID LPAREN elist RPAREN {fprintf(rulesFile, "methodcall -> DPERIOD ID LPAREN elist RPAREN\n");}
               ;
 
-elist:        expr {fprintf(rulesFile, "elist -> expr\n");}
+elist:        expr              {fprintf(rulesFile, "elist -> expr\n");}
               |elist COMMA expr {fprintf(rulesFile, "elist -> elist COMMA expr\n");}
-              | {fprintf(rulesFile, "elist -> \n");}
+              |                 {fprintf(rulesFile, "elist -> \n");}
               ;
 
-objectdef:    LSQUARE elist RSQUARE {fprintf(rulesFile, "objectdef -> LSQUARE elist RSQUARE\n");}
+objectdef:    LSQUARE elist RSQUARE    {fprintf(rulesFile, "objectdef -> LSQUARE elist RSQUARE\n");}
               |LSQUARE indexed RSQUARE {fprintf(rulesFile, "objectdef -> LSQUARE indexed RSQUARE\n");}
               ;
 
-indexed:      indexedelem {fprintf(rulesFile, "indexed -> indexedelem\n");}
+indexed:      indexedelem                 {fprintf(rulesFile, "indexed -> indexedelem\n");}
               |indexed COMMA indexedelem  {fprintf(rulesFile, "indexed -> indexed COMMA indexedelem\n");}
               ;
 
@@ -212,49 +162,17 @@ funcdef:      FUNCTION ID {
               |FUNCTION { functionCounter++; symTab_insert(make_anonymous_func(), alpha_yylineno, function, userfunc); } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = true; loopCounterStack.push(loopCounter); loopCounter = 0; } block {functionCounter--; loopCounter = loopCounterStack.top(); loopCounterStack.pop(); fprintf(rulesFile,"funcdef -> FUNCTION LPAREN idlist RPAREN block\n");}
               ;
 
-const:        INTEGER {fprintf(rulesFile, "const -> INTEGER\n");}
-              |REAL {fprintf(rulesFile, "const -> REAL\n");}
-              |STRING {fprintf(rulesFile, "const -> STRING\n");}
-              |NIL {fprintf(rulesFile, "const -> NIL\n");}
-              |TRUE {fprintf(rulesFile, "const -> TRUE\n");}
-              |FALSE {fprintf(rulesFile, "const -> FALSE\n");}
+const:        INTEGER   {fprintf(rulesFile, "const -> INTEGER\n");}
+              |REAL     {fprintf(rulesFile, "const -> REAL\n");}
+              |STRING   {fprintf(rulesFile, "const -> STRING\n");}
+              |NIL      {fprintf(rulesFile, "const -> NIL\n");}
+              |TRUE     {fprintf(rulesFile, "const -> TRUE\n");}
+              |FALSE    {fprintf(rulesFile, "const -> FALSE\n");} 
               ;
 
-idlist:       ID {
-                if(isFormal){
-                  if(symTab_lookup($1, get_current_scope())) {
-                    print_error("error, redifinition of formal argument:");
-                  }
-                  else if (is_libfunc($1)){
-                    print_error("error, cannot override library functions:");
-                  }
-                  else {
-                    symTab_insert($1, alpha_yylineno, variable, formal);
-                  }
-                }
-                else if(!symTab_lookup($1, get_current_scope())) {
-                  symTab_insert($1, alpha_yylineno, variable, local);
-                }
-                {fprintf(rulesFile,"idlist -> ID\n");}
-              }
-              |idlist COMMA ID {
-                if(isFormal){
-                  if(symTab_lookup($3, get_current_scope())){
-                    print_error("error, redifinition of formal argument:");
-                  }
-                  else if (is_libfunc($3)){
-                    print_error("error, cannot override library functions:");
-                  }
-                  else {
-                    symTab_insert($3, alpha_yylineno, variable, formal);
-                  }
-                }
-                else if(!symTab_lookup($3, get_current_scope())){
-                  symTab_insert($3, alpha_yylineno, variable, local);
-                }
-                {fprintf(rulesFile,"idlist -> idlist COMMA ID\n");}
-			        }
-              | {fprintf(rulesFile,"idlist -> \n");}
+idlist:       ID                {manage_idlist_id($1); fprintf(rulesFile,"idlist -> ID\n");}
+              |idlist COMMA ID  {manage_idlist_comma_id($3); fprintf(rulesFile,"idlist -> idlist COMMA ID\n");}
+              |                 {fprintf(rulesFile,"idlist -> \n");}
               ;
 
 ifstmt:       IF LPAREN expr RPAREN stmt ELSE stmt {fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt ELSE stmt\n");}
@@ -275,7 +193,7 @@ forstmt:      FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN loopstmt
               ;
 
 returnstmt:   RETURN expr SEMICOLON {if(!functionCounter) print_error("error, cannot use return outside of function"); fprintf(rulesFile, "returnstmt -> RETURN expr SEMICOLON\n");}
-              |RETURN SEMICOLON {if(!functionCounter) print_error("error, cannot use return outside of function"); fprintf(rulesFile, "returnstmt -> RETURN SEMICOLON\n");}
+              |RETURN SEMICOLON     {if(!functionCounter) print_error("error, cannot use return outside of function"); fprintf(rulesFile, "returnstmt -> RETURN SEMICOLON\n");}
               ;
 
 %%
