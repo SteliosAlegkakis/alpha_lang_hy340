@@ -1,10 +1,5 @@
 %{
 #include "./parser_lib/parser_lib.hpp"
-FILE* rulesFile;
-bool isFormal = false;
-int loopCounter = 0;
-int functionCounter = 0;
-SymtabEntry* lookup_tmp;
 %}
 
 
@@ -66,8 +61,8 @@ stmt:         expr SEMICOLON {fprintf(rulesFile, "stmt -> expr SEMICOLON\n");}
               |whilestmt {fprintf(rulesFile, "stmt -> whilestmt\n");}
               |forstmt {fprintf(rulesFile, "stmt -> forstmt\n");}
               |returnstmt {fprintf(rulesFile, "stmt -> returnstmt\n");}
-              |BREAK SEMICOLON {fprintf(rulesFile, "stmt -> BREAK SEMICOLON\n");}
-              |CONTINUE SEMICOLON {fprintf(rulesFile, "stmt -> CONTINUE SEMICOLON\n");}
+              |BREAK {if(!loopCounter) print_error("error, cannot use break outside of loop:");} SEMICOLON {fprintf(rulesFile, "stmt -> BREAK SEMICOLON\n");}
+              |CONTINUE {if(!loopCounter) print_error("error, cannot use continue outside of loop:");} SEMICOLON {fprintf(rulesFile, "stmt -> CONTINUE SEMICOLON\n");}
               |block {fprintf(rulesFile, "stmt -> block\n");}
               |funcdef {fprintf(rulesFile, "stmt -> funcdef\n");} 
               |SEMICOLON {fprintf(rulesFile, "stmt -> SEMICOLON\n");}
@@ -111,21 +106,21 @@ primary:      lvalue {fprintf(rulesFile, "primary -> lvalue\n");}
               ;
 
 lvalue:       ID { 
-                if(functionCounter){
-                  if(symTab_lookup_infunc($1)) print_error("error, cannot acces identifier: ");
-                  else if(symTab_lookup($1, GLOBAL_SCOPE)) {
-                    lookup_tmp = symTab_lookup($1, GLOBAL_SCOPE);
-                    $$ = lookup_tmp;
-                  }
-                  else {
-                    if(!is_libfunc($1)){
-                      symTab_insert($1, alpha_yylineno, variable, local);
-                      lookup_tmp = symTab_lookup($1, get_current_scope());
-                      $$ = lookup_tmp;
-                    }
-                  }
-                }
-                else if(!symTab_lookup($1)) {
+                // if(functionCounter){
+                //   if(symTab_lookup_infunc($1)) print_error("error, cannot acces identifier: ");
+                //   else if(symTab_lookup($1, GLOBAL_SCOPE)) {
+                //     lookup_tmp = symTab_lookup($1, GLOBAL_SCOPE);
+                //     $$ = lookup_tmp;
+                //   }
+                //   else {
+                //     if(!is_libfunc($1)){
+                //       symTab_insert($1, alpha_yylineno, variable, local);
+                //       lookup_tmp = symTab_lookup($1, get_current_scope());
+                //       $$ = lookup_tmp;
+                //     }
+                //   }
+                // }
+                /*else*/ if(!symTab_lookup($1)) {
                   symTab_insert($1, alpha_yylineno, variable, local);
                   lookup_tmp = symTab_lookup($1, get_current_scope());
                   $$ = lookup_tmp;
@@ -213,8 +208,8 @@ funcdef:      FUNCTION ID {
                 else symTab_insert($2, alpha_yylineno, function, userfunc);
               }
 				      else print_error("error, redefinition of identifier:");
-			        } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = false;} block {functionCounter--;fprintf(rulesFile,"funcdef -> FUNCTION ID LPAREN idlist RPAREN block\n");}
-              |FUNCTION { functionCounter++; symTab_insert(make_anonymous_func(), alpha_yylineno, function, userfunc); } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = true; } block {functionCounter--; fprintf(rulesFile,"funcdef -> FUNCTION LPAREN idlist RPAREN block\n");}
+			        } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = false; loopCounterStack.push(loopCounter); loopCounter=0;} block {functionCounter--; loopCounter = loopCounterStack.top(); loopCounterStack.pop(); fprintf(rulesFile,"funcdef -> FUNCTION ID LPAREN idlist RPAREN block\n");}
+              |FUNCTION { functionCounter++; symTab_insert(make_anonymous_func(), alpha_yylineno, function, userfunc); } LPAREN {increase_scope(); isFormal = true; } idlist RPAREN {decrease_scope(); isFormal = true; loopCounterStack.push(loopCounter); loopCounter = 0; } block {functionCounter--; loopCounter = loopCounterStack.top(); loopCounterStack.pop(); fprintf(rulesFile,"funcdef -> FUNCTION LPAREN idlist RPAREN block\n");}
               ;
 
 const:        INTEGER {fprintf(rulesFile, "const -> INTEGER\n");}
@@ -279,11 +274,8 @@ whilestmt:    WHILE LPAREN expr RPAREN loopstmt
 forstmt:      FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN loopstmt
               ;
 
-whilestmt:    WHILE LPAREN expr RPAREN loopstmt
-              ;
-
-returnstmt:   RETURN expr SEMICOLON {fprintf(rulesFile, "returnstmt -> RETURN expr SEMICOLON\n");}
-              |RETURN SEMICOLON {fprintf(rulesFile, "returnstmt -> RETURN SEMICOLON\n");}
+returnstmt:   RETURN expr SEMICOLON {if(!functionCounter) print_error("error, cannot use return outside of function"); fprintf(rulesFile, "returnstmt -> RETURN expr SEMICOLON\n");}
+              |RETURN SEMICOLON {if(!functionCounter) print_error("error, cannot use return outside of function"); fprintf(rulesFile, "returnstmt -> RETURN SEMICOLON\n");}
               ;
 
 %%

@@ -1,6 +1,12 @@
 #include "parser_lib.hpp"
 
+FILE* rulesFile;
 int anonymousCounter = 0;
+int functionCounter = 0;
+bool isFormal = false;
+int loopCounter;
+std::stack<int> loopCounterStack;
+SymtabEntry* lookup_tmp;
 
 int alpha_yyerror(const char* yaccProvidedMessage) {
 	fprintf(stderr, "\033[1;31m%s: '%s' in line: %d\033[0m\n",yaccProvidedMessage, alpha_yytext, alpha_yylineno);
