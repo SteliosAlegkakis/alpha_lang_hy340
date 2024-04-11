@@ -51,14 +51,14 @@ char* make_anonymous_func() {
 
 SymtabEntry* manage_lvalue_id(char *name) {
 	if(functionCounter){
-        if(symTab_lookup_infunc(name)){
+        if(symTab_lookup(name, get_current_scope()))
+            return symTab_lookup(name, get_current_scope());
+        else if(symTab_lookup_infunc(name)){
             if(symTab_lookup_infunc(name)->uniontype == variable) {
                 print_error("error, cannot acces identifier: ");
                 exit(EXIT_FAILURE);
             }
         }
-        else if(symTab_lookup(name, get_current_scope()))
-            return symTab_lookup(name, get_current_scope());
         else if(symTab_lookup(name, GLOBAL_SCOPE))
             return symTab_lookup(name, GLOBAL_SCOPE);
         else {
