@@ -1,4 +1,4 @@
-#include "../symbol_table/symbol_table.hpp"
+#include "../../symbol_table/symbol_table.hpp"
 #include <stack>
 
 extern int alpha_yylineno;

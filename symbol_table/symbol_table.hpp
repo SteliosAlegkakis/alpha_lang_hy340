@@ -35,7 +35,7 @@ typedef struct Function {
 
 } Function;
 
-enum symbolType { global, local, formal, userfunc, libfunc };
+enum symbolType { global, local, formal, userfunc, libfunc, temporary };
 
 enum unionType { variable, function };
 

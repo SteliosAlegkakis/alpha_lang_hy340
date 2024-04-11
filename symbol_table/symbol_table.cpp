@@ -16,6 +16,7 @@ const char* symbolType_toString(int symbolType) {
     else if(symbolType == 2) return "formal argument";
     else if(symbolType == 3) return "user function";
     else if(symbolType == 4) return "library function";
+    else if(symbolType == 5) return "temporary variable";
     exit(EXIT_FAILURE);
 }
 
