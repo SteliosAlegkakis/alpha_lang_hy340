@@ -12,4 +12,5 @@ $testFiles = Get-ChildItem -Path $testFilesDirectory -Filter "*.asc"
 foreach ($testFile in $testFiles) {
     Write-Host "`nRunning test file: $($testFile.Name)"
     & $programPath $testFile.FullName
+    Write-Host ""
 }

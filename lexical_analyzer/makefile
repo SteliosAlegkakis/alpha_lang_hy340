@@ -1,5 +1,11 @@
+ifeq ($(OS),Windows_NT)
+    RM = del -f
+else
+    RM = rm -f
+endif
+
 all:
 	flex scanner.l
 
 clean:
-	del -f scanner.cpp
+	$(RM) scanner.cpp
