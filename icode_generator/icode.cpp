@@ -97,3 +97,120 @@ SymtabEntry* _newtemp(void) {
         return new SymtabEntry(get_current_scope(), name, alpha_yylineno, variable, temporary);
     return sym;
 }
+
+void reset_formal_arg_offset(void){
+    formalArgOffset = 0;
+}
+
+void reset_function_locals_offset(void){
+    functionLocalOffset = 0;
+}
+
+void restore_curr_scope_offset(unsigned n){
+    switch(curr_scopespace()){
+        case programvar:
+            programVarOffset = n;
+            break;
+        case functionlocal:
+            functionLocalOffset = n;
+            break;
+        case formalarg:
+            formalArgOffset = n;
+            break;
+        default:
+            assert(0);
+    }
+}
+
+unsigned next_quad_label(void){
+    return currQuad;
+}
+
+void patch_label(unsigned quad_No, unsigned _label){
+    assert(quad_No < currQuad && !quads[quad_No].label);
+    quads[quad_No].label = _label;
+}
+
+expr* lvalue_expr(symbol* _sym){
+    assert(_sym);
+    expr* e = (expr*) malloc (sizeof(expr));
+    memset(e, 0, sizeof(expr));
+    e->next = (expr*) 0;
+    e->sym = _sym;
+
+    switch (_sym->type)
+    {
+    case var_s:
+        e->type = var_e;
+        break;
+    case programfunc_s:
+        e->type = programfunc_e;
+        break;
+    case libraryfunc_s:
+        e->type = libraryfunc_e;
+        break;
+    default:
+        assert(0);
+    }
+    return e;
+}
+
+expr* new_expr(expr_t _t){
+    expr* _e = (expr*) malloc(sizeof(expr));
+    memset(_e, 0 ,sizeof(expr));
+    _e->type = _t;
+    return _e; 
+}
+
+expr* new_expr_const_string(char* _s){
+    expr* e = new_expr(conststring_e);
+    e->strConst = strdup(_s);
+    return e;
+}
+
+expr* emit_if_table_item(expr* e){
+    if(e->type != tableitem_e){
+        return e;
+    }else{
+        expr* _result = new_expr(var_e);
+        //_result->sym = _newtemp();
+        _emit(_tablegetelem,e,e->index,_result,NULL,0);
+        return _result;
+    }
+}
+
+/*expr* make_call(expr* _lv, expr* _reversed_elist){
+    expr* func = emit_if_table_item(_lv);
+    while(_reversed_elist){
+        _emit(_param,_reversed_elist,NULL,NULL,NULL,0);
+        _reversed_elist = _reversed_elist->next;
+    }
+    //_emit(call,func,NULL,NULL,NULL,0);
+    expr* result1 = new_expr(var_e);
+    //result1->sym = _newtemp();
+
+}*/
+
+expr* new_expr_const_num(double _i){
+    expr* e1 = new_expr(constnum_e);
+    e1->numConst = _i;
+    return e1;
+}
+
+unsigned int is_temp_name(char* s){
+    return *s == '_';
+}
+
+unsigned int is_temp_expr(expr* e){
+    return e->sym && is_temp_name(e->sym->name);
+}
+
+expr* new_expr_const_bool(unsigned int _b){
+    expr* e = new_expr(constbool_e);
+    e->boolConst = !!_b;
+    return e;
+}
+
+unsigned next_quad(void){
+    return currQuad;
+}

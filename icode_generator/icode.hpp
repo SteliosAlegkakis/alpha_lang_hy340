@@ -56,6 +56,13 @@ struct quad {
     unsigned line;
 };
 
+struct call{
+    expr* elist;
+    unsigned char method;
+    char* name;
+};
+
+
 scopespace_t curr_scopespace(void);
 unsigned curr_scope_offset(void);
 void in_curr_scope_offset(void);
@@ -66,3 +73,19 @@ void _emit(iopcode op,expr* arg1, expr* arg2, expr* result, unsigned label, unsi
 char* _newtempname(void);
 void _resettemp(void);
 SymtabEntry* _newtemp(void);
+void reset_formal_arg_offset(void);
+void reset_function_locals_offset(void);
+void restore_curr_scope_offset(unsigned n);
+unsigned next_quad_label(void);
+void patch_label(unsigned quad_No, unsigned label);
+expr* lvalue_expr(symbol* sym);
+expr* new_expr(expr_t _t);
+expr* new_expr_const_string(char* s);
+expr* emit_if_table_item(expr* e);
+expr* make_call(expr* _lv, expr* _reversed_elist);
+expr* new_expr_const_num(double _i);
+void comperror();
+unsigned int is_temp_name(char* s);
+unsigned int is_temp_expr(expr* e);
+expr* new_expr_const_bool(unsigned int _b);
+unsigned next_quad(void);
