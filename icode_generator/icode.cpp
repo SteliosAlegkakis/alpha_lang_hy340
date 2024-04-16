@@ -23,7 +23,7 @@ void _expand(void) {
 
 }
 
-void _emit(iopcode op, expr* arg1, expr* arg2, expr* result, unsigned label, unsigned line) {
+void _emit(iopcode op, expr* arg1, expr* arg2, expr* result) {
     
     if(currQuad == total) 
         _expand();
@@ -33,8 +33,8 @@ void _emit(iopcode op, expr* arg1, expr* arg2, expr* result, unsigned label, uns
     newQuad->arg1 = arg1;
     newQuad->arg2 = arg2;
     newQuad->result = result;
-    newQuad->label = label;
-    newQuad->line = line;
+    newQuad->label = next_quad_label();
+    newQuad->line = alpha_yylineno;
 }
 
 scopespace_t curr_scopespace(void) {
@@ -94,7 +94,7 @@ SymtabEntry* _newtemp(void) {
     char* name = _newtempname();
     SymtabEntry* sym = symTab_lookup(name, get_current_scope());
     if (sym == NULL)
-        return new SymtabEntry(get_current_scope(), name, alpha_yylineno, variable, temporary);
+        return new SymtabEntry(get_current_scope(), name, alpha_yylineno, variable, local, curr_scopespace(), curr_scope_offset());
     return sym;
 }
 
@@ -168,16 +168,16 @@ expr* new_expr_const_string(char* _s){
     return e;
 }
 
-expr* emit_if_table_item(expr* e){
-    if(e->type != tableitem_e){
-        return e;
-    }else{
-        expr* _result = new_expr(var_e);
-        //_result->sym = _newtemp();
-        _emit(_tablegetelem,e,e->index,_result,NULL,0);
-        return _result;
-    }
-}
+// expr* emit_if_table_item(expr* e){
+//     if(e->type != tableitem_e){
+//         return e;
+//     }else{
+//         expr* _result = new_expr(var_e);
+//         _result->sym = _newtemp();
+//         _emit(_tablegetelem,e,e->index,_result,next_quad_label(),alpha_yylineno);
+//         return _result;
+//     }
+// }
 
 /*expr* make_call(expr* _lv, expr* _reversed_elist){
     expr* func = emit_if_table_item(_lv);
@@ -193,7 +193,7 @@ expr* emit_if_table_item(expr* e){
 
 expr* new_expr_const_num(double _i){
     expr* e1 = new_expr(constnum_e);
-    e1->numConst = _i;
+    e1->numConst = _i; 
     return e1;
 }
 

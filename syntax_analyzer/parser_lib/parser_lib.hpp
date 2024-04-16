@@ -1,4 +1,4 @@
-#include "../../symbol_table/symbol_table.hpp"
+#include "../../icode_generator/icode.hpp"
 #include <stack>
 
 extern int alpha_yylineno;
@@ -31,3 +31,6 @@ void manage_funcname_anonymous();
 void manage_funcprefix();
 void manage_funcargs();
 void manage_funcbody();
+
+//puts all the library functions in the symbol table
+void init_library_func();

@@ -63,13 +63,13 @@ SymtabEntry* manage_lvalue_id(char *name) {
             return symTab_lookup(name, GLOBAL_SCOPE);
         else {
             if(!is_libfunc(name)){
-                symTab_insert(name, alpha_yylineno, variable, local);
+                symTab_insert(name, alpha_yylineno, variable, local, curr_scopespace(), curr_scope_offset());
                 return symTab_lookup(name, get_current_scope());
             }
         }
     }
     else if(!symTab_lookup(name)) {
-        symTab_insert(name, alpha_yylineno, variable, local);
+        symTab_insert(name, alpha_yylineno, variable, local, curr_scopespace(), curr_scope_offset());
         return symTab_lookup(name, get_current_scope());
     }
     else{
@@ -81,7 +81,7 @@ SymtabEntry* manage_lvalue_id(char *name) {
 SymtabEntry* manage_lvalue_local_id(char* name) {
 	if(!symTab_lookup(name, get_current_scope())){
         if(!is_libfunc(name)){
-        	symTab_insert(name, alpha_yylineno, variable, local);
+        	symTab_insert(name, alpha_yylineno, variable, local, curr_scopespace(), curr_scope_offset());
             return symTab_lookup(name, get_current_scope());
         }
         else {
@@ -109,10 +109,10 @@ void manage_idlist_id(char* name) {
         else if (is_libfunc(name))
             print_error("error, cannot override library functions:");
         else
-            symTab_insert(name, alpha_yylineno, variable, formal);
+            symTab_insert(name, alpha_yylineno, variable, formal, curr_scopespace(), curr_scope_offset());
     }
     else if(!symTab_lookup(name, get_current_scope()))
-        symTab_insert(name, alpha_yylineno, variable, local);
+        symTab_insert(name, alpha_yylineno, variable, local, curr_scopespace(), curr_scope_offset());
 }
 
 void manage_idlist_comma_id(char* name) {
@@ -122,24 +122,24 @@ void manage_idlist_comma_id(char* name) {
         else if (is_libfunc(name))
             print_error("error, cannot override library functions:");
     	else
-            symTab_insert(name, alpha_yylineno, variable, formal);
+            symTab_insert(name, alpha_yylineno, variable, formal, curr_scopespace(), curr_scope_offset());
     }
     else if(!symTab_lookup(name, get_current_scope()))
-        symTab_insert(name, alpha_yylineno, variable, local);
+        symTab_insert(name, alpha_yylineno, variable, local, curr_scopespace(), curr_scope_offset());
 }
 
 void manage_funcname_named(char* name) {
     functionCounter++;
     if(!symTab_lookup(name, get_current_scope())) {
         if(is_libfunc(name)) print_error("error, cannot override library functions:");
-        else symTab_insert(name, alpha_yylineno, function, userfunc);
+        else symTab_insert(name, alpha_yylineno, function, userfunc, curr_scopespace(), curr_scope_offset());
     }
 	else print_error("error, redefinition of identifier:");
 }
 
 void manage_funcname_anonymous() {
     functionCounter++; 
-    symTab_insert(make_anonymous_func(), alpha_yylineno, function, userfunc);
+    symTab_insert(make_anonymous_func(), alpha_yylineno, function, userfunc, curr_scopespace(), curr_scope_offset());
 }
 
 void manage_funcprefix() {
@@ -158,4 +158,19 @@ void manage_funcbody() {
     functionCounter--; 
     loopCounter = loopCounterStack.top(); 
     loopCounterStack.pop();
+}
+
+void init_library_func(){
+    symTab_insert((char*)"print" , 0, function, libfunc, curr_scopespace(), 0);
+    symTab_insert((char*)"input" ,0 , function, libfunc, curr_scopespace(), 0);
+    symTab_insert((char*)"objectmemberkeys", 0, function, libfunc, curr_scopespace(), 0);
+    symTab_insert((char*)"objectotalmembers",0 , function, libfunc, curr_scopespace(), 0);
+    symTab_insert((char*)"objectcopy", 0, function, libfunc, curr_scopespace(), 0);
+    symTab_insert((char*)"totalarguments", 0, function, libfunc, curr_scopespace(), 0);
+    symTab_insert((char*)"argument", 0, function, libfunc, curr_scopespace(), 0);
+    symTab_insert((char*)"typeof", 0, function, libfunc, curr_scopespace(), 0);
+    symTab_insert((char*)"strtonum", 0, function, libfunc, curr_scopespace(), 0);
+    symTab_insert((char*)"sqrt", 0, function, libfunc, curr_scopespace(), 0);
+    symTab_insert((char*)"cos", 0, function, libfunc, curr_scopespace(), 0);
+    symTab_insert((char*)"sin", 0, function,libfunc, curr_scopespace(), 0);
 }

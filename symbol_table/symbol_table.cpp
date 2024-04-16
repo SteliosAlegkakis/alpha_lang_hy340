@@ -26,11 +26,11 @@ const char* unionType_toString(int union_type) {
     exit(EXIT_FAILURE);
 }
 
-void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum symbolType symboltype) {
+void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum symbolType symboltype, scopespace_t space, unsigned int offset) {  
     if(uniontype == variable) {
         if(currentScope == 0) symboltype = global;
     }
-    SymtabEntry* entry = new SymtabEntry(currentScope, name, line, uniontype, symboltype);
+    SymtabEntry* entry = new SymtabEntry(currentScope, name, line, uniontype, symboltype, space, offset);
     symbolTable.insert({name,entry});
     printf("name: '%s' line: %d scope: %d symbol type: '%s'\n", name, line, currentScope, symbolType_toString(symboltype));
 }
@@ -102,19 +102,4 @@ void symTab_print() {
             printf("name: %s isActive: %d scope: %d line: %d symbolType: %s\n",entry.second->symbol.variable->name,entry.second->isActive,entry.second->symbol.variable->scope,entry.second->symbol.variable->line,symbolType_toString(entry.second->symboltype));
         }
     }
-}
-
-void init_library_func(){
-    symTab_insert((char*)"print" , 0, function, libfunc);
-    symTab_insert((char*)"input" ,0 , function, libfunc);
-    symTab_insert((char*)"objectmemberkeys", 0, function, libfunc);
-    symTab_insert((char*)"objectotalmembers",0 , function, libfunc);
-    symTab_insert((char*)"objectcopy", 0, function, libfunc);
-    symTab_insert((char*)"totalarguments", 0, function, libfunc);
-    symTab_insert((char*)"argument", 0, function, libfunc);
-    symTab_insert((char*)"typeof", 0, function, libfunc);
-    symTab_insert((char*)"strtonum", 0, function, libfunc);
-    symTab_insert((char*)"sqrt", 0, function, libfunc);
-    symTab_insert((char*)"cos", 0, function, libfunc);
-    symTab_insert((char*)"sin", 0, function,libfunc);
 }

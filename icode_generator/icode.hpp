@@ -16,14 +16,25 @@ enum iopcode {
     _tablegetelem, _tablesetelem, _jump
 };
 
-enum scopespace_t { programvar, functionlocal, formalarg };
-
 enum symbol_t { var_s, programfunc_s, libraryfunc_s };
 
 enum expr_t {
-    var_e, tableitem_e, arithexpr_e, boolexpr_e, assignexpr_e, 
-    newtable_e, constnum_e, constbool_e, conststring_e, nil_e, 
-    libraryfunc_e, programfunc_e
+    var_e, 
+    tableitem_e, 
+
+    libraryfunc_e, 
+    programfunc_e,
+    
+    arithexpr_e, 
+    boolexpr_e, 
+    assignexpr_e, 
+    newtable_e,
+    
+    constnum_e, 
+    constbool_e, 
+    conststring_e, 
+
+    nil_e
 };
 
 struct symbol {
@@ -33,6 +44,15 @@ struct symbol {
     unsigned int offset;
     unsigned int scope;
     unsigned int line;
+
+    symbol(symbol_t _type, char* _name, scopespace_t _space, unsigned int _offset, unsigned int _scope, unsigned int _line) {
+        type = _type;
+        name = strdup(_name);
+        space = _space;
+        offset = _offset;
+        scope = _scope;
+        line = _line;
+    }
 };
 
 struct expr {
@@ -56,10 +76,10 @@ struct quad {
     unsigned line;
 };
 
-struct call{
-    expr* elist;
+struct call {
+    expr*         elist;
     unsigned char method;
-    char* name;
+    char*         name;
 };
 
 
@@ -69,7 +89,7 @@ void in_curr_scope_offset(void);
 void enter_scopespace(void);
 void exit_scopespace(void);
 void _expand(void);
-void _emit(iopcode op,expr* arg1, expr* arg2, expr* result, unsigned label, unsigned line);
+void _emit(iopcode op, expr* arg1, expr* arg2, expr* result);
 char* _newtempname(void);
 void _resettemp(void);
 SymtabEntry* _newtemp(void);
