@@ -8,6 +8,8 @@
 
 enum scopespace_t { programvar, functionlocal, formalarg };
 
+enum symbol_t { var_s, programfunc_s, libraryfunc_s };
+
 enum symbolType { global, local, formal, userfunc, libfunc };
 
 enum unionType { variable, function };
@@ -25,6 +27,7 @@ typedef struct Variable {
         line = _line;
         name = strdup(_name);
         space = _space;
+        offset = _offset;
     }
 
 } Variable;
@@ -56,11 +59,13 @@ typedef struct SymtabEntry {
     } symbol;
 
     enum symbolType symboltype;
+    enum symbol_t symbol_t;
 
-    SymtabEntry(unsigned int _scope, char* _name, unsigned int _line, enum unionType _uniontype, enum symbolType _symboltype, scopespace_t _space, unsigned int _offset) {
+    SymtabEntry(unsigned int _scope, char* _name, unsigned int _line, enum unionType _uniontype, enum symbolType _symboltype,enum symbol_t symbol_t, scopespace_t _space, unsigned int _offset) {
         isActive = true;
         uniontype = _uniontype;
         symboltype = _symboltype;
+        symbol_t = symbol_t;
         if(uniontype == variable) 
             symbol.variable = new Variable(_scope, _name, _line, _space, _offset);
         if(uniontype == function)
@@ -74,7 +79,7 @@ const char* symbolType_toString(int symbolType);
 const char* unionType_toString(int union_type);
 
 //inserts an entry with the given arguments to the symbolTable
-void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum symbolType symboltype, scopespace_t space, unsigned int offset );
+void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum symbolType symboltype,enum symbol_t symbol_t, scopespace_t space, unsigned int offset );
 
 //checks if a symbol with the given name exists in the symbolTable
 //returns the first entry with given name if it exists, else returns NULL

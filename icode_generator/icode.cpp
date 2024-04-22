@@ -94,7 +94,7 @@ SymtabEntry* _newtemp(void) {
     char* name = _newtempname();
     SymtabEntry* sym = symTab_lookup(name, get_current_scope());
     if (sym == NULL)
-        return new SymtabEntry(get_current_scope(), name, alpha_yylineno, variable, local, curr_scopespace(), curr_scope_offset());
+        return new SymtabEntry(get_current_scope(), name, alpha_yylineno, variable, local, var_s, curr_scopespace(), curr_scope_offset());
     return sym;
 }
 
@@ -131,14 +131,14 @@ void patch_label(unsigned quad_No, unsigned _label){
     quads[quad_No].label = _label;
 }
 
-expr* lvalue_expr(symbol* _sym){
+expr* lvalue_expr(SymtabEntry* _sym){
     assert(_sym);
     expr* e = (expr*) malloc (sizeof(expr));
     memset(e, 0, sizeof(expr));
     e->next = (expr*) 0;
     e->sym = _sym;
 
-    switch (_sym->type)
+    switch (_sym->symboltype)
     {
     case var_s:
         e->type = var_e;
@@ -168,28 +168,28 @@ expr* new_expr_const_string(char* _s){
     return e;
 }
 
-// expr* emit_if_table_item(expr* e){
-//     if(e->type != tableitem_e){
-//         return e;
-//     }else{
-//         expr* _result = new_expr(var_e);
-//         _result->sym = _newtemp();
-//         _emit(_tablegetelem,e,e->index,_result,next_quad_label(),alpha_yylineno);
-//         return _result;
-//     }
-// }
+expr* emit_if_table_item(expr* e){
+    if(e->type != tableitem_e){
+        return e;
+    }else{
+        expr* _result = new_expr(var_e);
+        _result->sym = _newtemp();
+        _emit(_tablegetelem,e,e->index,_result);
+        return _result;
+    }
+}
 
-/*expr* make_call(expr* _lv, expr* _reversed_elist){
+expr* make_call(expr* _lv, expr* _reversed_elist){
     expr* func = emit_if_table_item(_lv);
     while(_reversed_elist){
-        _emit(_param,_reversed_elist,NULL,NULL,NULL,0);
+        _emit(_param,_reversed_elist,NULL,NULL);
         _reversed_elist = _reversed_elist->next;
     }
-    //_emit(call,func,NULL,NULL,NULL,0);
+    _emit(_call,func,NULL,NULL);
     expr* result1 = new_expr(var_e);
-    //result1->sym = _newtemp();
+    result1->sym = _newtemp();
 
-}*/
+}
 
 expr* new_expr_const_num(double _i){
     expr* e1 = new_expr(constnum_e);
@@ -202,7 +202,7 @@ unsigned int is_temp_name(char* s){
 }
 
 unsigned int is_temp_expr(expr* e){
-    return e->sym && is_temp_name(e->sym->name);
+    return e->sym && is_temp_name(e->sym->symbol.variable->name);
 }
 
 expr* new_expr_const_bool(unsigned int _b){

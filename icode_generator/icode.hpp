@@ -16,8 +16,6 @@ enum iopcode {
     _tablegetelem, _tablesetelem, _jump
 };
 
-enum symbol_t { var_s, programfunc_s, libraryfunc_s };
-
 enum expr_t {
     var_e, 
     tableitem_e, 
@@ -37,27 +35,9 @@ enum expr_t {
     nil_e
 };
 
-struct symbol {
-    symbol_t     type;
-    char*        name;
-    scopespace_t space;
-    unsigned int offset;
-    unsigned int scope;
-    unsigned int line;
-
-    symbol(symbol_t _type, char* _name, scopespace_t _space, unsigned int _offset, unsigned int _scope, unsigned int _line) {
-        type = _type;
-        name = strdup(_name);
-        space = _space;
-        offset = _offset;
-        scope = _scope;
-        line = _line;
-    }
-};
-
 struct expr {
     expr_t        type;
-    symbol*       sym;
+    SymtabEntry*  sym;
     expr*         index;
     double        numConst;
     unsigned char boolConst;
@@ -98,7 +78,7 @@ void reset_function_locals_offset(void);
 void restore_curr_scope_offset(unsigned n);
 unsigned next_quad_label(void);
 void patch_label(unsigned quad_No, unsigned label);
-expr* lvalue_expr(symbol* sym);
+expr* lvalue_expr(SymtabEntry* sym);
 expr* new_expr(expr_t _t);
 expr* new_expr_const_string(char* s);
 expr* emit_if_table_item(expr* e);

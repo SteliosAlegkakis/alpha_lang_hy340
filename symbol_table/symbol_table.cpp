@@ -26,11 +26,11 @@ const char* unionType_toString(int union_type) {
     exit(EXIT_FAILURE);
 }
 
-void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum symbolType symboltype, scopespace_t space, unsigned int offset) {  
+void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum symbolType symboltype, enum symbol_t symbol_t, scopespace_t space, unsigned int offset) {  
     if(uniontype == variable) {
         if(currentScope == 0) symboltype = global;
     }
-    SymtabEntry* entry = new SymtabEntry(currentScope, name, line, uniontype, symboltype, space, offset);
+    SymtabEntry* entry = new SymtabEntry(currentScope, name, line, uniontype, symboltype, symbol_t, space, offset);
     symbolTable.insert({name,entry});
     printf("name: '%s' line: %d scope: %d symbol type: '%s'\n", name, line, currentScope, symbolType_toString(symboltype));
 }
