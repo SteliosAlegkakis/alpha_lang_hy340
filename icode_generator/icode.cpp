@@ -138,7 +138,7 @@ expr* lvalue_expr(SymtabEntry* _sym){
     e->next = (expr*) 0;
     e->sym = _sym;
 
-    switch (_sym->symboltype)
+    switch (_sym->symbol_t)
     {
     case var_s:
         e->type = var_e;
@@ -152,6 +152,7 @@ expr* lvalue_expr(SymtabEntry* _sym){
     default:
         assert(0);
     }
+
     return e;
 }
 
@@ -189,6 +190,8 @@ expr* make_call(expr* _lv, expr* _reversed_elist){
     expr* result1 = new_expr(var_e);
     result1->sym = _newtemp();
 
+    return result1;
+
 }
 
 expr* new_expr_const_num(double _i){
@@ -209,8 +212,4 @@ expr* new_expr_const_bool(unsigned int _b){
     expr* e = new_expr(constbool_e);
     e->boolConst = !!_b;
     return e;
-}
-
-unsigned next_quad(void){
-    return currQuad;
 }

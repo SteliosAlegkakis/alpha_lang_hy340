@@ -7,7 +7,6 @@ bool isFormal = false;
 bool block_b = false;
 int loopCounter;
 std::stack<int> loopCounterStack;
-SymtabEntry* lookup_tmp;
 
 int alpha_yyerror(const char* yaccProvidedMessage) {
 	fprintf(stderr, "\033[1;31m%s: '%s' in line: %d\033[0m\n",yaccProvidedMessage, alpha_yytext, alpha_yylineno);
@@ -49,57 +48,67 @@ char* make_anonymous_func() {
 
 }
 
-SymtabEntry* manage_lvalue_id(char *name) {
+expr* manage_lvalue_id(char *name) {
 	if(functionCounter){
-        if(symTab_lookup(name, get_current_scope()))
-            return symTab_lookup(name, get_current_scope());
+        if(symTab_lookup(name, get_current_scope())){
+        assert(symTab_lookup(name,get_current_scope()));
+            return lvalue_expr(symTab_lookup(name, get_current_scope()));
+        }
         else if(symTab_lookup_infunc(name)){
             if(symTab_lookup_infunc(name)->uniontype == variable) {
                 print_error("error, cannot acces identifier: ");
                 exit(EXIT_FAILURE);
             }
         }
-        else if(symTab_lookup(name, GLOBAL_SCOPE))
-            return symTab_lookup(name, GLOBAL_SCOPE);
+        else if(symTab_lookup(name, GLOBAL_SCOPE)) {
+            assert(symTab_lookup(name, GLOBAL_SCOPE));
+            return lvalue_expr(symTab_lookup(name, GLOBAL_SCOPE));
+        }
         else {
             if(!is_libfunc(name)){
                 symTab_insert(name, alpha_yylineno, variable, local, var_s, curr_scopespace(), curr_scope_offset());
-                return symTab_lookup(name, get_current_scope());
+                assert(symTab_lookup(name, get_current_scope()));
+                return lvalue_expr(symTab_lookup(name, get_current_scope()));
             }
         }
     }
     else if(!symTab_lookup(name)) {
         symTab_insert(name, alpha_yylineno, variable, local, var_s, curr_scopespace(), curr_scope_offset());
-        return symTab_lookup(name, get_current_scope());
+        in_curr_scope_offset();
+        assert(symTab_lookup(name, get_current_scope()));
+        return lvalue_expr(symTab_lookup(name, get_current_scope()));
     }
-    else{
-        return symTab_lookup(name);
-    }
-    return NULL;
+    return lvalue_expr(symTab_lookup(name));
 }
 
-SymtabEntry* manage_lvalue_local_id(char* name) {
+expr* manage_lvalue_local_id(char* name) {
 	if(!symTab_lookup(name, get_current_scope())){
         if(!is_libfunc(name)){
         	symTab_insert(name, alpha_yylineno, variable, local,var_s, curr_scopespace(), curr_scope_offset());
-            return symTab_lookup(name, get_current_scope());
+            in_curr_scope_offset();
+            assert(symTab_lookup(name, get_current_scope()));
+            return lvalue_expr(symTab_lookup(name, get_current_scope()));
         }
         else {
             print_error("error, cannot overide library functions:");
 			exit(EXIT_FAILURE);
 		}	
     }
-    else 
-		return symTab_lookup(name, get_current_scope());
+    else {
+        assert(symTab_lookup(name, get_current_scope()));
+        return lvalue_expr(symTab_lookup(name, get_current_scope()));
+    }
 }
 
-SymtabEntry* manage_lvalue_global_id(char* name) {
+expr* manage_lvalue_global_id(char* name) {
 	if(!symTab_lookup(name, GLOBAL_SCOPE)) {
             print_error("error, could not find global identifier:");
             exit(EXIT_FAILURE);
     }
-	else
-        return symTab_lookup(name, GLOBAL_SCOPE);
+	else {
+        assert(symTab_lookup(name, GLOBAL_SCOPE));
+        return lvalue_expr(symTab_lookup(name, GLOBAL_SCOPE));
+    }
 }
 
 void manage_idlist_id(char* name) {
@@ -128,23 +137,31 @@ void manage_idlist_comma_id(char* name) {
         symTab_insert(name, alpha_yylineno, variable, local, var_s, curr_scopespace(), curr_scope_offset());
 }
 
-void manage_funcname_named(char* name) {
+char* manage_funcname_named(char* name) {
     functionCounter++;
     if(!symTab_lookup(name, get_current_scope())) {
         if(is_libfunc(name)) print_error("error, cannot override library functions:");
         else symTab_insert(name, alpha_yylineno, function, userfunc,programfunc_s, curr_scopespace(), curr_scope_offset());
     }
 	else print_error("error, redefinition of identifier:");
+    return strdup(name);
 }
 
-void manage_funcname_anonymous() {
+char* manage_funcname_anonymous() {
     functionCounter++; 
-    symTab_insert(make_anonymous_func(), alpha_yylineno, function, userfunc,programfunc_s, curr_scopespace(), curr_scope_offset());
+    char* function_name = make_anonymous_func();
+    symTab_insert(function_name, alpha_yylineno, function, userfunc, programfunc_s, curr_scopespace(), curr_scope_offset());
+    return strdup(function_name);
 }
 
-void manage_funcprefix() {
+SymtabEntry* manage_funcprefix(char* functionName) {
+    SymtabEntry* function = symTab_lookup(functionName, get_current_scope());
+    _emit(_funcstart, lvalue_expr(function), NULL, NULL);
     increase_scope();
     isFormal = true;
+    enter_scopespace();
+    reset_formal_arg_offset();
+    return function;
 }
 
 void manage_funcargs() {
@@ -152,6 +169,8 @@ void manage_funcargs() {
     isFormal = false; 
     loopCounterStack.push(loopCounter); 
     loopCounter=0;
+    enter_scopespace();
+    reset_formal_arg_offset();
 }
 
 void manage_funcbody() {

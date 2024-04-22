@@ -88,4 +88,3 @@ void comperror();
 unsigned int is_temp_name(char* s);
 unsigned int is_temp_expr(expr* e);
 expr* new_expr_const_bool(unsigned int _b);
-unsigned next_quad(void);

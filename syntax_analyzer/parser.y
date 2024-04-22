@@ -10,8 +10,10 @@
 %union {
   char* stringValue;
   int intValue;
+  unsigned int uintValue;
   double realValue;
   struct SymtabEntry* exprNode;
+  struct expr* expr;
 }
 
 %start program
@@ -28,10 +30,17 @@
 
 %type <exprNode> statements stmt
 %type <exprNode> expr
-%type <exprNode> term assignment primary lvalue
+%type <exprNode> term assignment primary
 %type <exprNode> member call callsuffix normcall methodcall 
-%type <exprNode> elist objectdef indexed indexedelem block funcdef
+%type <exprNode> elist objectdef indexed indexedelem block  
 %type <exprNode> const idlist ifstmt whilestmt forstmt returnstmt
+
+%type <expr> lvalue
+
+%type <stringValue> funcname
+%type <uintValue> funcbody
+%type <exprNode> funcprefix
+%type <exprNode> funcdef
 
 
 %right ASSIGN
@@ -88,14 +97,14 @@ expr:         assignment               {fprintf(rulesFile, "expr -> assignment\n
 term:         LPAREN expr RPAREN     {fprintf(rulesFile,"term -> LPAREN expr RPAREN\n");}
               |SUB expr %prec UMINUS {fprintf(rulesFile,"term -> SUB expr\n");}
               |NOT expr              {fprintf(rulesFile,"term -> NOT expr\n");}
-              |PLUS_PLUS lvalue      {if($2->uniontype == function) print_error("error, function id used as lvalue"); fprintf(rulesFile,"term -> PLUS_PLUS lvalue\n");}
-              |lvalue PLUS_PLUS      {if($1->uniontype == function) print_error("error, function id used as lvalue"); fprintf(rulesFile,"term -> lvalue PLUS_PLUS\n");}
-              |MINUS_MINUS lvalue    {if($2->uniontype == function) print_error("error, function id used as lvalue");fprintf(rulesFile,"term -> MINUS_MINUS lvalue\n");}
-              |lvalue MINUS_MINUS    {if($1->uniontype == function) print_error("error, function id used as lvalue"); fprintf(rulesFile,"term -> lvalue MINUS_MINUS\n");} 
+              |PLUS_PLUS lvalue      {if($2->sym->uniontype == function) print_error("error, function id used as lvalue"); fprintf(rulesFile,"term -> PLUS_PLUS lvalue\n");}
+              |lvalue PLUS_PLUS      {if($1->sym->uniontype == function) print_error("error, function id used as lvalue"); fprintf(rulesFile,"term -> lvalue PLUS_PLUS\n");}
+              |MINUS_MINUS lvalue    {if($2->sym->uniontype == function) print_error("error, function id used as lvalue");fprintf(rulesFile,"term -> MINUS_MINUS lvalue\n");}
+              |lvalue MINUS_MINUS    {if($1->sym->uniontype == function) print_error("error, function id used as lvalue"); fprintf(rulesFile,"term -> lvalue MINUS_MINUS\n");} 
               |primary               {fprintf(rulesFile, "term -> primary\n");}
               ;
 
-assignment:   lvalue {if($1->uniontype == function) print_error("error, function id used as lvalue");} ASSIGN expr {fprintf(rulesFile,"assignment -> lvalue ASSIGN expr\n");}
+assignment:   lvalue {assert($1); if($1->sym->uniontype == function) print_error("error, function id used as lvalue");} ASSIGN expr {fprintf(rulesFile,"assignment -> lvalue ASSIGN expr\n");}
               ;
 
 primary:      lvalue                  {fprintf(rulesFile, "primary -> lvalue\n");}
@@ -107,7 +116,7 @@ primary:      lvalue                  {fprintf(rulesFile, "primary -> lvalue\n")
 
 lvalue:       ID          {$$ = manage_lvalue_id($1); fprintf(rulesFile, "lvalue -> ID\n");}
               |LOCAL ID   {$$ = manage_lvalue_local_id($2); fprintf(rulesFile,"lvalue -> LOCAL ID\n");}
-              |DCOLON ID  {$$ = manage_lvalue_global_id($2);fprintf(rulesFile,"lvalue -> DCOLON ID\n");}
+              |DCOLON ID  {$$ = manage_lvalue_global_id($2); fprintf(rulesFile,"lvalue -> DCOLON ID\n");}
               |member     {fprintf(rulesFile,"lvalue -> member\n");}
               ;
 
@@ -118,7 +127,7 @@ member:       lvalue PERIOD ID             {fprintf(rulesFile, "member -> lvalue
               ;
 
 call:         call LPAREN elist RPAREN                   {fprintf(rulesFile, "call -> call LPAREN elist RPAREN\n");}
-              |lvalue callsuffix                         {if(!($1 == NULL)) $1->uniontype = variable; fprintf(rulesFile, "call -> lvalue callsuffix\n");}
+              |lvalue callsuffix                         {if(!($1->sym == NULL)) $1->sym->uniontype = variable; fprintf(rulesFile, "call -> lvalue callsuffix\n");}
               |LPAREN funcdef RPAREN LPAREN elist RPAREN {fprintf(rulesFile, "call -> LPAREN funcdef RPAREN LPAREN elist RPAREN\n");}
               ;
               
@@ -151,11 +160,11 @@ indexedelem:  LCURLY expr COLON expr RCURLY {fprintf(rulesFile, "indexedelem -> 
 block:        LCURLY {if(!block_b) increase_scope();} statements RCURLY {if(!block_b){symTab_hide();decrease_scope();} fprintf(rulesFile, "block -> LCURLY statements RCURLY\n");} 
               ;
 
-funcname:     ID {manage_funcname_named($1); fprintf(rulesFile, "funcname -> ID\n");}
-              |  {manage_funcname_anonymous(); fprintf(rulesFile, "funcname -> \n");}
+funcname:     ID {$$ = manage_funcname_named($1); fprintf(rulesFile, "funcname -> ID\n");}
+              |  {$$ = manage_funcname_anonymous(); fprintf(rulesFile, "funcname -> \n");}
               ;
 
-funcprefix:   FUNCTION funcname {manage_funcprefix(); fprintf(rulesFile, "funcprefix -> FUNCTION funcname\n");}
+funcprefix:   FUNCTION funcname {$$ = manage_funcprefix($2); fprintf(rulesFile, "funcprefix -> FUNCTION funcname\n");}
               ;
 
 funcargs:     LPAREN idlist RPAREN {manage_funcargs(); fprintf(rulesFile, "funcargs -> LPAREN idlist RPAREN\n");}

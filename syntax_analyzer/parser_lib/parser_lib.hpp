@@ -10,7 +10,6 @@ extern bool isFormal;
 extern int loopCounter;
 extern std::stack<int> loopCounterStack;
 extern int functionCounter;
-extern SymtabEntry* lookup_tmp;
 extern bool block_b;
 
 int alpha_yyerror(const char* yaccProvidedMessage);
@@ -19,16 +18,16 @@ char* make_anonymous_func();
 bool is_libfunc(char* id);
 void print_error(const char* msg);
 
-SymtabEntry* manage_lvalue_id(char *name);
-SymtabEntry* manage_lvalue_local_id(char *name);
-SymtabEntry* manage_lvalue_global_id(char *name);
+expr* manage_lvalue_id(char *name);
+expr* manage_lvalue_local_id(char *name);
+expr* manage_lvalue_global_id(char *name);
 
 void manage_idlist_id(char *name);
 void manage_idlist_comma_id(char* name);
 
-void manage_funcname_named(char* name);
-void manage_funcname_anonymous();
-void manage_funcprefix();
+char* manage_funcname_named(char* name);
+char* manage_funcname_anonymous();
+SymtabEntry* manage_funcprefix();
 void manage_funcargs();
 void manage_funcbody();
 

@@ -17,7 +17,7 @@ enum unionType { variable, function };
 typedef struct Variable {
 
     unsigned int scope;
-    char* name;
+    char*        name;
     unsigned int line;
     scopespace_t space;
     unsigned int offset;
@@ -59,13 +59,13 @@ typedef struct SymtabEntry {
     } symbol;
 
     enum symbolType symboltype;
-    enum symbol_t symbol_t;
+    enum symbol_t   symbol_t;
 
-    SymtabEntry(unsigned int _scope, char* _name, unsigned int _line, enum unionType _uniontype, enum symbolType _symboltype,enum symbol_t symbol_t, scopespace_t _space, unsigned int _offset) {
+    SymtabEntry(unsigned int _scope, char* _name, unsigned int _line, enum unionType _uniontype, enum symbolType _symboltype,enum symbol_t _symbol_t, scopespace_t _space, unsigned int _offset) {
         isActive = true;
         uniontype = _uniontype;
         symboltype = _symboltype;
-        symbol_t = symbol_t;
+        symbol_t = _symbol_t;
         if(uniontype == variable) 
             symbol.variable = new Variable(_scope, _name, _line, _space, _offset);
         if(uniontype == function)
