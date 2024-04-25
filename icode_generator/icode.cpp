@@ -43,7 +43,7 @@ scopespace_t curr_scopespace(void) {
     else return functionlocal;
 }
 
-unsigned curr_scope_offset(void) {
+unsigned int curr_scope_offset(void) {
     switch(curr_scopespace()) {
         case programvar: return programVarOffset;
         case functionlocal: return functionLocalOffset;

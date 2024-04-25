@@ -160,20 +160,20 @@ indexedelem:  LCURLY expr COLON expr RCURLY {fprintf(rulesFile, "indexedelem -> 
 block:        LCURLY {if(!block_b) increase_scope();} statements RCURLY {if(!block_b){symTab_hide();decrease_scope();} fprintf(rulesFile, "block -> LCURLY statements RCURLY\n");} 
               ;
 
-funcname:     ID {$$ = manage_funcname_named($1); fprintf(rulesFile, "funcname -> ID\n");}
-              |  {$$ = manage_funcname_anonymous(); fprintf(rulesFile, "funcname -> \n");}
+funcname:     ID {$$ = manage_funcname_named($1); assert($$); fprintf(rulesFile, "funcname -> ID\n");}
+              |  {$$ = manage_funcname_anonymous(); assert($$); fprintf(rulesFile, "funcname -> \n");}
               ;
 
-funcprefix:   FUNCTION funcname {$$ = manage_funcprefix($2); fprintf(rulesFile, "funcprefix -> FUNCTION funcname\n");}
+funcprefix:   FUNCTION funcname { assert($2); $$ = manage_funcprefix($2); assert($$); fprintf(rulesFile, "funcprefix -> FUNCTION funcname\n");}
               ;
 
 funcargs:     LPAREN idlist RPAREN {manage_funcargs(); fprintf(rulesFile, "funcargs -> LPAREN idlist RPAREN\n");}
               ;
 
-funcbody:     block {manage_funcbody(); fprintf(rulesFile, "funcbody -> block\n");}
+funcbody:     block {$$ = manage_funcbody(); fprintf(rulesFile, "funcbody -> block\n");}
               ;
 
-funcdef:      funcprefix funcargs funcbody
+funcdef:      funcprefix funcargs funcbody {$$ = manage_funcdef($1,$3); assert($$); assert($1); }
               ;
 
 const:        INTEGER   {fprintf(rulesFile, "const -> INTEGER\n");}

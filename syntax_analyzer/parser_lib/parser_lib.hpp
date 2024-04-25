@@ -29,7 +29,8 @@ char* manage_funcname_named(char* name);
 char* manage_funcname_anonymous();
 SymtabEntry* manage_funcprefix(char* functionName);
 void manage_funcargs();
-void manage_funcbody();
+unsigned int manage_funcbody();
+SymtabEntry* manage_funcdef(SymtabEntry* funcPrefix, unsigned int funcbody);
 
 //puts all the library functions in the symbol table
 void init_library_func();

@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stack>
 #include "../symbol_table/symbol_table.hpp"
 using namespace std;
 #define EXPAND_SIZE 1024

@@ -7,6 +7,8 @@ bool isFormal = false;
 bool block_b = false;
 int loopCounter;
 std::stack<int> loopCounterStack;
+std::stack<unsigned int> scope_offset_stack;
+
 
 int alpha_yyerror(const char* yaccProvidedMessage) {
 	fprintf(stderr, "\033[1;31m%s: '%s' in line: %d\033[0m\n",yaccProvidedMessage, alpha_yytext, alpha_yylineno);
@@ -155,11 +157,14 @@ char* manage_funcname_anonymous() {
 }
 
 SymtabEntry* manage_funcprefix(char* functionName) {
+    assert(functionName);
     SymtabEntry* function = symTab_lookup(functionName, get_current_scope());
+    assert(function);
     function->symbol.function->iaddress = next_quad_label();
     _emit(_funcstart, lvalue_expr(function), NULL, NULL);
     increase_scope();
     isFormal = true;
+    scope_offset_stack.push(curr_scope_offset());
     enter_scopespace();
     reset_formal_arg_offset();
     return function;
@@ -171,13 +176,29 @@ void manage_funcargs() {
     loopCounterStack.push(loopCounter); 
     loopCounter=0;
     enter_scopespace();
-    reset_formal_arg_offset();
+    reset_function_locals_offset();
 }
 
-void manage_funcbody() {
+unsigned int manage_funcbody() {
     functionCounter--; 
     loopCounter = loopCounterStack.top(); 
     loopCounterStack.pop();
+    unsigned int currScopeOffset = curr_scope_offset();
+    exit_scopespace();
+    return currScopeOffset;
+}
+
+SymtabEntry* manage_funcdef(SymtabEntry* funcPrefix, unsigned int funcBody){
+    assert(funcPrefix);
+    exit_scopespace();
+    funcPrefix->symbol.function->totalLocals = funcBody;
+    if(!scope_offset_stack.empty()) scope_offset_stack.pop();
+    int offset;
+    if(!scope_offset_stack.empty()) offset = scope_offset_stack.top();
+    restore_curr_scope_offset(offset);
+    _emit(_funcend,lvalue_expr(funcPrefix),NULL,NULL);
+    assert(funcPrefix);
+    return funcPrefix;  
 }
 
 void init_library_func(){
