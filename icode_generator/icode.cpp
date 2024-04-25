@@ -122,7 +122,7 @@ void restore_curr_scope_offset(unsigned n){
     }
 }
 
-unsigned next_quad_label(void){
+unsigned int next_quad_label(void){
     return currQuad;
 }
 

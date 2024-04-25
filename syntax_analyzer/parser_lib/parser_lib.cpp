@@ -156,6 +156,7 @@ char* manage_funcname_anonymous() {
 
 SymtabEntry* manage_funcprefix(char* functionName) {
     SymtabEntry* function = symTab_lookup(functionName, get_current_scope());
+    function->symbol.function->iaddress = next_quad_label();
     _emit(_funcstart, lvalue_expr(function), NULL, NULL);
     increase_scope();
     isFormal = true;

@@ -76,7 +76,7 @@ SymtabEntry* _newtemp(void);
 void reset_formal_arg_offset(void);
 void reset_function_locals_offset(void);
 void restore_curr_scope_offset(unsigned n);
-unsigned next_quad_label(void);
+unsigned int next_quad_label(void);
 void patch_label(unsigned quad_No, unsigned label);
 expr* lvalue_expr(SymtabEntry* sym);
 expr* new_expr(expr_t _t);

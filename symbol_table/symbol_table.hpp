@@ -38,6 +38,7 @@ typedef struct Function {
     unsigned int scope;
     std::list<Variable*> args;
     unsigned int line;
+    unsigned int iaddress;
 
     Function(unsigned int _scope, char* _name, unsigned int _line) {
         scope = _scope;

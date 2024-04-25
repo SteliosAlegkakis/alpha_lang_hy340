@@ -27,7 +27,7 @@ void manage_idlist_comma_id(char* name);
 
 char* manage_funcname_named(char* name);
 char* manage_funcname_anonymous();
-SymtabEntry* manage_funcprefix();
+SymtabEntry* manage_funcprefix(char* functionName);
 void manage_funcargs();
 void manage_funcbody();
 
