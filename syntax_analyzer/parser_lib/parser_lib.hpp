@@ -32,5 +32,10 @@ void manage_funcargs();
 unsigned int manage_funcbody();
 SymtabEntry* manage_funcdef(SymtabEntry* funcPrefix, unsigned int funcbody);
 
+expr* manage_member_item_lvalue_period_id(expr* lv, char* name);
+expr* manage_member_item_lvalue_lsquare_expr_rsquare(expr* lv, expr* _expr);
+
+expr* manage_assignment(expr* lv, expr* _expr);
+
 //puts all the library functions in the symbol table
 void init_library_func();

@@ -29,13 +29,13 @@
 %token <realValue> REAL
 
 %type <exprNode> statements stmt
-%type <exprNode> expr
-%type <exprNode> term assignment primary
-%type <exprNode> member call callsuffix normcall methodcall 
+%type <exprNode> term
+%type <exprNode> call callsuffix normcall methodcall 
 %type <exprNode> elist objectdef indexed indexedelem block  
 %type <exprNode> const idlist ifstmt whilestmt forstmt returnstmt
 
-%type <expr> lvalue
+%type <expr> lvalue assignment
+%type <expr> expr primary member
 
 %type <stringValue> funcname
 %type <uintValue> funcbody
@@ -104,10 +104,10 @@ term:         LPAREN expr RPAREN     {fprintf(rulesFile,"term -> LPAREN expr RPA
               |primary               {fprintf(rulesFile, "term -> primary\n");}
               ;
 
-assignment:   lvalue {assert($1); if($1->sym->uniontype == function) print_error("error, function id used as lvalue");} ASSIGN expr {fprintf(rulesFile,"assignment -> lvalue ASSIGN expr\n");}
+assignment:   lvalue ASSIGN expr { $$ = manage_assignment($1, $3); fprintf(rulesFile,"assignment -> lvalue ASSIGN expr\n");}
               ;
 
-primary:      lvalue                  {fprintf(rulesFile, "primary -> lvalue\n");}
+primary:      lvalue                  {$$ = emit_if_table_item($1); fprintf(rulesFile, "primary -> lvalue\n");}
               |call                   {fprintf(rulesFile, "primary -> call\n");}
               |objectdef              {fprintf(rulesFile, "primary -> objectdef\n");}
               |LPAREN funcdef RPAREN  {fprintf(rulesFile, "primary -> LPAREN funcdef RPAREN\n");}
@@ -117,11 +117,11 @@ primary:      lvalue                  {fprintf(rulesFile, "primary -> lvalue\n")
 lvalue:       ID          {$$ = manage_lvalue_id($1); fprintf(rulesFile, "lvalue -> ID\n");}
               |LOCAL ID   {$$ = manage_lvalue_local_id($2); fprintf(rulesFile,"lvalue -> LOCAL ID\n");}
               |DCOLON ID  {$$ = manage_lvalue_global_id($2); fprintf(rulesFile,"lvalue -> DCOLON ID\n");}
-              |member     {fprintf(rulesFile,"lvalue -> member\n");}
+              |member     {$$ = $1; fprintf(rulesFile,"lvalue -> member\n");}
               ;
 
-member:       lvalue PERIOD ID             {fprintf(rulesFile, "member -> lvalue PERIOD ID\n");}
-              |lvalue LSQUARE expr RSQUARE {fprintf(rulesFile, "member -> lvalue LSQUARE expr RSQUARE\n");}
+member:       lvalue PERIOD ID             {$$ = manage_member_item_lvalue_period_id($1, $3); fprintf(rulesFile, "member -> lvalue PERIOD ID\n");}
+              |lvalue LSQUARE expr RSQUARE {$$ = manage_member_item_lvalue_lsquare_expr_rsquare($1, $3); fprintf(rulesFile, "member -> lvalue LSQUARE expr RSQUARE\n");}
               |call PERIOD ID              {fprintf(rulesFile, "member -> call PERIOD ID\n");}
               |call LSQUARE expr RSQUARE   {fprintf(rulesFile, "member -> call LSQUARE expr RSQUARE\n");}
               ;

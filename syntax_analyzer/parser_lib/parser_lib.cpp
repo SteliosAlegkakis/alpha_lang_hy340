@@ -201,6 +201,39 @@ SymtabEntry* manage_funcdef(SymtabEntry* funcPrefix, unsigned int funcBody){
     return funcPrefix;  
 }
 
+expr* manage_member_item_lvalue_period_id(expr* lv, char* name) {
+    lv = emit_if_table_item(lv);
+    expr* ti = new_expr(tableitem_e);
+    ti->sym = lv->sym;
+    ti->index = new_expr_const_string(name);
+    return ti;
+}
+
+expr* manage_member_item_lvalue_lsquare_expr_rsquare(expr* lv, expr* _expr) {
+    lv = emit_if_table_item(lv);
+    expr* ti = new_expr(tableitem_e);
+    ti->sym = lv->sym;
+    ti->index = _expr;
+    return ti;
+}
+
+expr* manage_assignment(expr* lv, expr* _expr){
+    if(lv->sym->uniontype == function) 
+        print_error("error, function id used as lvalue");
+
+    expr* assignExpr = new_expr(assignexpr_e);
+    if(lv->type = tableitem_e){
+        _emit(_tablesetelem,lv,lv->index,_expr);
+        assignExpr = emit_if_table_item(lv);
+        assignExpr->type = assignexpr_e;
+    }
+    else {
+        _emit(_assign, _expr, NULL, lv);
+        assignExpr->sym = _newtemp();
+        _emit(_assign, lv, NULL, assignExpr);
+    }
+    return assignExpr;
+}
 void init_library_func(){
     symTab_insert((char*)"print" , 0, function, libfunc, libraryfunc_s, curr_scopespace(), 0);
     symTab_insert((char*)"input" ,0 , function, libfunc, libraryfunc_s, curr_scopespace(), 0);
