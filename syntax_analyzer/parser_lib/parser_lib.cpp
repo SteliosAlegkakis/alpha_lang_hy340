@@ -234,6 +234,16 @@ expr* manage_assignment(expr* lv, expr* _expr){
     }
     return assignExpr;
 }
+
+/*
+    TODO: Lecture 10
+    -Method call
+    -Make table
+    -(funcdef)()
+    -terms
+    -reuse temps
+*/
+
 void init_library_func(){
     symTab_insert((char*)"print" , 0, function, libfunc, libraryfunc_s, curr_scopespace(), 0);
     symTab_insert((char*)"input" ,0 , function, libfunc, libraryfunc_s, curr_scopespace(), 0);
