@@ -83,7 +83,7 @@ expr* lvalue_expr(SymtabEntry* sym);
 expr* new_expr(expr_t _t);
 expr* new_expr_const_string(char* s);
 expr* emit_if_table_item(expr* e);
-expr* make_call(expr* _lv, expr* _reversed_elist);
+expr* make_call(expr* _lv, expr* _elist);
 expr* new_expr_const_num(double _i);
 void comperror();
 unsigned int is_temp_name(char* s);

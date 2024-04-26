@@ -218,6 +218,7 @@ expr* manage_member_item_lvalue_lsquare_expr_rsquare(expr* lv, expr* _expr) {
 }
 
 expr* manage_assignment(expr* lv, expr* _expr){
+    assert(lv); assert(_expr);
     if(lv->sym->uniontype == function) 
         print_error("error, function id used as lvalue");
 
@@ -235,14 +236,59 @@ expr* manage_assignment(expr* lv, expr* _expr){
     return assignExpr;
 }
 
+call* manage_methodcall(expr* elist, char* name){
+    assert(elist); assert(name);
+    call* methodCall = (call*)malloc(sizeof(call));
+    methodCall->elist = elist;
+    methodCall->method = 1;
+    methodCall->name = strdup(name);
+    return methodCall;  
+}
+
+expr* manage_call_funcdef(SymtabEntry* funcdef ,expr* elist){
+    assert(funcdef); assert(elist);
+    expr* call;
+    expr* func = new_expr(programfunc_e);
+    func->sym = funcdef;
+    call = make_call(func, elist);
+    return call;
+}
+
+expr* manage_call_lvalue_callsuffix(expr* lv, call* callsuffix) {
+    assert(lv); assert(callsuffix);
+    if(!(lv->sym == NULL)) lv->sym->uniontype = variable;
+
+
+    lv = emit_if_table_item(lv);
+    lv = emit_if_table_item(lv);
+    if (callsuffix->method == 1){
+        callsuffix->elist->next = lv;
+        // get_last($callsuffix.elist)->next = lv; me
+        lv = emit_if_table_item(manage_member_item_lvalue_period_id(lv, callsuffix->name));
+    }
+    return make_call(lv, callsuffix->elist);
+}
+
+call* manage_normcall(expr* elist){
+    assert(elist);
+    call* normcall = (call*)malloc(sizeof(call));
+    normcall->elist = elist;
+    normcall->method = 0;
+    normcall->name = NULL;
+    return normcall;
+}
+
+
 /*
     TODO: Lecture 10
-    -Method call
+    -Method call : fix make_call at icode.cpp
     -Make table
     -(funcdef)()
     -terms
     -reuse temps
 */
+
+
 
 void init_library_func(){
     symTab_insert((char*)"print" , 0, function, libfunc, libraryfunc_s, curr_scopespace(), 0);

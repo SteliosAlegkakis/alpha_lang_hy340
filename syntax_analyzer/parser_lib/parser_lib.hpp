@@ -37,5 +37,13 @@ expr* manage_member_item_lvalue_lsquare_expr_rsquare(expr* lv, expr* _expr);
 
 expr* manage_assignment(expr* lv, expr* _expr);
 
+call* manage_methodcall(expr* elist, char* name);
+
+expr* manage_call_funcdef(SymtabEntry* funcdef ,expr* elist);
+
+expr* manage_call_lvalue_callsuffix(expr* lv, call* callsuffix);
+
+call* manage_normcall(expr* elist);
+
 //puts all the library functions in the symbol table
 void init_library_func();

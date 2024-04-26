@@ -180,18 +180,20 @@ expr* emit_if_table_item(expr* e){
     }
 }
 
-expr* make_call(expr* _lv, expr* _reversed_elist){
+expr* make_call(expr* _lv, expr* _elist){
+    assert(_lv); assert(_elist);
+   
     expr* func = emit_if_table_item(_lv);
-    while(_reversed_elist){
-        _emit(_param,_reversed_elist,NULL,NULL);
-        _reversed_elist = _reversed_elist->next;
-    }
+    //segmenation fault
+    // while (_elist) {
+    //     _emit(_param, _elist, NULL, NULL);
+    //     _elist = _elist->next;
+    // }
     _emit(_call,func,NULL,NULL);
-    expr* result1 = new_expr(var_e);
-    result1->sym = _newtemp();
-
-    return result1;
-
+    expr* result = new_expr(var_e);
+    result->sym = _newtemp();
+    _emit(_getretval, NULL, NULL, result);
+    return result;
 }
 
 expr* new_expr_const_num(double _i){

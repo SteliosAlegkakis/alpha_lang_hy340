@@ -12,8 +12,9 @@
   int intValue;
   unsigned int uintValue;
   double realValue;
-  struct SymtabEntry* exprNode;
+  struct SymtabEntry* symbol;
   struct expr* expr;
+  struct call* call;
 }
 
 %start program
@@ -28,19 +29,20 @@
 %token <intValue> INTEGER 
 %token <realValue> REAL
 
-%type <exprNode> statements stmt
-%type <exprNode> term
-%type <exprNode> call callsuffix normcall methodcall 
-%type <exprNode> elist objectdef indexed indexedelem block  
-%type <exprNode> const idlist ifstmt whilestmt forstmt returnstmt
+%type <symbol> statements stmt
+%type <symbol> term
+%type <symbol> objectdef indexed indexedelem block  
+%type <symbol> const idlist ifstmt whilestmt forstmt returnstmt
 
 %type <expr> lvalue assignment
 %type <expr> expr primary member
+%type <expr> elist call
+%type <call> methodcall normcall callsuffix
 
 %type <stringValue> funcname
 %type <uintValue> funcbody
-%type <exprNode> funcprefix
-%type <exprNode> funcdef
+%type <symbol> funcprefix
+%type <symbol> funcdef
 
 
 %right ASSIGN
@@ -126,16 +128,16 @@ member:       lvalue PERIOD ID             {$$ = manage_member_item_lvalue_perio
               |call LSQUARE expr RSQUARE   {fprintf(rulesFile, "member -> call LSQUARE expr RSQUARE\n");}
               ;
 
-call:         call LPAREN elist RPAREN                   {fprintf(rulesFile, "call -> call LPAREN elist RPAREN\n");}
-              |lvalue callsuffix                         {if(!($1->sym == NULL)) $1->sym->uniontype = variable; fprintf(rulesFile, "call -> lvalue callsuffix\n");}
-              |LPAREN funcdef RPAREN LPAREN elist RPAREN {fprintf(rulesFile, "call -> LPAREN funcdef RPAREN LPAREN elist RPAREN\n");}
+call:         call LPAREN elist RPAREN                   {$$ = make_call($1, $3); fprintf(rulesFile, "call -> call LPAREN elist RPAREN\n");}
+              |lvalue callsuffix                         {$$ = manage_call_lvalue_callsuffix($1, $2); fprintf(rulesFile, "call -> lvalue callsuffix\n");}
+              |LPAREN funcdef RPAREN LPAREN elist RPAREN {$$ = manage_call_funcdef($2 ,$5); fprintf(rulesFile, "call -> LPAREN funcdef RPAREN LPAREN elist RPAREN\n");}
               ;
               
-callsuffix:   normcall    {fprintf(rulesFile, "callsuffix -> normcall\n");}
-              |methodcall {fprintf(rulesFile, "callsuffix -> methodcall\n");}
+callsuffix:   normcall    {$$ = $1; fprintf(rulesFile, "callsuffix -> normcall\n");}
+              |methodcall {$$ = $1; fprintf(rulesFile, "callsuffix -> methodcall\n");}
               ;
             
-normcall:     LPAREN elist RPAREN {fprintf(rulesFile, "normcall -> LPAREN elist RPAREN\n");}
+normcall:     LPAREN elist RPAREN {$$ = manage_normcall($2); fprintf(rulesFile, "normcall -> LPAREN elist RPAREN\n");}
               ;
  
 methodcall:   DPERIOD ID LPAREN elist RPAREN {fprintf(rulesFile, "methodcall -> DPERIOD ID LPAREN elist RPAREN\n");}
