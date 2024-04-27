@@ -159,7 +159,10 @@ char* manage_funcname_anonymous() {
 SymtabEntry* manage_funcprefix(char* functionName) {
     assert(functionName);
     SymtabEntry* function = symTab_lookup(functionName, get_current_scope());
-    assert(function);
+    if(!function) {
+        print_error("error, cannot override library functions:");
+        exit(EXIT_FAILURE);
+    }
     function->symbol.function->iaddress = next_quad_label();
     _emit(_funcstart, lvalue_expr(function), NULL, NULL);
     increase_scope();
