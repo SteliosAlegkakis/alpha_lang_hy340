@@ -8,8 +8,21 @@ quad*    quads = (quad*) 0;
 unsigned total = 0;
 unsigned int currQuad = 0;
 int tmpcounter = 0;
-
+FILE* quadsFile;
 extern int alpha_yylineno;
+
+void print_quad(iopcode op, expr* arg1, expr* arg2, expr* result) {
+    if(!quadsFile) quadsFile = fopen("quads.txt", "w");
+    char* op_str = iopcode_tostring(op);
+    char* arg1_str = expr_tostring(arg1);
+    char* arg2_str = expr_tostring(arg2);
+    char* result_str = expr_tostring(result);
+    fprintf(quadsFile, "%s %s %s %s\n", op_str, arg1_str, arg2_str, result_str);
+    free(op_str);
+    free(arg1_str);
+    free(arg2_str);
+    free(result_str);
+}
 
 void _expand(void) {
     assert(total == currQuad);
@@ -34,7 +47,9 @@ void _emit(iopcode op, expr* arg1, expr* arg2, expr* result) {
     newQuad->arg2 = arg2;
     newQuad->result = result;
     newQuad->label = next_quad_label();
-    newQuad->line = alpha_yylineno;
+    newQuad->line = alpha_yylineno; 
+
+    print_quad(op, arg1, arg2, result);
 }
 
 scopespace_t curr_scopespace(void) {
@@ -181,7 +196,7 @@ expr* emit_if_table_item(expr* e){
 }
 
 expr* make_call(expr* _lv, expr* _elist){
-    assert(_lv); assert(_elist);
+    assert(_lv);
    
     expr* func = emit_if_table_item(_lv);
     //segmenation fault
@@ -216,3 +231,68 @@ expr* new_expr_const_bool(unsigned int _b){
     return e;
 }
 
+char* iopcode_tostring(iopcode op) {
+    switch (op) {
+        case _assign: return strdup("assign");
+        case _add: return strdup("add");
+        case _sub: return strdup("sub");
+        case _mul: return strdup("mul");
+        case _div: return strdup("div");
+        case _mod: return strdup("mod");
+        case _uminus: return strdup("uminus");
+        case _and: return strdup("and");
+        case _or: return strdup("or");
+        case _not: return strdup("not");
+        case _if_eq: return strdup("if_eq");
+        case _if_noteq: return strdup("if_noteq");
+        case _if_lesseq: return strdup("if_lesseq");
+        case _if_greatereq: return strdup("if_greatereq");
+        case _if_less: return strdup("if_less");
+        case _if_greater: return strdup("if_greater");
+        case _call: return strdup("call");
+        case _param: return strdup("param");
+        case _ret: return strdup("ret");
+        case _getretval: return strdup("getretval");
+        case _funcstart: return strdup("funcstart");
+        case _funcend: return strdup("funcend");
+        case _tablecreate: return strdup("tablecreate");
+        case _tablegetelem: return strdup("tablegetelem");
+        case _tablesetelem: return strdup("tablesetelem");
+        case _jump: return strdup("jump");
+        default: assert(0);
+    }
+}
+
+char* expr_tostring(expr* e) {
+    if(e == NULL) return strdup("");
+    switch (e->type) {
+        case var_e: 
+            return strdup(e->sym->symbol.variable->name);
+        case tableitem_e:
+            return strdup(e->sym->uniontype == function?e->sym->symbol.function->name:e->sym->symbol.variable->name); break;
+        case libraryfunc_e:
+            return strdup(e->sym->symbol.function->name);
+        case programfunc_e:
+            return strdup(e->sym->symbol.function->name);
+        case arithexpr_e:
+            return strdup(e->sym->uniontype == function?e->sym->symbol.function->name:e->sym->symbol.variable->name); break;
+        case boolexpr_e:
+            return strdup(e->sym->uniontype == function?e->sym->symbol.function->name:e->sym->symbol.variable->name); break;
+        case assignexpr_e:
+            return strdup(e->sym->uniontype == function?e->sym->symbol.function->name:e->sym->symbol.variable->name); break;
+        case newtable_e:
+            return strdup(e->sym->uniontype == function?e->sym->symbol.function->name:e->sym->symbol.variable->name); break;
+        case constnum_e: {
+            char* str_num = (char*)malloc(sizeof(char) * 32);
+            sprintf(str_num, "%.1f", e->numConst);
+            return str_num;
+        }
+        case constbool_e:
+            return strdup(e->boolConst?"true":"false");
+        case conststring_e:
+            return strdup(e->strConst);
+        case nil_e:
+            return strdup("nil");
+        default: return strdup("");    
+    }
+}

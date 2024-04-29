@@ -63,6 +63,8 @@ struct call {
     char*         name;
 };
 
+struct stmt {};
+
 
 scopespace_t curr_scopespace(void);
 unsigned curr_scope_offset(void);
@@ -82,10 +84,12 @@ void patch_label(unsigned quad_No, unsigned label);
 expr* lvalue_expr(SymtabEntry* sym);
 expr* new_expr(expr_t _t);
 expr* new_expr_const_string(char* s);
+expr* new_expr_const_num(double _i);
+expr* new_expr_const_bool(unsigned int _b);
 expr* emit_if_table_item(expr* e);
 expr* make_call(expr* _lv, expr* _elist);
-expr* new_expr_const_num(double _i);
 void comperror();
 unsigned int is_temp_name(char* s);
 unsigned int is_temp_expr(expr* e);
-expr* new_expr_const_bool(unsigned int _b);
+char* iopcode_tostring(iopcode op);
+char* expr_tostring(expr* e);
