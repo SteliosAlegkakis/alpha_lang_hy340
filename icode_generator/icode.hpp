@@ -87,6 +87,7 @@ expr* new_expr_const_string(char* s);
 expr* new_expr_const_num(double _i);
 expr* new_expr_const_bool(unsigned int _b);
 expr* emit_if_table_item(expr* e);
+expr* member_item(expr* lv, char* name);
 expr* make_call(expr* _lv, expr* _elist);
 void comperror();
 unsigned int is_temp_name(char* s);

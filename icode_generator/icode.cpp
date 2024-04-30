@@ -13,15 +13,14 @@ extern int alpha_yylineno;
 
 void print_quad(iopcode op, expr* arg1, expr* arg2, expr* result) {
     if(!quadsFile) quadsFile = fopen("quads.txt", "w");
+
     char* op_str = iopcode_tostring(op);
-    char* arg1_str = expr_tostring(arg1);
-    char* arg2_str = expr_tostring(arg2);
-    char* result_str = expr_tostring(result);
-    fprintf(quadsFile, "%s %s %s %s\n", op_str, arg1_str, arg2_str, result_str);
-    free(op_str);
-    free(arg1_str);
-    free(arg2_str);
-    free(result_str);
+    fprintf(quadsFile, "%d: %s ", currQuad, op_str); free(op_str);
+    if(arg1) { char* arg1_str = expr_tostring(arg1); fprintf(quadsFile, "%s ", arg1_str); free(arg1_str); }
+    if(arg2) { char* arg2_str = expr_tostring(arg2); fprintf(quadsFile, "%s ", arg2_str); free(arg2_str); }
+    if(result) { char* result_str = expr_tostring(result); fprintf(quadsFile, "%s ", result_str); free(result_str); }
+    fprintf(quadsFile, "\n");
+    
 }
 
 void _expand(void) {
@@ -195,15 +194,22 @@ expr* emit_if_table_item(expr* e){
     }
 }
 
+expr* member_item(expr* lv, char* name){
+    lv = emit_if_table_item(lv);
+    expr* item = new_expr(tableitem_e);
+    item->sym = lv->sym;
+    item->index = new_expr_const_string(name);
+    return item;
+}
+
 expr* make_call(expr* _lv, expr* _elist){
     assert(_lv);
    
     expr* func = emit_if_table_item(_lv);
-    //segmenation fault
-    // while (_elist) {
-    //     _emit(_param, _elist, NULL, NULL);
-    //     _elist = _elist->next;
-    // }
+    while (_elist) {
+        _emit(_param, _elist, NULL, NULL);
+        _elist = _elist->next;
+    }
     _emit(_call,func,NULL,NULL);
     expr* result = new_expr(var_e);
     result->sym = _newtemp();
@@ -261,10 +267,10 @@ char* iopcode_tostring(iopcode op) {
         case _jump: return strdup("jump");
         default: assert(0);
     }
+    return NULL;
 }
 
 char* expr_tostring(expr* e) {
-    if(e == NULL) return strdup("");
     switch (e->type) {
         case var_e: 
             return strdup(e->sym->symbol.variable->name);
@@ -293,6 +299,7 @@ char* expr_tostring(expr* e) {
             return strdup(e->strConst);
         case nil_e:
             return strdup("nil");
-        default: return strdup("");    
+        default: assert(0);    
     }
+    return NULL;
 }
