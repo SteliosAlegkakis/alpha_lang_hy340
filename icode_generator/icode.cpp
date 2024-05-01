@@ -1,5 +1,4 @@
 #include "icode.hpp"
-
 unsigned programVarOffset = 0;
 unsigned functionLocalOffset = 0;
 unsigned formalArgOffset = 0;
@@ -251,6 +250,18 @@ expr* new_expr_const_bool(unsigned int _b){
     expr* e = new_expr(constbool_e);
     e->boolConst = !!_b;
     return e;
+}
+
+void comperror(const char* format, const char* context){
+    char buffer[256];
+    std::snprintf(buffer, sizeof(buffer), format, context);
+    std::cerr << buffer << ":" << std::strerror(errno) << '\n'; 
+}
+
+void check_arith(expr* e,const char* context){
+    if(e->type == constbool_e || e->type == conststring_e || e->type == nil_e || e->type == newtable_e ||
+       e->type == programfunc_e || e->type == libraryfunc_e || e->type == boolexpr_e)
+       comperror("Illegal expr used in %s!", context);
 }
 
 char* iopcode_tostring(iopcode op) {

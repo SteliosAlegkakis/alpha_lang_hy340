@@ -303,41 +303,94 @@ expr* manage_bool_operation(iopcode op, expr* arg1, expr* arg2) {
 
 expr* manage_uminus_expr(expr* _expr) {
     assert(_expr);
-    //todo: complete the code
+    check_arith(_expr, "unary minus");
+    expr*term = new_expr(arithexpr_e);
+    term->sym = _newtemp();
+    _emit(_uminus, _expr, NULL, term);
     return _expr;
 }
 
 expr* manage_not_expr(expr* _expr) {
     assert(_expr);
-    //todo: complete the code
+    expr* term = new_expr(boolexpr_e);
+    term->sym = _newtemp();
+    _emit(_not,_expr,NULL,term);
     return _expr;
 }
 
 expr* manage_plusplus_lvalue(expr* lv) {
     assert(lv);
     if(lv->sym->uniontype == function) print_error("error, function id used as lvalue"); 
-    //todo: complete the code
+    check_arith(lv,"++lvvalue");
+    expr* term = new_expr(var_e);
+    term->sym = _newtemp();
+    if(lv->type == tableitem_e){
+        term = emit_if_table_item(lv);
+        _emit(_add, term, new_expr_const_num(1),term);
+        _emit(_tablesetelem, lv,lv->index,term);
+    }else{
+        _emit(_add,lv,new_expr_const_num(1),term);
+        expr* _term = new_expr(arithexpr_e);
+        _term->sym = _newtemp();
+        _emit(_assign,lv,NULL,_term);
+    }
     return lv;
 }
 
 expr* manage_minusminus_lvalue(expr* lv) {
     assert(lv);
     if(lv->sym->uniontype == function) print_error("error, function id used as lvalue");
-    //todo: complete the code
+    check_arith(lv, "--lvalue");
+    expr* term = new_expr(var_e);
+    term->sym = _newtemp();
+    if(lv->type == tableitem_e){
+        term = emit_if_table_item(lv);
+        _emit(_sub,term,new_expr_const_num(1),term);
+        _emit(_tablesetelem,lv,lv->index,term);
+    }else{
+        _emit(_sub,lv,new_expr_const_num(1),lv);
+        expr* _term = new_expr(arithexpr_e);
+        _term->sym = _newtemp();
+        _emit(_assign,lv,NULL,_term);
+    }
     return lv;
 }
 
 expr* manage_lvalue_plusplus(expr* lv) {
     assert(lv);
     if(lv->sym->uniontype == function) print_error("error, function id used as lvalue");
-    //todo: complete the code
+    check_arith(lv, "lvalue++");
+    expr* term = new_expr(var_e);
+    term->sym = _newtemp();
+    if(lv->type == tableitem_e){
+        expr* val = emit_if_table_item(lv);
+        _emit(_assign,val,NULL,term);
+        _emit(_add,val,new_expr_const_num(1),val);
+        _emit(_tablesetelem,lv,lv->index,val);
+    }else{
+        _emit(_assign,lv,NULL,term);
+        _emit(_add,lv,new_expr_const_num(1),lv);
+
+    }
+
     return lv;
 }
 
 expr* manage_lvalue_minusminus(expr* lv) {
     assert(lv);
     if(lv->sym->uniontype == function) print_error("error, function id used as lvalue");
-    //todo: complete the code
+   check_arith(lv,"lvalue--");
+   expr* term = new_expr(var_e);
+   term->sym = _newtemp();
+   if(lv->type == tableitem_e){
+    expr* val = emit_if_table_item(lv);
+    _emit(_assign,val,NULL,term);
+    _emit(_sub,val,new_expr_const_num(1),val);
+    _emit(_tablesetelem,lv,lv->index,val);
+   }else{
+    _emit(_assign,lv,NULL,term);
+    _emit(_sub,lv,new_expr_const_num(1),lv);
+   }
     return lv;
 }
 

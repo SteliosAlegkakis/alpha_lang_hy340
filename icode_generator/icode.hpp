@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stack>
+#include <cerrno>
+#include <cstring>
 #include "../symbol_table/symbol_table.hpp"
 using namespace std;
 #define EXPAND_SIZE 1024
@@ -92,5 +94,6 @@ expr* make_call(expr* _lv, expr* _elist);
 void comperror();
 unsigned int is_temp_name(char* s);
 unsigned int is_temp_expr(expr* e);
+void check_arith(expr* e,const char* context);
 char* iopcode_tostring(iopcode op);
 char* expr_tostring(expr* e);
