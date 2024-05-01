@@ -33,7 +33,7 @@ int nested_comment = 0;
 "false"                 {return FALSE;}
 "nil"                   {return NIL;}
 [0-9]+                  {alpha_yylval.intValue = atoi(alpha_yytext); return INTEGER;}
-[0-9]+\.[0-9]+          {alpha_yylval.intValue = atof(alpha_yytext); return REAL;}
+[0-9]+\.[0-9]+          {alpha_yylval.realValue = atof(alpha_yytext); return REAL;}
 [a-zA-Z]+[_a-zA-Z0-9]*  {alpha_yylval.stringValue = strdup(alpha_yytext); return ID;}
 \"([^\"]|"\\\"")*\"     {alpha_yylval.stringValue = strdup(alpha_yytext); return STRING;}
 "="                     {return ASSIGN;}
