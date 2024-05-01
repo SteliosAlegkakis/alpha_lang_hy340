@@ -202,9 +202,25 @@ expr* member_item(expr* lv, char* name){
     return item;
 }
 
+expr* reverseList(expr* elist) {
+    struct expr* prev = NULL;
+    struct expr* current = elist;
+    struct expr* next = NULL;
+
+    while (current != NULL) {
+        next = current->next;
+        current->next = prev;
+        prev = current;      
+        current = next;
+    }
+    elist = prev;
+    return elist;
+}
+
 expr* make_call(expr* _lv, expr* _elist){
     assert(_lv);
    
+    _elist = reverseList(_elist);
     expr* func = emit_if_table_item(_lv);
     while (_elist) {
         _emit(_param, _elist, NULL, NULL);
@@ -290,7 +306,10 @@ char* expr_tostring(expr* e) {
             return strdup(e->sym->uniontype == function?e->sym->symbol.function->name:e->sym->symbol.variable->name); break;
         case constnum_e: {
             char* str_num = (char*)malloc(sizeof(char) * 32);
-            sprintf(str_num, "%.1f", e->numConst);
+            if(e->numConst == (int)e->numConst)
+                sprintf(str_num, "%d", (int)e->numConst);
+            else if(e->numConst == (double)e->numConst)
+                sprintf(str_num, "%.1f", e->numConst);
             return str_num;
         }
         case constbool_e:
