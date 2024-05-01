@@ -204,14 +204,6 @@ SymtabEntry* manage_funcdef(SymtabEntry* funcPrefix, unsigned int funcBody){
     return funcPrefix;  
 }
 
-expr* manage_member_item_lvalue_period_id(expr* lv, char* name) {
-    lv = emit_if_table_item(lv);
-    expr* ti = new_expr(tableitem_e);
-    ti->sym = lv->sym;
-    ti->index = new_expr_const_string(name);
-    return ti;
-}
-
 expr* manage_member_item_lvalue_lsquare_expr_rsquare(expr* lv, expr* _expr) {
     lv = emit_if_table_item(lv);
     expr* ti = new_expr(tableitem_e);
@@ -226,21 +218,21 @@ expr* manage_assignment(expr* lv, expr* _expr){
         print_error("error, function id used as lvalue");
 
     expr* assignExpr = new_expr(assignexpr_e);
-    if(lv->type = tableitem_e){
+    if(lv->type == tableitem_e){
         _emit(_tablesetelem,lv,lv->index,_expr);
         assignExpr = emit_if_table_item(lv);
         assignExpr->type = assignexpr_e;
     }
     else {
-        _emit(_assign, _expr, NULL, lv);
+        _emit(_assign, lv, NULL, _expr);
         assignExpr->sym = _newtemp();
-        _emit(_assign, lv, NULL, assignExpr);
+        _emit(_assign, assignExpr, NULL, lv);
     }
     return assignExpr;
 }
 
 call* manage_methodcall(expr* elist, char* name){
-    assert(elist); assert(name);
+    assert(name);
     call* methodCall = (call*)malloc(sizeof(call));
     methodCall->elist = elist;
     methodCall->method = 1;
@@ -249,7 +241,7 @@ call* manage_methodcall(expr* elist, char* name){
 }
 
 expr* manage_call_funcdef(SymtabEntry* funcdef ,expr* elist){
-    assert(funcdef); assert(elist);
+    assert(funcdef);
     expr* call;
     expr* func = new_expr(programfunc_e);
     func->sym = funcdef;
@@ -261,19 +253,17 @@ expr* manage_call_lvalue_callsuffix(expr* lv, call* callsuffix) {
     assert(lv); assert(callsuffix);
     if(!(lv->sym == NULL)) lv->sym->uniontype = variable;
 
-
     lv = emit_if_table_item(lv);
-    lv = emit_if_table_item(lv);
-    if (callsuffix->method == 1){
-        callsuffix->elist->next = lv;
-        // get_last($callsuffix.elist)->next = lv; me
-        lv = emit_if_table_item(manage_member_item_lvalue_period_id(lv, callsuffix->name));
+    if (callsuffix->method == 1) {
+        expr* elist = callsuffix->elist;
+        while(elist) elist = elist->next;
+        elist = lv;
+        lv = emit_if_table_item(member_item(lv, callsuffix->name));
     }
     return make_call(lv, callsuffix->elist);
 }
 
 call* manage_normcall(expr* elist){
-    assert(elist);
     call* normcall = (call*)malloc(sizeof(call));
     normcall->elist = elist;
     normcall->method = 0;
@@ -284,14 +274,117 @@ call* manage_normcall(expr* elist){
 
 /*
     TODO: Lecture 10
-    -Method call : fix make_call at icode.cpp
-    -Make table
-    -(funcdef)()
-    -terms
-    -reuse temps
+    (completed) -Method call : fix make_call at icode.cpp
+    (completed) -Make table
+    (completed) -(funcdef)()
+    (todo) -terms : complete code in manage_... functions
+    (todo) -expr: complete code in manage_... functions
+    (todo) -reuse temps
 */
 
+expr* manage_arithmetic_operation(iopcode op, expr* arg1, expr* arg2) {
+    assert(arg1); assert(arg2);
+    //todo: complete the code
+    return arg1;
 
+}
+
+expr* manage_comparison(iopcode op, expr* arg1, expr* arg2) {
+    assert(arg1); assert(arg2);
+    //todo: complete the code
+    return arg1;
+}
+
+expr* manage_bool_operation(iopcode op, expr* arg1, expr* arg2) {
+    assert(arg1); assert(arg2);
+    //todo: complete the code
+    return arg1;
+}
+
+expr* manage_uminus_expr(expr* _expr) {
+    assert(_expr);
+    //todo: complete the code
+    return _expr;
+}
+
+expr* manage_not_expr(expr* _expr) {
+    assert(_expr);
+    //todo: complete the code
+    return _expr;
+}
+
+expr* manage_plusplus_lvalue(expr* lv) {
+    assert(lv);
+    if(lv->sym->uniontype == function) print_error("error, function id used as lvalue"); 
+    //todo: complete the code
+    return lv;
+}
+
+expr* manage_minusminus_lvalue(expr* lv) {
+    assert(lv);
+    if(lv->sym->uniontype == function) print_error("error, function id used as lvalue");
+    //todo: complete the code
+    return lv;
+}
+
+expr* manage_lvalue_plusplus(expr* lv) {
+    assert(lv);
+    if(lv->sym->uniontype == function) print_error("error, function id used as lvalue");
+    //todo: complete the code
+    return lv;
+}
+
+expr* manage_lvalue_minusminus(expr* lv) {
+    assert(lv);
+    if(lv->sym->uniontype == function) print_error("error, function id used as lvalue");
+    //todo: complete the code
+    return lv;
+}
+
+expr* manage_objectdef_elist(expr* elist) {
+    expr* object = new_expr(newtable_e);
+    object->sym = _newtemp();
+    _emit(_tablecreate, NULL, NULL, object);
+    for(int i = 0; elist; elist = elist->next) {
+        if(!elist) break;
+         _emit(_tablesetelem, object, new_expr_const_num(i++), elist);
+    }
+
+    return object;
+}
+
+expr* manage_objectdef_indexed(expr* indexed) {
+    expr* object = new_expr(newtable_e);
+    object->sym = _newtemp();
+    _emit(_tablecreate, NULL, NULL, object);
+    for(; indexed; indexed = indexed->next) {
+        if(!indexed) break;
+        _emit(_tablesetelem, object, indexed->index, indexed);
+    }
+
+    return object;
+}
+
+expr* manage_elist(expr* _expr, expr* elist) {
+    _expr->next = elist;
+    return _expr;
+}
+
+expr* manage_indexed(expr* indexedelem, expr* indexed) {
+    indexedelem->next = indexed;
+    return indexedelem;
+}
+
+expr* manage_indexedelem(expr* index, expr* value) {
+    value->index = index;
+    return value;
+}
+
+expr* manage_primary_funcdef(SymtabEntry* funcdef) {
+    expr* func = new_expr(programfunc_e);
+    func->sym = funcdef;
+    return func;
+}
 
 void init_library_func(){
     symTab_insert((char*)"print" , 0, function, libfunc, libraryfunc_s, curr_scopespace(), 0);

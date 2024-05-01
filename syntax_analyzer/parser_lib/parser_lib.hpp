@@ -32,18 +32,34 @@ void manage_funcargs();
 unsigned int manage_funcbody();
 SymtabEntry* manage_funcdef(SymtabEntry* funcPrefix, unsigned int funcbody);
 
-expr* manage_member_item_lvalue_period_id(expr* lv, char* name);
 expr* manage_member_item_lvalue_lsquare_expr_rsquare(expr* lv, expr* _expr);
 
 expr* manage_assignment(expr* lv, expr* _expr);
 
 call* manage_methodcall(expr* elist, char* name);
-
 expr* manage_call_funcdef(SymtabEntry* funcdef ,expr* elist);
-
 expr* manage_call_lvalue_callsuffix(expr* lv, call* callsuffix);
-
 call* manage_normcall(expr* elist);
+
+expr* manage_arithmetic_operation(iopcode op, expr* arg1, expr* arg2);
+expr* manage_comparison(iopcode op, expr* arg1, expr* arg2);
+expr* manage_bool_operation(iopcode op, expr* arg1, expr* arg2);
+
+expr* manage_uminus_expr(expr* _expr);
+expr* manage_not_expr(expr* _expr);
+expr* manage_plusplus_lvalue(expr* lv);
+expr* manage_minusminus_lvalue(expr* lv);
+expr* manage_lvalue_plusplus(expr* lv);
+expr* manage_lvalue_minusminus(expr* lv);
+
+expr* manage_objectdef_elist(expr* elist);
+expr* manage_objectdef_indexed(expr* indexed);
+
+expr* manage_elist(expr* _expr, expr* elist);
+expr* manage_indexed(expr* indexedelem, expr* indexed);
+expr* manage_indexedelem(expr* index, expr* value);
+
+expr* manage_primary_funcdef(SymtabEntry* funcdef);
 
 //puts all the library functions in the symbol table
 void init_library_func();
