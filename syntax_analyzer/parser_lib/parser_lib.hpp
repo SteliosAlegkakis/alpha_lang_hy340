@@ -61,5 +61,8 @@ expr* manage_indexedelem(expr* index, expr* value);
 
 expr* manage_primary_funcdef(SymtabEntry* funcdef);
 
+void manage_return_expr(expr* _expr);
+void manage_return();
+
 //puts all the library functions in the symbol table
 void init_library_func();

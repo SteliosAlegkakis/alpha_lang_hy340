@@ -439,6 +439,19 @@ expr* manage_primary_funcdef(SymtabEntry* funcdef) {
     return func;
 }
 
+void manage_return_expr(expr* _expr){
+    _emit(_ret,_expr,NULL,NULL);
+
+}
+
+void manage_return(){
+    _emit(_ret,NULL,NULL,NULL);
+}
+
+
+
+
+
 void init_library_func(){
     symTab_insert((char*)"print" , 0, function, libfunc, libraryfunc_s, curr_scopespace(), 0);
     symTab_insert((char*)"input" ,0 , function, libfunc, libraryfunc_s, curr_scopespace(), 0);
