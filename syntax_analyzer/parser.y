@@ -204,8 +204,8 @@ whilestmt:    WHILE LPAREN expr RPAREN{block_b = true;} loopstmt{block_b = false
 forstmt:      FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN {block_b = true;} loopstmt {block_b = false;}
               ;
 
-returnstmt:   RETURN expr SEMICOLON {if(!functionCounter) print_error("error, cannot use return outside of function"); $$ = manage_return_expr($2);  fprintf(rulesFile, "returnstmt -> RETURN expr SEMICOLON\n");}
-              |RETURN SEMICOLON     {if(!functionCounter) print_error("error, cannot use return outside of function"); $$ = manage_return(); fprintf(rulesFile, "returnstmt -> RETURN SEMICOLON\n");}
+returnstmt:   RETURN expr SEMICOLON {if(!functionCounter) print_error("error, cannot use return outside of function"); manage_return_expr($2);  fprintf(rulesFile, "returnstmt -> RETURN expr SEMICOLON\n");}
+              |RETURN SEMICOLON     {if(!functionCounter) print_error("error, cannot use return outside of function"); manage_return(); fprintf(rulesFile, "returnstmt -> RETURN SEMICOLON\n");}
               ;
 
 %%

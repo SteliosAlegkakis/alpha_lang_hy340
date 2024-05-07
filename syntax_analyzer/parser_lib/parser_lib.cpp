@@ -284,9 +284,29 @@ call* manage_normcall(expr* elist){
 
 expr* manage_arithmetic_operation(iopcode op, expr* arg1, expr* arg2) {
     assert(arg1); assert(arg2);
-    //todo: complete the code
-    return arg1;
+    //if both args are const calculate result and put it in a constnum_e expr
+    if(!check_arith(arg1, "arithemtic operation") || !check_arith(arg2, "arithemtic operation")) {
+        print_error("error, arithmetic operation on non arithmetic expr");
+        exit(EXIT_FAILURE);
+    }
 
+    if(arg1->type == constnum_e && arg2->type == constnum_e){
+        double result;
+        switch(op){
+            case _add: result = arg1->numConst + arg2->numConst; break;
+            case _sub: result = arg1->numConst - arg2->numConst; break;
+            case _mul: result = arg1->numConst * arg2->numConst; break;
+            case _div: result = arg1->numConst / arg2->numConst; break;
+            default: assert(0);
+        }
+        return new_expr_const_num(result);
+    }
+
+    expr* result = new_expr(arithexpr_e);
+    result->sym = _newtemp();
+    _emit(op, arg1, arg2, result);
+
+    return result;
 }
 
 expr* manage_comparison(iopcode op, expr* arg1, expr* arg2) {
