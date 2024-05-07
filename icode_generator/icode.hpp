@@ -94,6 +94,6 @@ expr* make_call(expr* _lv, expr* _elist);
 void comperror();
 unsigned int is_temp_name(char* s);
 unsigned int is_temp_expr(expr* e);
-void check_arith(expr* e,const char* context);
+bool check_arith(expr* e,const char* context);
 char* iopcode_tostring(iopcode op);
 char* expr_tostring(expr* e);

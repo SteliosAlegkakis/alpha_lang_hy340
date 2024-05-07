@@ -258,10 +258,12 @@ void comperror(const char* format, const char* context){
     std::cerr << buffer << ":" << std::strerror(errno) << '\n'; 
 }
 
-void check_arith(expr* e,const char* context){
-    if(e->type == constbool_e || e->type == conststring_e || e->type == nil_e || e->type == newtable_e ||
-       e->type == programfunc_e || e->type == libraryfunc_e || e->type == boolexpr_e)
-       comperror("Illegal expr used in %s!", context);
+bool check_arith(expr* e,const char* context){
+    if(e->type == constbool_e || e->type == conststring_e || e->type == nil_e || e->type == newtable_e || e->type == programfunc_e || e->type == libraryfunc_e || e->type == boolexpr_e) {
+        comperror("Illegal expr used in %s!", context);
+        return false;
+    }   
+    return true;
 }
 
 char* iopcode_tostring(iopcode op) {
