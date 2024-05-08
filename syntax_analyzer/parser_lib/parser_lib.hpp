@@ -64,5 +64,9 @@ expr* manage_primary_funcdef(SymtabEntry* funcdef);
 void manage_return_expr(expr* _expr);
 void manage_return();
 
+stmt_t* manage_statements(stmt_t* _stmts, stmt_t* _stmt);
+void manage_break();
+void manage_continue();
+
 //puts all the library functions in the symbol table
 void init_library_func();
