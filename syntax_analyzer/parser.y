@@ -59,7 +59,7 @@
 program:      statements {fprintf(rulesFile, "program -> statements\n");}
               ;
 
-statements:   statements stmt {fprintf(rulesFile, "statements -> statements stmt\n");}
+statements:   statements stmt {$$ =  manage_statements($1, $2); fprintf(rulesFile, "statements -> statements stmt\n");}
               |
               ;
 
@@ -68,8 +68,8 @@ stmt:         expr SEMICOLON      {$$ = (stmt*) 0; fprintf(rulesFile, "stmt -> e
               |whilestmt          {$$ = (stmt*) 0; fprintf(rulesFile, "stmt -> whilestmt\n");}
               |forstmt            {$$ = (stmt*) 0; fprintf(rulesFile, "stmt -> forstmt\n");}
               |returnstmt         {$$ = (stmt*) 0; fprintf(rulesFile, "stmt -> returnstmt\n");}
-              |BREAK SEMICOLON    {$$ = $1; if(!loopCounter) print_error("error, cannot use break outside of loop:"); fprintf(rulesFile, "stmt -> BREAK SEMICOLON\n");}
-              |CONTINUE SEMICOLON {$$ = $1; if(!loopCounter) print_error("error, cannot use continue outside of loop:"); fprintf(rulesFile, "stmt -> CONTINUE SEMICOLON\n");}
+              |BREAK SEMICOLON    {$$ = $1;  manage_break(); fprintf(rulesFile, "stmt -> BREAK SEMICOLON\n");}
+              |CONTINUE SEMICOLON {$$ = $1;  manage_continue(); fprintf(rulesFile, "stmt -> CONTINUE SEMICOLON\n");}
               |block              {$$ = $1; fprintf(rulesFile, "stmt -> block\n");}
               |funcdef            {$$ = (stmt*) 0; fprintf(rulesFile, "stmt -> funcdef\n");} 
               |SEMICOLON          {$$ = (stmt*) 0; fprintf(rulesFile, "stmt -> SEMICOLON\n");}
@@ -204,8 +204,8 @@ whilestmt:    WHILE LPAREN expr RPAREN{block_b = true;} loopstmt{block_b = false
 forstmt:      FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN {block_b = true;} loopstmt {block_b = false;}
               ;
 
-returnstmt:   RETURN expr SEMICOLON {if(!functionCounter) print_error("error, cannot use return outside of function"); manage_return_expr($2);  fprintf(rulesFile, "returnstmt -> RETURN expr SEMICOLON\n");}
-              |RETURN SEMICOLON     {if(!functionCounter) print_error("error, cannot use return outside of function"); manage_return(); fprintf(rulesFile, "returnstmt -> RETURN SEMICOLON\n");}
+returnstmt:   RETURN expr SEMICOLON { manage_return_expr($2);  fprintf(rulesFile, "returnstmt -> RETURN expr SEMICOLON\n");}
+              |RETURN SEMICOLON     { manage_return(); fprintf(rulesFile, "returnstmt -> RETURN SEMICOLON\n");}
               ;
 
 %%
