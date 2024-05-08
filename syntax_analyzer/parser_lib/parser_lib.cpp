@@ -533,6 +533,34 @@ void manage_return(){
     _emit(_ret,NULL,NULL,NULL);
 }
 
+stmt_t* manage_statements(stmt_t* _stmts, stmt_t* _stmt){
+    assert(_stmts);
+    assert(_stmt);
+    stmt_t* statements;
+    statements->breakList = merge_list(_stmts->breakList,_stmt->breakList);
+    statements->contList = merge_list(_stmts->contList,_stmt->contList);
+    return statements;
+}
+
+void manage_break(){
+    stmt_t* _break;
+    if(!loopCounter) print_error("error, cannot use break outside of loop:");
+    make_stmt(_break);
+    _break->breakList = new_list(next_quad_label());
+    _emit(_jump,NULL,NULL,0);
+    return;
+}
+
+void manage_continue(){
+    stmt_t* _continue;
+    if(!loopCounter) print_error("error, cannot use continue outside of loop:");
+    make_stmt(_continue);
+    _continue->contList = new_list(next_quad_label());
+    _emit(_jump,NULL,NULL,0);
+    return ;
+}
+
+
 
 
 
