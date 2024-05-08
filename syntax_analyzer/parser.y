@@ -15,7 +15,7 @@
   struct SymtabEntry* symbol;
   struct expr* expr;
   struct call* call;
-  struct stmt* stmt;
+  struct stmt_t* stmt_stmt;
 }
 
 %start program
@@ -29,9 +29,9 @@
 %token <stringValue> ID 
 %token <intValue> INTEGER 
 %token <realValue> REAL
-%token <stmt> BREAK CONTINUE
+%token <stmt_stmt> BREAK CONTINUE
 
-%type <stmt> statements stmt ifstmt block
+%type <stmt_stmt> statements stmt ifstmt block
 %type <symbol> idlist whilestmt forstmt returnstmt funcprefix funcdef
 
 %type <expr> lvalue assignment const expr primary member term elist call objectdef indexed indexedelem
@@ -63,16 +63,16 @@ statements:   statements stmt {$$ =  manage_statements($1, $2); fprintf(rulesFil
               |
               ;
 
-stmt:         expr SEMICOLON      {$$ = (stmt*) 0; fprintf(rulesFile, "stmt -> expr SEMICOLON\n");}
+stmt:         expr SEMICOLON      {$$ = (stmt_t*) 0; fprintf(rulesFile, "stmt -> expr SEMICOLON\n");}
               |ifstmt             {$$ = $1; fprintf(rulesFile, "stmt -> ifstmt\n");}
-              |whilestmt          {$$ = (stmt*) 0; fprintf(rulesFile, "stmt -> whilestmt\n");}
-              |forstmt            {$$ = (stmt*) 0; fprintf(rulesFile, "stmt -> forstmt\n");}
-              |returnstmt         {$$ = (stmt*) 0; fprintf(rulesFile, "stmt -> returnstmt\n");}
+              |whilestmt          {$$ = (stmt_t*) 0; fprintf(rulesFile, "stmt -> whilestmt\n");}
+              |forstmt            {$$ = (stmt_t*) 0; fprintf(rulesFile, "stmt -> forstmt\n");}
+              |returnstmt         {$$ = (stmt_t*) 0; fprintf(rulesFile, "stmt -> returnstmt\n");}
               |BREAK SEMICOLON    {$$ = $1;  manage_break(); fprintf(rulesFile, "stmt -> BREAK SEMICOLON\n");}
               |CONTINUE SEMICOLON {$$ = $1;  manage_continue(); fprintf(rulesFile, "stmt -> CONTINUE SEMICOLON\n");}
               |block              {$$ = $1; fprintf(rulesFile, "stmt -> block\n");}
-              |funcdef            {$$ = (stmt*) 0; fprintf(rulesFile, "stmt -> funcdef\n");} 
-              |SEMICOLON          {$$ = (stmt*) 0; fprintf(rulesFile, "stmt -> SEMICOLON\n");}
+              |funcdef            {$$ = (stmt_t*) 0; fprintf(rulesFile, "stmt -> funcdef\n");} 
+              |SEMICOLON          {$$ = (stmt_t*) 0; fprintf(rulesFile, "stmt -> SEMICOLON\n");}
               ;
 
 expr:         assignment               {$$ = $1; fprintf(rulesFile, "expr -> assignment\n");}
