@@ -97,3 +97,7 @@ unsigned int is_temp_expr(expr* e);
 bool check_arith(expr* e,const char* context);
 char* iopcode_tostring(iopcode op);
 char* expr_tostring(expr* e);
+void make_stmt(stmt_t* s);
+int new_list(int i);
+int merge_list(int l1, int l2);
+void patch_list(int list, int label);
