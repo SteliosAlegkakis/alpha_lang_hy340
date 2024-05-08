@@ -65,7 +65,7 @@ struct call {
     char*         name;
 };
 
-struct stmt {};
+struct stmt_t {int breakList, contList;};
 
 
 scopespace_t curr_scopespace(void);
