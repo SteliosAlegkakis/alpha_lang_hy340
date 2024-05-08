@@ -525,12 +525,16 @@ expr* manage_primary_funcdef(SymtabEntry* funcdef) {
 }
 
 void manage_return_expr(expr* _expr){
+    if(!functionCounter) print_error("error, cannot use return outside of function");
     _emit(_ret,_expr,NULL,NULL);
+	return;
 
 }
 
 void manage_return(){
+     if(!functionCounter) print_error("error, cannot use return outside of function");
     _emit(_ret,NULL,NULL,NULL);
+	return;
 }
 
 stmt_t* manage_statements(stmt_t* _stmts, stmt_t* _stmt){
