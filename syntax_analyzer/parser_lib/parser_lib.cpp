@@ -284,9 +284,8 @@ call* manage_normcall(expr* elist){
 
 expr* manage_arithmetic_operation(iopcode op, expr* arg1, expr* arg2) {
     assert(arg1); assert(arg2);
-    //if both args are const calculate result and put it in a constnum_e expr
+    
     if(!check_arith(arg1, "arithemtic operation") || !check_arith(arg2, "arithemtic operation")) {
-        print_error("error, arithmetic operation on non arithmetic expr");
         exit(EXIT_FAILURE);
     }
 
@@ -309,10 +308,76 @@ expr* manage_arithmetic_operation(iopcode op, expr* arg1, expr* arg2) {
     return result;
 }
 
-expr* manage_comparison(iopcode op, expr* arg1, expr* arg2) {
+expr* manage_relative_operation(iopcode op, expr* arg1, expr* arg2) {
     assert(arg1); assert(arg2);
-    //todo: complete the code
-    return arg1;
+
+    if(arg1->type == constnum_e && arg2->type == constnum_e) {
+        unsigned int result;
+        switch(op) {
+            case _if_eq: result = arg1->numConst == arg2->numConst; break;
+            case _if_noteq: result = arg1->numConst != arg2->numConst; break;
+            case _if_lesseq: result = arg1->numConst <= arg2->numConst; break;
+            case _if_greatereq: result = arg1->numConst >= arg2->numConst; break;
+            case _if_less: result = arg1->numConst < arg2->numConst; break;
+            case _if_greater: result = arg1->numConst > arg2->numConst; break;
+            default: assert(0);
+        }
+        return new_expr_const_bool(result);
+    }
+
+    if(op == _if_eq || op == _if_noteq) {
+
+        if((arg1->type == nil_e && arg2->type == tableitem_e) || (arg1->type == tableitem_e && arg2->type == nil_e)){
+            switch (op) {
+                case _if_eq:     return new_expr_const_bool(0);
+                case _if_noteq:  return new_expr_const_bool(1);
+                default: ;
+            }
+        }
+
+        if(arg1->type == arg2->type) {
+            if(op == _if_eq) {
+                switch(arg2->type) {
+                    case constnum_e: return new_expr_const_bool(arg1->numConst == arg2->numConst);
+                    case constbool_e: return new_expr_const_bool(arg1->boolConst == arg2->boolConst);
+                    case conststring_e: return new_expr_const_bool(!strcmp(arg1->strConst, arg2->strConst));
+                    case nil_e: return new_expr_const_bool(1);
+                    default: ;
+                }   
+            } 
+            else {
+                switch(arg2->type) {
+                    case constnum_e: return new_expr_const_bool(arg1->numConst != arg2->numConst);
+                    case constbool_e: return new_expr_const_bool(arg1->boolConst != arg2->boolConst);
+                    case conststring_e: return new_expr_const_bool(strcmp(arg1->strConst, arg2->strConst));
+                    case nil_e: return new_expr_const_bool(0);
+                    default: ;
+                }
+            }
+            
+        }
+    }
+
+    if(arg1->type == nil_e && !(op == _if_eq || op == _if_noteq)) {
+        print_error("error, expression 1 is of type nil and connot be used in relative operation");
+        exit(EXIT_FAILURE);
+    }
+
+    if(arg2->type == nil_e && !(op == _if_eq || op == _if_noteq)) {
+        print_error("error, expression 2 is of type nil and connot be used in relative operation");
+        exit(EXIT_FAILURE);
+    }
+
+    expr* result = new_expr(boolexpr_e);
+    result->sym = _newtemp();
+    expr* tmp = new_expr_const_num(next_quad_label()+4);
+    _emit(op, arg1, arg2, tmp);
+    _emit(_assign, result, NULL, new_expr_const_bool(0));
+    expr* tmp2 = new_expr_const_num(next_quad_label()+3);
+    _emit(_jump, NULL, NULL, tmp2);
+    _emit(_assign, result, NULL, new_expr_const_bool(1));
+    
+    return result;
 }
 
 expr* manage_bool_operation(iopcode op, expr* arg1, expr* arg2) {
@@ -324,18 +389,18 @@ expr* manage_bool_operation(iopcode op, expr* arg1, expr* arg2) {
 expr* manage_uminus_expr(expr* _expr) {
     assert(_expr);
     check_arith(_expr, "unary minus");
-    expr*term = new_expr(arithexpr_e);
+    expr* term = new_expr(arithexpr_e);
     term->sym = _newtemp();
     _emit(_uminus, _expr, NULL, term);
-    return _expr;
+    return term;
 }
 
 expr* manage_not_expr(expr* _expr) {
     assert(_expr);
     expr* term = new_expr(boolexpr_e);
     term->sym = _newtemp();
-    _emit(_not,_expr,NULL,term);
-    return _expr;
+    _emit(_not, _expr, NULL, term);
+    return term;
 }
 
 expr* manage_plusplus_lvalue(expr* lv) {
@@ -349,12 +414,12 @@ expr* manage_plusplus_lvalue(expr* lv) {
         _emit(_add, term, new_expr_const_num(1),term);
         _emit(_tablesetelem, lv,lv->index,term);
     }else{
-        _emit(_add,lv,new_expr_const_num(1),term);
+        _emit(_add,lv,new_expr_const_num(1),lv);
         expr* _term = new_expr(arithexpr_e);
         _term->sym = _newtemp();
         _emit(_assign,lv,NULL,_term);
     }
-    return lv;
+    return term;
 }
 
 expr* manage_minusminus_lvalue(expr* lv) {
@@ -373,7 +438,7 @@ expr* manage_minusminus_lvalue(expr* lv) {
         _term->sym = _newtemp();
         _emit(_assign,lv,NULL,_term);
     }
-    return lv;
+    return term;
 }
 
 expr* manage_lvalue_plusplus(expr* lv) {
@@ -393,7 +458,7 @@ expr* manage_lvalue_plusplus(expr* lv) {
 
     }
 
-    return lv;
+    return term;
 }
 
 expr* manage_lvalue_minusminus(expr* lv) {
@@ -411,7 +476,7 @@ expr* manage_lvalue_minusminus(expr* lv) {
     _emit(_assign,lv,NULL,term);
     _emit(_sub,lv,new_expr_const_num(1),lv);
    }
-    return lv;
+    return term;
 }
 
 expr* manage_objectdef_elist(expr* elist) {

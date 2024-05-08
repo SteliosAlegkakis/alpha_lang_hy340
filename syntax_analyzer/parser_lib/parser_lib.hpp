@@ -42,7 +42,7 @@ expr* manage_call_lvalue_callsuffix(expr* lv, call* callsuffix);
 call* manage_normcall(expr* elist);
 
 expr* manage_arithmetic_operation(iopcode op, expr* arg1, expr* arg2);
-expr* manage_comparison(iopcode op, expr* arg1, expr* arg2);
+expr* manage_relative_operation(iopcode op, expr* arg1, expr* arg2);
 expr* manage_bool_operation(iopcode op, expr* arg1, expr* arg2);
 
 expr* manage_uminus_expr(expr* _expr);
