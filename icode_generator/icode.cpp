@@ -335,3 +335,31 @@ char* expr_tostring(expr* e) {
     }
     return NULL;
 }
+void make_stmt(stmt_t* s){
+    s->breakList = s->contList;
+}
+
+int new_list(int i){
+    quads[i].label = 0;
+    return i;
+}
+
+int merge_list(int l1, int l2){
+    if(!l1){return l2;}
+    else if(!l2) { return l1; }
+    else{
+        int i = l1;
+        while(quads[i].label){
+            i = quads[i].label;
+        }
+        quads[i].label = l2;
+        return l1;
+    }
+}
+
+void patch_list(int list, int label){
+    while(list){
+        int next = quads[list].label = label;
+        list = next;
+    }
+}
