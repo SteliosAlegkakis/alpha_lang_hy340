@@ -1,0 +1,2 @@
+1: call print 
+2: getretval _t0 

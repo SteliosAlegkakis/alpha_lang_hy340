@@ -1,0 +1,9 @@
+lvalue -> ID
+elist -> 
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+EOF

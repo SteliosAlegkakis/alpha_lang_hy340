@@ -538,16 +538,33 @@ void manage_return(){
 }
 
 stmt_t* manage_statements(stmt_t* _stmts, stmt_t* _stmt){
+    _stmts = (stmt_t*)malloc(sizeof(stmt_t));
+    _stmt = (stmt_t*) malloc (sizeof(stmt_t));
+    if(!_stmts) return _stmt;
+    if(!_stmt) return _stmts;
     assert(_stmts);
     assert(_stmt);
-    stmt_t* statements;
+    //printf("\nerr\n");
+    stmt_t* statements = (stmt_t*) malloc (sizeof(stmt_t));
+    if (!statements) {
+        std::cerr << "Failed to allocate memory for statements.\n";
+        return nullptr;  // or handle the error as appropriate
+    }
+    //printf("err2\n");
+    if(_stmts && _stmt){
+        //printf("%d\n",statements->breakList);
     statements->breakList = merge_list(_stmts->breakList,_stmt->breakList);
     statements->contList = merge_list(_stmts->contList,_stmt->contList);
+    }else{
+         //printf("err3\n");
+        statements->breakList = (_stmts) ? _stmts->breakList : 0;
+        statements->contList = (_stmt) ? _stmt->contList : 0;
+    }
     return statements;
 }
 
 void manage_break(){
-    stmt_t* _break;
+    stmt_t* _break = (stmt_t*) malloc (sizeof(stmt_t));
     if(!loopCounter) print_error("error, cannot use break outside of loop:");
     make_stmt(_break);
     _break->breakList = new_list(next_quad_label());
@@ -556,7 +573,7 @@ void manage_break(){
 }
 
 void manage_continue(){
-    stmt_t* _continue;
+    stmt_t* _continue = (stmt_t*) malloc (sizeof(stmt_t));
     if(!loopCounter) print_error("error, cannot use continue outside of loop:");
     make_stmt(_continue);
     _continue->contList = new_list(next_quad_label());
