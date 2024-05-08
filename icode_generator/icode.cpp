@@ -255,12 +255,12 @@ expr* new_expr_const_bool(unsigned int _b){
 void comperror(const char* format, const char* context){
     char buffer[256];
     std::snprintf(buffer, sizeof(buffer), format, context);
-    std::cerr << buffer << ":" << std::strerror(errno) << '\n'; 
+    printf("\033[1;31m%s in line: %d\033[0m\n", buffer, alpha_yylineno);
 }
 
 bool check_arith(expr* e,const char* context){
     if(e->type == constbool_e || e->type == conststring_e || e->type == nil_e || e->type == newtable_e || e->type == programfunc_e || e->type == libraryfunc_e || e->type == boolexpr_e) {
-        comperror("Illegal expr used in %s!", context);
+        comperror("error, illegal expression used in %s",context);
         return false;
     }   
     return true;
