@@ -382,7 +382,7 @@ expr* manage_relative_operation(iopcode op, expr* arg1, expr* arg2) {
 
 expr* manage_bool_operation(iopcode op, expr* arg1, expr* arg2) {
     assert(arg1); assert(arg2);
-    //todo: complete the code
+
     return arg1;
 }
 
@@ -544,19 +544,16 @@ stmt_t* manage_statements(stmt_t* _stmts, stmt_t* _stmt){
     if(!_stmt) return _stmts;
     assert(_stmts);
     assert(_stmt);
-    //printf("\nerr\n");
     stmt_t* statements = (stmt_t*) malloc (sizeof(stmt_t));
     if (!statements) {
         std::cerr << "Failed to allocate memory for statements.\n";
-        return nullptr;  // or handle the error as appropriate
+        return nullptr;
     }
-    //printf("err2\n");
+  
     if(_stmts && _stmt){
-        //printf("%d\n",statements->breakList);
     statements->breakList = merge_list(_stmts->breakList,_stmt->breakList);
     statements->contList = merge_list(_stmts->contList,_stmt->contList);
     }else{
-         //printf("err3\n");
         statements->breakList = (_stmts) ? _stmts->breakList : 0;
         statements->contList = (_stmt) ? _stmt->contList : 0;
     }
@@ -581,8 +578,13 @@ void manage_continue(){
     return ;
 }
 
-
-
+unsigned manage_ifprefix(expr* _expr){
+    assert(_expr);
+    _emit(_if_eq,_expr,new_expr_const_bool(1),(expr*)next_quad_label() + 2);
+    unsigned ifprefix = next_quad_label();
+    _emit(_jump,NULL,NULL,0);
+    return ifprefix;
+}
 
 
 

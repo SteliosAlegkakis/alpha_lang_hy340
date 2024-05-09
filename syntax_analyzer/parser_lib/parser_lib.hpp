@@ -68,5 +68,7 @@ stmt_t* manage_statements(stmt_t* _stmts, stmt_t* _stmt);
 void manage_break();
 void manage_continue();
 
+unsigned manage_ifprefix(expr* _expr);
+
 //puts all the library functions in the symbol table
 void init_library_func();

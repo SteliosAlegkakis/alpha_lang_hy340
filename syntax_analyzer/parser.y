@@ -31,10 +31,10 @@
 %token <realValue> REAL
 %token <stmt_stmt> BREAK CONTINUE
 
-%type <stmt_stmt> statements stmt ifstmt block
+%type <stmt_stmt> statements stmt  block
 %type <symbol> idlist whilestmt forstmt returnstmt funcprefix funcdef
 
-%type <expr> lvalue assignment const expr primary member term elist call objectdef indexed indexedelem
+%type <expr> lvalue assignment const expr primary member term elist call objectdef indexed indexedelem ifprefix ifstmt
 %type <call> methodcall normcall callsuffix
 
 %type <stringValue> funcname
@@ -187,8 +187,10 @@ idlist:       ID                {manage_idlist_id($1); fprintf(rulesFile,"idlist
               |                 {fprintf(rulesFile,"idlist -> \n");}
               ;
 
-ifstmt:       IF LPAREN expr RPAREN stmt ELSE stmt {fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt ELSE stmt\n");}
-              |IF LPAREN expr RPAREN stmt {fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt\n");}
+ifprefix:     IF LPAREN expr RPAREN {$$ = manage_ifprefix($3);}
+
+ifstmt:       ifprefix stmt ELSE stmt {fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt ELSE stmt\n");}
+              | ifprefix stmt {fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt\n");}
               ;
 
 loopstart:    {++loopCounter;}
