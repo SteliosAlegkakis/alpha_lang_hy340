@@ -31,12 +31,12 @@
 %token <realValue> REAL
 %token <stmt_stmt> BREAK CONTINUE
 
-%type <stmt_stmt> statements stmt  block
+%type <stmt_stmt> statements stmt  block ifstmt
 %type <symbol> idlist whilestmt forstmt returnstmt funcprefix funcdef
 
-%type <expr> lvalue assignment const expr primary member term elist call objectdef indexed indexedelem ifprefix ifstmt
+%type <expr> lvalue assignment const expr primary member term elist call objectdef indexed indexedelem
 %type <call> methodcall normcall callsuffix
-
+%type <uintValue>ifprefix 
 %type <stringValue> funcname
 %type <uintValue> funcbody
 

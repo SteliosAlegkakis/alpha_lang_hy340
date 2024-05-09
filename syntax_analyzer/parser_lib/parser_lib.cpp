@@ -9,6 +9,13 @@ int loopCounter;
 std::stack<int> loopCounterStack;
 std::stack<unsigned int> scope_offset_stack;
 
+/* 
+    (todo) -if(M)/while(S)/for(K)
+
+    (todo) -manage_bool_operetion (meriki apotimisi) 
+    (todo) -jump to the end of functions
+    (todo) -reuse temps (optional)
+*/
 
 int alpha_yyerror(const char* yaccProvidedMessage) {
 	fprintf(stderr, "\033[1;31m%s: '%s' in line: %d\033[0m\n",yaccProvidedMessage, alpha_yytext, alpha_yylineno);
@@ -271,17 +278,6 @@ call* manage_normcall(expr* elist){
     return normcall;
 }
 
-
-/*
-    TODO: Lecture 10
-    (completed) -Method call : fix make_call at icode.cpp
-    (completed) -Make table
-    (completed) -(funcdef)()
-    (todo) -terms : complete code in manage_... functions
-    (todo) -expr: complete code in manage_... functions
-    (todo) -reuse temps
-*/
-
 expr* manage_arithmetic_operation(iopcode op, expr* arg1, expr* arg2) {
     assert(arg1); assert(arg2);
     
@@ -312,17 +308,15 @@ expr* manage_relative_operation(iopcode op, expr* arg1, expr* arg2) {
     assert(arg1); assert(arg2);
 
     if(arg1->type == constnum_e && arg2->type == constnum_e) {
-        unsigned int result;
         switch(op) {
-            case _if_eq: result = arg1->numConst == arg2->numConst; break;
-            case _if_noteq: result = arg1->numConst != arg2->numConst; break;
-            case _if_lesseq: result = arg1->numConst <= arg2->numConst; break;
-            case _if_greatereq: result = arg1->numConst >= arg2->numConst; break;
-            case _if_less: result = arg1->numConst < arg2->numConst; break;
-            case _if_greater: result = arg1->numConst > arg2->numConst; break;
+            case _if_eq: return new_expr_const_bool(arg1->numConst == arg2->numConst);
+            case _if_noteq: return new_expr_const_bool(arg1->numConst != arg2->numConst);
+            case _if_lesseq: return new_expr_const_bool(arg1->numConst <= arg2->numConst);
+            case _if_greatereq: return new_expr_const_bool(arg1->numConst >= arg2->numConst);
+            case _if_less: return new_expr_const_bool(arg1->numConst < arg2->numConst);
+            case _if_greater: return new_expr_const_bool(arg1->numConst > arg2->numConst);
             default: assert(0);
         }
-        return new_expr_const_bool(result);
     }
 
     if(op == _if_eq || op == _if_noteq) {
@@ -580,7 +574,8 @@ void manage_continue(){
 
 unsigned manage_ifprefix(expr* _expr){
     assert(_expr);
-    _emit(_if_eq,_expr,new_expr_const_bool(1),(expr*)next_quad_label() + 2);
+    expr* tmp = new_expr_const_num(next_quad_label() + 2);
+    _emit(_if_eq,_expr,new_expr_const_bool(1),tmp);
     unsigned ifprefix = next_quad_label();
     _emit(_jump,NULL,NULL,0);
     return ifprefix;
