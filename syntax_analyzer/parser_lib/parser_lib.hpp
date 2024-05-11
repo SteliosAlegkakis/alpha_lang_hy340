@@ -65,10 +65,13 @@ void manage_return_expr(expr* _expr);
 void manage_return();
 
 stmt_t* manage_statements(stmt_t* _stmts, stmt_t* _stmt);
-void manage_break();
-void manage_continue();
+stmt_t* manage_break();
+stmt_t* manage_continue();
 
 unsigned manage_ifprefix(expr* _expr);
+
+unsigned int manage_whilecond(expr* _expr);
+void manage_whilestmt(unsigned int whilestart, unsigned int whilecond, stmt_t* _stmt);
 
 //puts all the library functions in the symbol table
 void init_library_func();

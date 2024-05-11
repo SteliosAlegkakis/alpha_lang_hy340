@@ -31,12 +31,12 @@
 %token <realValue> REAL
 %token <stmt_stmt> BREAK CONTINUE
 
-%type <stmt_stmt> statements stmt  block ifstmt
-%type <symbol> idlist whilestmt forstmt returnstmt funcprefix funcdef
+%type <stmt_stmt> statements stmt stmts block ifstmt whilestmt
+%type <symbol> idlist forstmt returnstmt funcprefix funcdef
 
 %type <expr> lvalue assignment const expr primary member term elist call objectdef indexed indexedelem
 %type <call> methodcall normcall callsuffix
-%type <uintValue>ifprefix 
+%type <uintValue>ifprefix whilecond whilestart
 %type <stringValue> funcname
 %type <uintValue> funcbody
 
@@ -59,20 +59,24 @@
 program:      statements {fprintf(rulesFile, "program -> statements\n");}
               ;
 
-statements:   statements stmt { fprintf(rulesFile, "statements -> statements stmt\n");}
-              |
+statements:   stmts { $$ = $1; fprintf(rulesFile, "statements -> statements stmts\n");}
+              |     { $$ = new_stmt(); fprintf(rulesFile, "statements -> \n");}
               ;
 
-stmt:         expr SEMICOLON      {$$ = (stmt_t*) 0; fprintf(rulesFile, "stmt -> expr SEMICOLON\n");}
-              |ifstmt             {$$ = $1; fprintf(rulesFile, "stmt -> ifstmt\n");}
-              |whilestmt          {$$ = (stmt_t*) 0; fprintf(rulesFile, "stmt -> whilestmt\n");}
-              |forstmt            {$$ = (stmt_t*) 0; fprintf(rulesFile, "stmt -> forstmt\n");}
-              |returnstmt         {$$ = (stmt_t*) 0; fprintf(rulesFile, "stmt -> returnstmt\n");}
-              |BREAK SEMICOLON    {$$ = $1;  manage_break(); fprintf(rulesFile, "stmt -> BREAK SEMICOLON\n");}
-              |CONTINUE SEMICOLON {$$ = $1;  manage_continue(); fprintf(rulesFile, "stmt -> CONTINUE SEMICOLON\n");}
-              |block              {$$ = $1; fprintf(rulesFile, "stmt -> block\n");}
-              |funcdef            {$$ = (stmt_t*) 0; fprintf(rulesFile, "stmt -> funcdef\n");} 
-              |SEMICOLON          {$$ = (stmt_t*) 0; fprintf(rulesFile, "stmt -> SEMICOLON\n");}
+stmts:        stmt { $$ = $1; fprintf(rulesFile, "stmts -> stmt\n");}
+              |stmts stmt { $$ = manage_statements($1, $2); fprintf(rulesFile, "stmts -> stmts stmt\n");}
+              ;
+
+stmt:         expr SEMICOLON      {$$ = new_stmt(); fprintf(rulesFile, "stmt -> expr SEMICOLON\n");}
+              |ifstmt             {$$ = new_stmt(); fprintf(rulesFile, "stmt -> ifstmt\n");}
+              |whilestmt          {$$ = new_stmt(); fprintf(rulesFile, "stmt -> whilestmt\n");}
+              |forstmt            {$$ = new_stmt(); fprintf(rulesFile, "stmt -> forstmt\n");}
+              |returnstmt         {$$ = new_stmt(); fprintf(rulesFile, "stmt -> returnstmt\n");}
+              |BREAK SEMICOLON    {$$ = manage_break(); fprintf(rulesFile, "stmt -> BREAK SEMICOLON\n");}
+              |CONTINUE SEMICOLON {$$ = manage_continue(); fprintf(rulesFile, "stmt -> CONTINUE SEMICOLON\n");}
+              |block              {$$ = new_stmt(); fprintf(rulesFile, "stmt -> block\n");}
+              |funcdef            {$$ = new_stmt(); fprintf(rulesFile, "stmt -> funcdef\n");} 
+              |SEMICOLON          {$$ = new_stmt(); fprintf(rulesFile, "stmt -> SEMICOLON\n");}
               ;
 
 expr:         assignment               {$$ = $1; fprintf(rulesFile, "expr -> assignment\n");}
@@ -200,7 +204,13 @@ loopend:      {--loopCounter;}
 loopstmt:     loopstart stmt loopend {}
               ;
 
-whilestmt:    WHILE LPAREN expr RPAREN{block_b = true;} loopstmt{block_b = false;}
+whilestart:   WHILE { $$ = next_quad_label(); }
+              ;
+
+whilecond:    LPAREN expr RPAREN { $$ = manage_whilecond($2); }
+              ;
+
+whilestmt:    whilestart whilecond {block_b = true;} loopstart stmt loopend {block_b = false; manage_whilestmt($1, $2 , $5); fprintf(rulesFile, "whilestmt -> WHILE LPAREN expr RPAREN stmt\n");}
               ;
 
 forstmt:      FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN {block_b = true;} loopstmt {block_b = false;}

@@ -364,12 +364,14 @@ expr* manage_relative_operation(iopcode op, expr* arg1, expr* arg2) {
 
     expr* result = new_expr(boolexpr_e);
     result->sym = _newtemp();
-    expr* tmp = new_expr_const_num(next_quad_label()+4);
+    expr* tmp = new_expr_const_num(next_quad_label()+3);
     _emit(op, arg1, arg2, tmp);
-    _emit(_assign, result, NULL, new_expr_const_bool(0));
-    expr* tmp2 = new_expr_const_num(next_quad_label()+3);
+    expr* tmp2 = new_expr_const_num(next_quad_label()+4);
     _emit(_jump, NULL, NULL, tmp2);
     _emit(_assign, result, NULL, new_expr_const_bool(1));
+    expr* tmp3 = new_expr_const_num(next_quad_label()+3);
+    _emit(_jump, NULL, NULL, tmp3);
+    _emit(_assign, result, NULL, new_expr_const_bool(0));
     
     return result;
 }
@@ -411,7 +413,7 @@ expr* manage_plusplus_lvalue(expr* lv) {
         _emit(_add,lv,new_expr_const_num(1),lv);
         expr* _term = new_expr(arithexpr_e);
         _term->sym = _newtemp();
-        _emit(_assign,lv,NULL,_term);
+        _emit(_assign,_term,NULL,lv);
     }
     return term;
 }
@@ -430,7 +432,7 @@ expr* manage_minusminus_lvalue(expr* lv) {
         _emit(_sub,lv,new_expr_const_num(1),lv);
         expr* _term = new_expr(arithexpr_e);
         _term->sym = _newtemp();
-        _emit(_assign,lv,NULL,_term);
+        _emit(_assign,_term,NULL,lv);
     }
     return term;
 }
@@ -447,7 +449,7 @@ expr* manage_lvalue_plusplus(expr* lv) {
         _emit(_add,val,new_expr_const_num(1),val);
         _emit(_tablesetelem,lv,lv->index,val);
     }else{
-        _emit(_assign,lv,NULL,term);
+        _emit(_assign,term,NULL,lv);
         _emit(_add,lv,new_expr_const_num(1),lv);
 
     }
@@ -467,7 +469,7 @@ expr* manage_lvalue_minusminus(expr* lv) {
     _emit(_sub,val,new_expr_const_num(1),val);
     _emit(_tablesetelem,lv,lv->index,val);
    }else{
-    _emit(_assign,lv,NULL,term);
+    _emit(_assign,term,NULL,lv);
     _emit(_sub,lv,new_expr_const_num(1),lv);
    }
     return term;
@@ -532,44 +534,27 @@ void manage_return(){
 }
 
 stmt_t* manage_statements(stmt_t* _stmts, stmt_t* _stmt){
-    _stmts = (stmt_t*)malloc(sizeof(stmt_t));
-    _stmt = (stmt_t*) malloc (sizeof(stmt_t));
-    if(!_stmts) return _stmt;
-    if(!_stmt) return _stmts;
-    assert(_stmts);
-    assert(_stmt);
-    stmt_t* statements = (stmt_t*) malloc (sizeof(stmt_t));
-    if (!statements) {
-        std::cerr << "Failed to allocate memory for statements.\n";
-        return nullptr;
-    }
-  
-    if(_stmts && _stmt){
-    statements->breakList = merge_list(_stmts->breakList,_stmt->breakList);
-    statements->contList = merge_list(_stmts->contList,_stmt->contList);
-    }else{
-        statements->breakList = (_stmts) ? _stmts->breakList : 0;
-        statements->contList = (_stmt) ? _stmt->contList : 0;
-    }
-    return statements;
+    if(_stmts) return _stmts;
+    if(_stmt) return _stmt;
+    return new_stmt();
 }
 
-void manage_break(){
+stmt_t* manage_break(){
     stmt_t* _break = (stmt_t*) malloc (sizeof(stmt_t));
     if(!loopCounter) print_error("error, cannot use break outside of loop:");
     make_stmt(_break);
     _break->breakList = new_list(next_quad_label());
     _emit(_jump,NULL,NULL,0);
-    return;
+    return _break;
 }
 
-void manage_continue(){
+stmt_t* manage_continue(){
     stmt_t* _continue = (stmt_t*) malloc (sizeof(stmt_t));
     if(!loopCounter) print_error("error, cannot use continue outside of loop:");
     make_stmt(_continue);
     _continue->contList = new_list(next_quad_label());
     _emit(_jump,NULL,NULL,0);
-    return ;
+    return _continue;
 }
 
 unsigned manage_ifprefix(expr* _expr){
@@ -581,7 +566,19 @@ unsigned manage_ifprefix(expr* _expr){
     return ifprefix;
 }
 
+unsigned int manage_whilecond(expr* _expr) {
+    _emit(_if_eq, _expr, new_expr_const_bool(1), new_expr_const_num(next_quad_label() + 3));
+    _emit(_jump, NULL, NULL, 0);
+    return next_quad_label();
+}
 
+void manage_whilestmt(unsigned int whilestart, unsigned int whilecond, stmt_t* _stmt) {
+    assert(_stmt);
+    _emit(_jump, NULL, NULL, new_expr_const_num(whilestart+1));
+    // patch_label(whilecond, next_quad_label());
+    patch_list(_stmt->breakList, next_quad_label());
+    patch_list(_stmt->contList, whilestart);
+}
 
 void init_library_func(){
     symTab_insert((char*)"print" , 0, function, libfunc, libraryfunc_s, curr_scopespace(), 0);
