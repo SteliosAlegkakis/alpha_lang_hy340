@@ -35,7 +35,7 @@ void _expand(void) {
     }
     quads = p;
     total += EXPAND_SIZE;
-
+    
 }
 
 void _emit(iopcode op, expr* arg1, expr* arg2, expr* result) {
@@ -142,7 +142,7 @@ unsigned int next_quad_label(void){
 }
 
 void patch_label(unsigned quad_No, unsigned _label){
-    assert(quad_No < currQuad && !quads[quad_No].label);
+    assert(quad_No < currQuad);
     quads[quad_No].label = _label;
 }
 
@@ -337,8 +337,15 @@ char* expr_tostring(expr* e) {
     }
     return NULL;
 }
+
+stmt_t* new_stmt(){
+    stmt_t* s = (stmt_t*) malloc(sizeof(stmt_t));
+    make_stmt(s);
+    return s;
+}
+
 void make_stmt(stmt_t* s){
-    s->breakList = s->contList;
+    s->breakList = s->contList = 0;
 }
 
 int new_list(int i){
@@ -361,7 +368,8 @@ int merge_list(int l1, int l2){
 
 void patch_list(int list, int label){
     while(list){
-        int next = quads[list].label = label;
+        int next = quads[list].label;
+        quads[list].label = label;
         list = next;
     }
 }
