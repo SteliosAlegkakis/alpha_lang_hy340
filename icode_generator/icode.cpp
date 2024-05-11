@@ -10,15 +10,19 @@ int tmpcounter = 0;
 FILE* quadsFile;
 extern int alpha_yylineno;
 
-void print_quad(iopcode op, expr* arg1, expr* arg2, expr* result) {
+void print_quads() {
     if(!quadsFile) quadsFile = fopen("quads.txt", "w");
 
-    char* op_str = iopcode_tostring(op);
-    fprintf(quadsFile, "%d: %s ", currQuad, op_str); free(op_str);
-    if(arg1) { char* arg1_str = expr_tostring(arg1); fprintf(quadsFile, "%s ", arg1_str); free(arg1_str); }
-    if(arg2) { char* arg2_str = expr_tostring(arg2); fprintf(quadsFile, "%s ", arg2_str); free(arg2_str); }
-    if(result) { char* result_str = expr_tostring(result); fprintf(quadsFile, "%s ", result_str); free(result_str); }
-    fprintf(quadsFile, "\n");
+    quad _quad;
+    for(int i = 0; i < currQuad; i++){
+        _quad = quads[i];
+        char* op_str = iopcode_tostring(_quad.op);
+        fprintf(quadsFile, "%d: %s ", _quad.label, op_str); free(op_str);
+        if(_quad.arg1) { char* arg1_str = expr_tostring(_quad.arg1); fprintf(quadsFile, "%s ", arg1_str); free(arg1_str); }
+        if(_quad.arg2) { char* arg2_str = expr_tostring(_quad.arg2); fprintf(quadsFile, "%s ", arg2_str); free(arg2_str); }
+        if(_quad.result) { char* result_str = expr_tostring(_quad.result); fprintf(quadsFile, "%s ", result_str); free(result_str); }
+        fprintf(quadsFile, "\n");
+    }
     
 }
 
@@ -46,8 +50,6 @@ void _emit(iopcode op, expr* arg1, expr* arg2, expr* result) {
     newQuad->result = result;
     newQuad->label = next_quad_label();
     newQuad->line = alpha_yylineno; 
-
-    print_quad(op, arg1, arg2, result);
 }
 
 scopespace_t curr_scopespace(void) {

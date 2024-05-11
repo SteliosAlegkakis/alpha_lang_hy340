@@ -59,7 +59,7 @@
 program:      statements {fprintf(rulesFile, "program -> statements\n");}
               ;
 
-statements:   statements stmt {$$ =  manage_statements($1, $2); fprintf(rulesFile, "statements -> statements stmt\n");}
+statements:   statements stmt { fprintf(rulesFile, "statements -> statements stmt\n");}
               |
               ;
 
@@ -225,4 +225,5 @@ int main(int argc, char** argv) {
   yyparse();
   fprintf(rulesFile, "EOF\n");
   fclose(rulesFile);
+  print_quads();
 }
