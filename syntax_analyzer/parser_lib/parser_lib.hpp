@@ -68,7 +68,10 @@ stmt_t* manage_statements(stmt_t* _stmts, stmt_t* _stmt);
 stmt_t* manage_break();
 stmt_t* manage_continue();
 
-unsigned manage_ifprefix(expr* _expr);
+unsigned int manage_ifprefix(expr* _expr);
+void manage_if_stmt(unsigned int _if);
+unsigned int manage_else();
+void manage_if_else(unsigned int _if, unsigned int _else);
 
 unsigned int manage_whilecond(expr* _expr);
 void manage_whilestmt(unsigned int whilestart, unsigned int whilecond, stmt_t* _stmt);
