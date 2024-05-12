@@ -1,0 +1,19 @@
+lvalue -> ID
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+assignment -> lvalue ASSIGN expr
+expr -> assignment
+statements -> 
+block -> LCURLY statements RCURLY
+stmt -> block
+statements -> 
+block -> LCURLY statements RCURLY
+stmt -> block
+ifstmt -> IF LPAREN expr RPAREN stmt ELSE stmt
+stmt -> ifstmt
+stmts -> stmt
+statements -> statements stmts
+program -> statements
+EOF

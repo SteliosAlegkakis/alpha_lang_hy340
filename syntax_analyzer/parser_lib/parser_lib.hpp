@@ -69,7 +69,6 @@ stmt_t* manage_break();
 stmt_t* manage_continue();
 
 unsigned int manage_ifprefix(expr* _expr);
-void manage_if_stmt(unsigned int _if);
 unsigned int manage_else();
 void manage_if_else(unsigned int _if, unsigned int _else);
 
