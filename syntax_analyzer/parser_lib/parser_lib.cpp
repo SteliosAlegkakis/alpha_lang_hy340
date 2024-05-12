@@ -565,6 +565,25 @@ unsigned manage_ifprefix(expr* _expr){
     _emit(_jump,NULL,NULL,0);
     return ifprefix;
 }
+void manage_if_stmt(unsigned _if){
+    printf("err\n");
+    printf("%d",_if);
+    patch_label(_if,next_quad_label());
+}
+
+unsigned int manage_else(){
+    printf("yass\n");
+    unsigned int _elseprefix = next_quad_label();
+    _emit(_jump,NULL,NULL,0);
+    return _elseprefix;
+}
+
+void manage_if_else(unsigned int _if, unsigned int _else){
+    printf("whyy\n");
+    unsigned int tmp = _else + 1;
+    patch_label(_if, tmp);
+    patch_label(_else, next_quad_label());
+}
 
 unsigned int manage_whilecond(expr* _expr) {
     _emit(_if_eq, _expr, new_expr_const_bool(1), new_expr_const_num(next_quad_label() + 3));
