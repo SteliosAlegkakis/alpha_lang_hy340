@@ -36,7 +36,7 @@
 
 %type <expr> lvalue assignment const expr primary member term elist call objectdef indexed indexedelem
 %type <call> methodcall normcall callsuffix
-%type <uintValue>ifprefix whilecond whilestart
+%type <uintValue>ifprefix elseprefix whilecond whilestart 
 %type <stringValue> funcname
 %type <uintValue> funcbody
 
@@ -193,8 +193,10 @@ idlist:       ID                {manage_idlist_id($1); fprintf(rulesFile,"idlist
 
 ifprefix:     IF LPAREN expr RPAREN {$$ = manage_ifprefix($3);}
 
-ifstmt:       ifprefix stmt ELSE stmt {fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt ELSE stmt\n");}
-              | ifprefix stmt {fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt\n");}
+elseprefix:   ELSE{$$ = manage_else();}
+
+ifstmt:       ifprefix stmt elseprefix stmt {manage_if_else($1,$3); fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt ELSE stmt\n");}
+              | ifprefix stmt {patch_label($1, next_quad_label()); fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt\n");}
               ;
 
 loopstart:    {++loopCounter;}
