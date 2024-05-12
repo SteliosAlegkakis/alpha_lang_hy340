@@ -73,7 +73,7 @@ unsigned int manage_else();
 void manage_if_else(unsigned int _if, unsigned int _else);
 
 unsigned int manage_whilecond(expr* _expr);
-void manage_whilestmt(unsigned int whilestart, unsigned int whilecond, stmt_t* _stmt);
+stmt_t* manage_whilestmt(unsigned int whilestart, unsigned int whilecond, stmt_t* _stmt);
 
 //puts all the library functions in the symbol table
 void init_library_func();

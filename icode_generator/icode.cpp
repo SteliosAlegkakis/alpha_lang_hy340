@@ -143,7 +143,8 @@ unsigned int next_quad_label(void){
 
 void patch_label(unsigned quad_No, unsigned _label){
     assert(quad_No < currQuad);
-    quads[quad_No].label = _label;
+    // assert(!quads[quad_No].label);
+    quads[quad_No].result = new_expr_const_num(_label+1);
 }
 
 expr* lvalue_expr(SymtabEntry* _sym){

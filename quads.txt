@@ -1,5 +1,0 @@
-1: assign x 5 
-2: assign _t0 x 
-3: if_eq _t0 true 5 
-4: jump 
-5: jump 

@@ -212,8 +212,7 @@ whilestart:   WHILE { $$ = next_quad_label(); }
 whilecond:    LPAREN expr RPAREN { $$ = manage_whilecond($2); }
               ;
 
-whilestmt:    whilestart whilecond {block_b = true;} loopstart stmt loopend {block_b = false; manage_whilestmt($1, $2 , $5); fprintf(rulesFile, "whilestmt -> WHILE LPAREN expr RPAREN stmt\n");}
-              ;
+whilestmt:    whilestart whilecond {block_b = true;} loopstart stmt loopend {block_b = false; $$ = manage_whilestmt($1, $2 , $5); fprintf(rulesFile, "whilestmt -> WHILE LPAREN expr RPAREN stmt\n");}
 
 forstmt:      FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN {block_b = true;} loopstmt {block_b = false;}
               ;

@@ -580,16 +580,18 @@ void manage_if_else(unsigned int _if, unsigned int _else){
 
 unsigned int manage_whilecond(expr* _expr) {
     _emit(_if_eq, _expr, new_expr_const_bool(1), new_expr_const_num(next_quad_label() + 3));
+    unsigned int whilecond = next_quad_label();
     _emit(_jump, NULL, NULL, 0);
-    return next_quad_label();
+    return whilecond;
 }
 
-void manage_whilestmt(unsigned int whilestart, unsigned int whilecond, stmt_t* _stmt) {
+stmt_t* manage_whilestmt(unsigned int whilestart, unsigned int whilecond, stmt_t* _stmt) {
     assert(_stmt);
     _emit(_jump, NULL, NULL, new_expr_const_num(whilestart+1));
-    // patch_label(whilecond, next_quad_label());
+    patch_label(whilecond, next_quad_label());
     patch_list(_stmt->breakList, next_quad_label());
     patch_list(_stmt->contList, whilestart);
+    return _stmt;
 }
 
 void init_library_func(){
