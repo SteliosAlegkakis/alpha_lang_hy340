@@ -16,6 +16,7 @@
   struct expr* expr;
   struct call* call;
   struct stmt_t* stmt_stmt;
+  struct forprefix* _forprefix;
 }
 
 %start program
@@ -31,12 +32,12 @@
 %token <realValue> REAL
 %token <stmt_stmt> BREAK CONTINUE
 
-%type <stmt_stmt> statements stmt stmts block ifstmt whilestmt loopstmt
-%type <symbol> idlist forstmt returnstmt funcprefix funcdef
+%type <stmt_stmt> statements stmt stmts block ifstmt whilestmt forstmt loopstmt
+%type <symbol> idlist returnstmt funcprefix funcdef
 
 %type <expr> lvalue assignment const expr primary member term elist call objectdef indexed indexedelem
 %type <call> methodcall normcall callsuffix
-%type <uintValue>ifprefix elseprefix whilecond whilestart 
+%type <uintValue> ifprefix elseprefix whilecond whilestart N_rule M_rule 
 %type <stringValue> funcname
 %type <uintValue> funcbody
 
@@ -192,8 +193,10 @@ idlist:       ID                {manage_idlist_id($1); fprintf(rulesFile,"idlist
               ;
 
 ifprefix:     IF LPAREN expr RPAREN {$$ = manage_ifprefix($3);}
+	      ;
 
 elseprefix:   ELSE{$$ = manage_else();}
+	      ;
 
 ifstmt:       ifprefix stmt elseprefix stmt {manage_if_else($1,$3); fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt ELSE stmt\n");}
               | ifprefix stmt {patch_label($1, next_quad_label()); fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt\n");}
@@ -201,8 +204,10 @@ ifstmt:       ifprefix stmt elseprefix stmt {manage_if_else($1,$3); fprintf(rule
 
 loopstart:    {++loopCounter;}
               ;
+
 loopend:      {--loopCounter;}
               ;
+
 loopstmt:     loopstart stmt loopend {$$ = $2;}
               ;
 
@@ -213,8 +218,18 @@ whilecond:    LPAREN expr RPAREN { $$ = manage_whilecond($2); }
               ;
 
 whilestmt:    whilestart whilecond {block_b = true;} loopstmt {block_b = false; $$ = manage_whilestmt($1, $2 , $4); fprintf(rulesFile, "whilestmt -> WHILE LPAREN expr RPAREN stmt\n");}
+	      ;
 
-forstmt:      FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN {block_b = true;} loopstmt {block_b = false;}
+N_rule:       {$$ = manage_N_rule();}
+              ;
+
+M_rule:       {$$ = next_quad_label();}
+              ;
+
+forprefix:    FOR LPAREN elist SEMICOLON M_rule expr SEMICOLON {$$ = manage_forprefix($5, $6);}
+              ;
+
+forstmt:      forprefix N_rule elist RPAREN N_rule {block_b = true;} loopstmt {block_b = false;} N_rule {manage_forstmt($1, $2, $5, $6, $7);}
               ;
 
 returnstmt:   RETURN expr SEMICOLON { manage_return_expr($2);  fprintf(rulesFile, "returnstmt -> RETURN expr SEMICOLON\n");}
