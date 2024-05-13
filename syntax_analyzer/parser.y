@@ -34,10 +34,11 @@
 
 %type <stmt_stmt> statements stmt stmts block ifstmt whilestmt forstmt loopstmt
 %type <symbol> idlist returnstmt funcprefix funcdef
+%type <_forprefix> forprefix
 
 %type <expr> lvalue assignment const expr primary member term elist call objectdef indexed indexedelem
 %type <call> methodcall normcall callsuffix
-%type <uintValue> ifprefix elseprefix whilecond whilestart N_rule M_rule 
+%type <uintValue> ifprefix elseprefix whilecond whilestart N_rule M_rule
 %type <stringValue> funcname
 %type <uintValue> funcbody
 
@@ -202,10 +203,10 @@ ifstmt:       ifprefix stmt elseprefix stmt {manage_if_else($1,$3); fprintf(rule
               | ifprefix stmt {patch_label($1, next_quad_label()); fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt\n");}
               ;
 
-loopstart:    {++loopCounter;}
+loopstart:    {++loopCounter; block_b = true;}
               ;
 
-loopend:      {--loopCounter;}
+loopend:      {--loopCounter; block_b = false;}
               ;
 
 loopstmt:     loopstart stmt loopend {$$ = $2;}
@@ -217,7 +218,7 @@ whilestart:   WHILE { $$ = next_quad_label(); }
 whilecond:    LPAREN expr RPAREN { $$ = manage_whilecond($2); }
               ;
 
-whilestmt:    whilestart whilecond {block_b = true;} loopstmt {block_b = false; $$ = manage_whilestmt($1, $2 , $4); fprintf(rulesFile, "whilestmt -> WHILE LPAREN expr RPAREN stmt\n");}
+whilestmt:    whilestart whilecond loopstmt { $$ = manage_whilestmt($1, $2 , $3); fprintf(rulesFile, "whilestmt -> WHILE LPAREN expr RPAREN stmt\n");}
 	      ;
 
 N_rule:       {$$ = manage_N_rule();}
@@ -229,7 +230,7 @@ M_rule:       {$$ = next_quad_label();}
 forprefix:    FOR LPAREN elist SEMICOLON M_rule expr SEMICOLON {$$ = manage_forprefix($5, $6);}
               ;
 
-forstmt:      forprefix N_rule elist RPAREN N_rule {block_b = true;} loopstmt {block_b = false;} N_rule {manage_forstmt($1, $2, $5, $6, $7);}
+forstmt:      forprefix N_rule elist RPAREN N_rule loopstmt N_rule {manage_forstmt($1, $2, $5, $6, $7);}
               ;
 
 returnstmt:   RETURN expr SEMICOLON { manage_return_expr($2);  fprintf(rulesFile, "returnstmt -> RETURN expr SEMICOLON\n");}
