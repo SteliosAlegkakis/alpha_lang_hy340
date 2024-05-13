@@ -366,7 +366,7 @@ expr* manage_relative_operation(iopcode op, expr* arg1, expr* arg2) {
     result->sym = _newtemp();
     _emit(op, arg1, arg2, NULL , next_quad_label() + 3);
     _emit(_assign, result, NULL, new_expr_const_bool(0), 0);
-    _emit(_jump, NULL, NULL, NULL, next_quad_label() + 2);
+    _emit(_jump, NULL, NULL, NULL, next_quad_label() + 3);
     _emit(_assign, result, NULL, new_expr_const_bool(1), 0);
     
     return result;
@@ -555,7 +555,7 @@ stmt_t* manage_continue(){
 
 unsigned manage_ifprefix(expr* _expr){
     assert(_expr);
-    _emit(_if_eq,_expr,new_expr_const_bool(1),NULL,next_quad_label()+2);
+    _emit(_if_eq,_expr,new_expr_const_bool(1),NULL,next_quad_label()+3);
     unsigned ifprefix = next_quad_label();
     _emit(_jump,NULL,NULL,NULL,0);
     return ifprefix;
@@ -574,7 +574,7 @@ void manage_if_else(unsigned int _if, unsigned int _else){
 }
 
 unsigned int manage_whilecond(expr* _expr) {
-    _emit(_if_eq, _expr, new_expr_const_bool(1),0,next_quad_label()+2);
+    _emit(_if_eq, _expr, new_expr_const_bool(1),0,next_quad_label()+3);
     unsigned int whilecond = next_quad_label();
     _emit(_jump, NULL, NULL, NULL, 0);
     return whilecond;
@@ -582,7 +582,7 @@ unsigned int manage_whilecond(expr* _expr) {
 
 stmt_t* manage_whilestmt(unsigned int whilestart, unsigned int whilecond, stmt_t* _stmt) {
     assert(_stmt);
-    _emit(_jump, NULL, NULL, NULL,whilestart);
+    _emit(_jump, NULL, NULL, NULL,whilestart+1);
     patch_label(whilecond, next_quad_label());
     patch_list(_stmt->breakList, next_quad_label());
     patch_list(_stmt->contList, whilestart);
