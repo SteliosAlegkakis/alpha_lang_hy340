@@ -12,6 +12,11 @@ extern std::stack<int> loopCounterStack;
 extern int functionCounter;
 extern bool block_b;
 
+struct forprefix {
+    unsigned int test;
+    unsigned int enter;
+};
+
 int alpha_yyerror(const char* yaccProvidedMessage);
 int alpha_yylex(void);
 char* make_anonymous_func();
@@ -74,6 +79,10 @@ void manage_if_else(unsigned int _if, unsigned int _else);
 
 unsigned int manage_whilecond(expr* _expr);
 stmt_t* manage_whilestmt(unsigned int whilestart, unsigned int whilecond, stmt_t* _stmt);
+
+unsigned int manage_N_rule();
+forprefix manage_forprefix(unsigned int M_rule, expr* _expr);
+void manage_forstmt(forprefix _forprefix, unsigned int N1, unsigned int N2, stmt_t* loopstmt, unsigned int N3);
 
 //puts all the library functions in the symbol table
 void init_library_func();
