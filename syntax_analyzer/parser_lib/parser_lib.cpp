@@ -530,9 +530,10 @@ void manage_return(){
 }
 
 stmt_t* manage_statements(stmt_t* _stmts, stmt_t* _stmt){
-    if(_stmts) return _stmts;
-    if(_stmt) return _stmt;
-    return new_stmt();
+    stmt_t* s = new_stmt();
+    s->breakList = merge_list(_stmts->breakList, _stmt->breakList);
+    s->contList = merge_list(_stmts->contList, _stmt->contList); 
+    return s;
 }
 
 stmt_t* manage_break(){
