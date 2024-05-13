@@ -31,7 +31,7 @@
 %token <realValue> REAL
 %token <stmt_stmt> BREAK CONTINUE
 
-%type <stmt_stmt> statements stmt stmts block ifstmt whilestmt
+%type <stmt_stmt> statements stmt stmts block ifstmt whilestmt loopstmt
 %type <symbol> idlist forstmt returnstmt funcprefix funcdef
 
 %type <expr> lvalue assignment const expr primary member term elist call objectdef indexed indexedelem
@@ -203,7 +203,7 @@ loopstart:    {++loopCounter;}
               ;
 loopend:      {--loopCounter;}
               ;
-loopstmt:     loopstart stmt loopend {}
+loopstmt:     loopstart stmt loopend {$$ = $2;}
               ;
 
 whilestart:   WHILE { $$ = next_quad_label(); }
@@ -212,7 +212,7 @@ whilestart:   WHILE { $$ = next_quad_label(); }
 whilecond:    LPAREN expr RPAREN { $$ = manage_whilecond($2); }
               ;
 
-whilestmt:    whilestart whilecond {block_b = true;} loopstart stmt loopend {block_b = false; $$ = manage_whilestmt($1, $2 , $5); fprintf(rulesFile, "whilestmt -> WHILE LPAREN expr RPAREN stmt\n");}
+whilestmt:    whilestart whilecond {block_b = true;} loopstmt {block_b = false; $$ = manage_whilestmt($1, $2 , $4); fprintf(rulesFile, "whilestmt -> WHILE LPAREN expr RPAREN stmt\n");}
 
 forstmt:      FOR LPAREN elist SEMICOLON expr SEMICOLON elist RPAREN {block_b = true;} loopstmt {block_b = false;}
               ;

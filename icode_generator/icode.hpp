@@ -74,7 +74,7 @@ void in_curr_scope_offset(void);
 void enter_scopespace(void);
 void exit_scopespace(void);
 void _expand(void);
-void _emit(iopcode op, expr* arg1, expr* arg2, expr* result);
+void _emit(iopcode op, expr* arg1, expr* arg2, expr* result, unsigned int label);
 char* _newtempname(void);
 void _resettemp(void);
 SymtabEntry* _newtemp(void);

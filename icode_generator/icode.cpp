@@ -17,7 +17,7 @@ void print_quads() {
     for(int i = 0; i < currQuad; i++){
         _quad = quads[i];
         char* op_str = iopcode_tostring(_quad.op);
-        fprintf(quadsFile, "%d: %s ", _quad.label, op_str); free(op_str);
+        fprintf(quadsFile, "%d: %s ", i+1, op_str); free(op_str);
         if(_quad.arg1) { char* arg1_str = expr_tostring(_quad.arg1); fprintf(quadsFile, "%s ", arg1_str); free(arg1_str); }
         if(_quad.arg2) { char* arg2_str = expr_tostring(_quad.arg2); fprintf(quadsFile, "%s ", arg2_str); free(arg2_str); }
         if(_quad.result) { char* result_str = expr_tostring(_quad.result); fprintf(quadsFile, "%s ", result_str); free(result_str); }
@@ -38,7 +38,7 @@ void _expand(void) {
     
 }
 
-void _emit(iopcode op, expr* arg1, expr* arg2, expr* result) {
+void _emit(iopcode op, expr* arg1, expr* arg2, expr* result, unsigned int label) {
     
     if(currQuad == total) 
         _expand();
@@ -48,7 +48,7 @@ void _emit(iopcode op, expr* arg1, expr* arg2, expr* result) {
     newQuad->arg1 = arg1;
     newQuad->arg2 = arg2;
     newQuad->result = result;
-    newQuad->label = next_quad_label();
+    newQuad->label = label;
     newQuad->line = alpha_yylineno; 
 }
 
@@ -142,9 +142,10 @@ unsigned int next_quad_label(void){
 }
 
 void patch_label(unsigned quad_No, unsigned _label){
+    printf("%u\n", quads[quad_No].label);
     assert(quad_No < currQuad);
-    // assert(!quads[quad_No].label);
-    quads[quad_No].result = new_expr_const_num(_label+1);
+    assert(!quads[quad_No].label);
+    quads[quad_No].label = _label;
 }
 
 expr* lvalue_expr(SymtabEntry* _sym){
@@ -191,7 +192,7 @@ expr* emit_if_table_item(expr* e){
     }else{
         expr* _result = new_expr(var_e);
         _result->sym = _newtemp();
-        _emit(_tablegetelem,e,e->index,_result);
+        _emit(_tablegetelem,e,e->index,_result,0);
         return _result;
     }
 }
@@ -225,13 +226,13 @@ expr* make_call(expr* _lv, expr* _elist){
     _elist = reverseList(_elist);
     expr* func = emit_if_table_item(_lv);
     while (_elist) {
-        _emit(_param, _elist, NULL, NULL);
+        _emit(_param, _elist, NULL, NULL,0);
         _elist = _elist->next;
     }
-    _emit(_call,func,NULL,NULL);
+    _emit(_call,func,NULL,NULL,0);
     expr* result = new_expr(var_e);
     result->sym = _newtemp();
-    _emit(_getretval, NULL, NULL, result);
+    _emit(_getretval, NULL, NULL, result,0);
     return result;
 }
 

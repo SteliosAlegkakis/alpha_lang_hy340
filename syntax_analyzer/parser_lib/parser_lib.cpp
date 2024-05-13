@@ -171,7 +171,7 @@ SymtabEntry* manage_funcprefix(char* functionName) {
         exit(EXIT_FAILURE);
     }
     function->symbol.function->iaddress = next_quad_label();
-    _emit(_funcstart, lvalue_expr(function), NULL, NULL);
+    _emit(_funcstart, lvalue_expr(function), NULL, NULL ,0);
     increase_scope();
     isFormal = true;
     scope_offset_stack.push(curr_scope_offset());
@@ -206,7 +206,7 @@ SymtabEntry* manage_funcdef(SymtabEntry* funcPrefix, unsigned int funcBody){
     int offset;
     if(!scope_offset_stack.empty()) offset = scope_offset_stack.top();
     restore_curr_scope_offset(offset);
-    _emit(_funcend,lvalue_expr(funcPrefix),NULL,NULL);
+    _emit(_funcend,lvalue_expr(funcPrefix),NULL,NULL, 0);
     assert(funcPrefix);
     return funcPrefix;  
 }
@@ -226,14 +226,14 @@ expr* manage_assignment(expr* lv, expr* _expr){
 
     expr* assignExpr = new_expr(assignexpr_e);
     if(lv->type == tableitem_e){
-        _emit(_tablesetelem,lv,lv->index,_expr);
+        _emit(_tablesetelem,lv,lv->index,_expr ,0);
         assignExpr = emit_if_table_item(lv);
         assignExpr->type = assignexpr_e;
     }
     else {
-        _emit(_assign, lv, NULL, _expr);
+        _emit(_assign, lv, NULL, _expr, 0);
         assignExpr->sym = _newtemp();
-        _emit(_assign, assignExpr, NULL, lv);
+        _emit(_assign, assignExpr, NULL, lv, 0);
     }
     return assignExpr;
 }
@@ -299,7 +299,7 @@ expr* manage_arithmetic_operation(iopcode op, expr* arg1, expr* arg2) {
 
     expr* result = new_expr(arithexpr_e);
     result->sym = _newtemp();
-    _emit(op, arg1, arg2, result);
+    _emit(op, arg1, arg2, result, 0);
 
     return result;
 }
@@ -364,14 +364,10 @@ expr* manage_relative_operation(iopcode op, expr* arg1, expr* arg2) {
 
     expr* result = new_expr(boolexpr_e);
     result->sym = _newtemp();
-    expr* tmp = new_expr_const_num(next_quad_label()+3);
-    _emit(op, arg1, arg2, tmp);
-    expr* tmp2 = new_expr_const_num(next_quad_label()+4);
-    _emit(_jump, NULL, NULL, tmp2);
-    _emit(_assign, result, NULL, new_expr_const_bool(1));
-    expr* tmp3 = new_expr_const_num(next_quad_label()+3);
-    _emit(_jump, NULL, NULL, tmp3);
-    _emit(_assign, result, NULL, new_expr_const_bool(0));
+    _emit(op, arg1, arg2, NULL , next_quad_label() + 3);
+    _emit(_assign, result, NULL, new_expr_const_bool(0), 0);
+    _emit(_jump, NULL, NULL, NULL, next_quad_label() + 2);
+    _emit(_assign, result, NULL, new_expr_const_bool(1), 0);
     
     return result;
 }
@@ -387,7 +383,7 @@ expr* manage_uminus_expr(expr* _expr) {
     check_arith(_expr, "unary minus");
     expr* term = new_expr(arithexpr_e);
     term->sym = _newtemp();
-    _emit(_uminus, _expr, NULL, term);
+    _emit(_uminus, _expr, NULL, term, 0);
     return term;
 }
 
@@ -395,7 +391,7 @@ expr* manage_not_expr(expr* _expr) {
     assert(_expr);
     expr* term = new_expr(boolexpr_e);
     term->sym = _newtemp();
-    _emit(_not, _expr, NULL, term);
+    _emit(_not, _expr, NULL, term, 0);
     return term;
 }
 
@@ -407,13 +403,13 @@ expr* manage_plusplus_lvalue(expr* lv) {
     term->sym = _newtemp();
     if(lv->type == tableitem_e){
         term = emit_if_table_item(lv);
-        _emit(_add, term, new_expr_const_num(1),term);
-        _emit(_tablesetelem, lv,lv->index,term);
+        _emit(_add, term, new_expr_const_num(1),term, 0);
+        _emit(_tablesetelem, lv,lv->index,term, 0);
     }else{
-        _emit(_add,lv,new_expr_const_num(1),lv);
+        _emit(_add,lv,new_expr_const_num(1), lv, 0);
         expr* _term = new_expr(arithexpr_e);
         _term->sym = _newtemp();
-        _emit(_assign,_term,NULL,lv);
+        _emit(_assign,_term,NULL,lv,0);
     }
     return term;
 }
@@ -426,13 +422,13 @@ expr* manage_minusminus_lvalue(expr* lv) {
     term->sym = _newtemp();
     if(lv->type == tableitem_e){
         term = emit_if_table_item(lv);
-        _emit(_sub,term,new_expr_const_num(1),term);
-        _emit(_tablesetelem,lv,lv->index,term);
+        _emit(_sub,term,new_expr_const_num(1),term,0);
+        _emit(_tablesetelem,lv,lv->index,term,0);
     }else{
-        _emit(_sub,lv,new_expr_const_num(1),lv);
+        _emit(_sub,lv,new_expr_const_num(1),lv,0);
         expr* _term = new_expr(arithexpr_e);
         _term->sym = _newtemp();
-        _emit(_assign,_term,NULL,lv);
+        _emit(_assign,_term,NULL,lv,0);
     }
     return term;
 }
@@ -445,12 +441,12 @@ expr* manage_lvalue_plusplus(expr* lv) {
     term->sym = _newtemp();
     if(lv->type == tableitem_e){
         expr* val = emit_if_table_item(lv);
-        _emit(_assign,val,NULL,term);
-        _emit(_add,val,new_expr_const_num(1),val);
-        _emit(_tablesetelem,lv,lv->index,val);
+        _emit(_assign,val,NULL,term,0);
+        _emit(_add,val,new_expr_const_num(1),val,0);
+        _emit(_tablesetelem,lv,lv->index,val,0);
     }else{
-        _emit(_assign,term,NULL,lv);
-        _emit(_add,lv,new_expr_const_num(1),lv);
+        _emit(_assign,term,NULL,lv,0);
+        _emit(_add,lv,new_expr_const_num(1),lv,0);
 
     }
 
@@ -465,12 +461,12 @@ expr* manage_lvalue_minusminus(expr* lv) {
    term->sym = _newtemp();
    if(lv->type == tableitem_e){
     expr* val = emit_if_table_item(lv);
-    _emit(_assign,val,NULL,term);
-    _emit(_sub,val,new_expr_const_num(1),val);
-    _emit(_tablesetelem,lv,lv->index,val);
+    _emit(_assign,val,NULL,term,0);
+    _emit(_sub,val,new_expr_const_num(1),val,0);
+    _emit(_tablesetelem,lv,lv->index,val,0);
    }else{
-    _emit(_assign,term,NULL,lv);
-    _emit(_sub,lv,new_expr_const_num(1),lv);
+    _emit(_assign,term,NULL,lv,0);
+    _emit(_sub,lv,new_expr_const_num(1),lv,0);
    }
     return term;
 }
@@ -478,10 +474,10 @@ expr* manage_lvalue_minusminus(expr* lv) {
 expr* manage_objectdef_elist(expr* elist) {
     expr* object = new_expr(newtable_e);
     object->sym = _newtemp();
-    _emit(_tablecreate, NULL, NULL, object);
+    _emit(_tablecreate, NULL, NULL, object,0);
     for(int i = 0; elist; elist = elist->next) {
         if(!elist) break;
-         _emit(_tablesetelem, object, new_expr_const_num(i++), elist);
+         _emit(_tablesetelem, object, new_expr_const_num(i++), elist,0);
     }
 
     return object;
@@ -490,10 +486,10 @@ expr* manage_objectdef_elist(expr* elist) {
 expr* manage_objectdef_indexed(expr* indexed) {
     expr* object = new_expr(newtable_e);
     object->sym = _newtemp();
-    _emit(_tablecreate, NULL, NULL, object);
+    _emit(_tablecreate, NULL, NULL, object,0);
     for(; indexed; indexed = indexed->next) {
         if(!indexed) break;
-        _emit(_tablesetelem, object, indexed->index, indexed);
+        _emit(_tablesetelem, object, indexed->index, indexed,0);
     }
 
     return object;
@@ -522,14 +518,14 @@ expr* manage_primary_funcdef(SymtabEntry* funcdef) {
 
 void manage_return_expr(expr* _expr){
     if(!functionCounter) print_error("error, cannot use return outside of function");
-    _emit(_ret,_expr,NULL,NULL);
+    _emit(_ret,_expr,NULL,NULL,0);
 	return;
 
 }
 
 void manage_return(){
      if(!functionCounter) print_error("error, cannot use return outside of function");
-    _emit(_ret,NULL,NULL,NULL);
+    _emit(_ret,NULL,NULL,NULL,0);
 	return;
 }
 
@@ -544,7 +540,7 @@ stmt_t* manage_break(){
     if(!loopCounter) print_error("error, cannot use break outside of loop:");
     make_stmt(_break);
     _break->breakList = new_list(next_quad_label());
-    _emit(_jump,NULL,NULL,0);
+    _emit(_jump,NULL,NULL,NULL,0);
     return _break;
 }
 
@@ -553,41 +549,40 @@ stmt_t* manage_continue(){
     if(!loopCounter) print_error("error, cannot use continue outside of loop:");
     make_stmt(_continue);
     _continue->contList = new_list(next_quad_label());
-    _emit(_jump,NULL,NULL,0);
+    _emit(_jump,NULL,NULL,NULL,0);
     return _continue;
 }
 
 unsigned manage_ifprefix(expr* _expr){
     assert(_expr);
-    expr* tmp = new_expr_const_num(next_quad_label() + 3);
-    _emit(_if_eq,_expr,new_expr_const_bool(1),tmp);
-    unsigned ifprefix = next_quad_label() + 1;
-    _emit(_jump,NULL,NULL,0);
+    _emit(_if_eq,_expr,new_expr_const_bool(1),NULL,next_quad_label()+2);
+    unsigned ifprefix = next_quad_label();
+    _emit(_jump,NULL,NULL,NULL,0);
     return ifprefix;
 }
 
 unsigned int manage_else(){
     unsigned int _elseprefix = next_quad_label();
-    _emit(_jump,NULL,NULL,0);
+    _emit(_jump,NULL,NULL,0,0);
     return _elseprefix;
 }
 
 void manage_if_else(unsigned int _if, unsigned int _else){
     unsigned int tmp = _else + 1;
-    patch_label(_if, tmp);
+    patch_label(_if, _else + 1);
     patch_label(_else, next_quad_label());
 }
 
 unsigned int manage_whilecond(expr* _expr) {
-    _emit(_if_eq, _expr, new_expr_const_bool(1), new_expr_const_num(next_quad_label() + 3));
+    _emit(_if_eq, _expr, new_expr_const_bool(1),0,next_quad_label()+2);
     unsigned int whilecond = next_quad_label();
-    _emit(_jump, NULL, NULL, 0);
+    _emit(_jump, NULL, NULL, NULL, 0);
     return whilecond;
 }
 
 stmt_t* manage_whilestmt(unsigned int whilestart, unsigned int whilecond, stmt_t* _stmt) {
     assert(_stmt);
-    _emit(_jump, NULL, NULL, new_expr_const_num(whilestart+1));
+    _emit(_jump, NULL, NULL, NULL,whilestart);
     patch_label(whilecond, next_quad_label());
     patch_list(_stmt->breakList, next_quad_label());
     patch_list(_stmt->contList, whilestart);
