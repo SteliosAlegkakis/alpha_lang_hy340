@@ -589,6 +589,30 @@ stmt_t* manage_whilestmt(unsigned int whilestart, unsigned int whilecond, stmt_t
     return _stmt;
 }
 
+unsigned int manage_N_rule() {
+    unsigned int N_rule = next_quad_label();
+    _emit(_jump, NULL, NULL, 0);
+    return N_rule;
+}
+
+forprefix manage_forprefix(unsigned int M_rule, expr* _expr) {
+    forprefix _forprefix;
+    _forprefix.test = M_rule;
+    _forprefix.enter = next_quad_label();
+    _emit(_if_eq, _expr, new_expr_const_bool(1), 0);
+    return _forprefix;
+}
+
+void manage_forstmt(forprefix _forprefix, unsigned int N1, unsigned int N2, stmt_t* loopstmt, unsigned int N3) {
+    patch_label(_forprefix.enter, N2 + 1);
+    patch_label(N1, next_quad_label());
+    patch_label(N2, _forprefix.test);
+    patch_label(N3, N1 + 1);
+
+    patch_list(loopstmt.breakList, next_quad_label());
+    patch_list(loopstmt.contList, N1 + 1);
+}
+
 void init_library_func(){
     symTab_insert((char*)"print" , 0, function, libfunc, libraryfunc_s, curr_scopespace(), 0);
     symTab_insert((char*)"input" ,0 , function, libfunc, libraryfunc_s, curr_scopespace(), 0);
