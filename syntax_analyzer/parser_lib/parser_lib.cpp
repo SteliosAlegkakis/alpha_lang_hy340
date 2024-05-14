@@ -364,7 +364,7 @@ expr* manage_relative_operation(iopcode op, expr* arg1, expr* arg2) {
 
     expr* result = new_expr(boolexpr_e);
     result->sym = _newtemp();
-    _emit(op, arg1, arg2, NULL , next_quad_label() + 3);
+    _emit(op, arg1, arg2, NULL , next_quad_label() + 4);
     _emit(_assign, result, NULL, new_expr_const_bool(0), 0);
     _emit(_jump, NULL, NULL, NULL, next_quad_label() + 3);
     _emit(_assign, result, NULL, new_expr_const_bool(1), 0);
@@ -585,8 +585,8 @@ stmt_t* manage_whilestmt(unsigned int whilestart, unsigned int whilecond, stmt_t
     assert(_stmt);
     _emit(_jump, NULL, NULL, NULL,whilestart+1);
     patch_label(whilecond, next_quad_label());
-    patch_list(_stmt->breakList, next_quad_label());
-    patch_list(_stmt->contList, whilestart);
+    patch_list(_stmt->breakList, next_quad_label() + 1);
+    patch_list(_stmt->contList, whilestart + 1);
     return _stmt;
 }
 
@@ -604,14 +604,15 @@ forprefix* manage_forprefix(unsigned int M_rule, expr* _expr) {
     return _forprefix;
 }
 
-void manage_forstmt(forprefix* _forprefix, unsigned int N1, unsigned int N2, stmt_t* loopstmt, unsigned int N3) {
+stmt_t* manage_forstmt(forprefix* _forprefix, unsigned int N1, unsigned int N2, stmt_t* loopstmt, unsigned int N3) {
     patch_label(_forprefix->enter, N2 + 1);
     patch_label(N1, next_quad_label());
     patch_label(N2, _forprefix->test);
     patch_label(N3, N1 + 1);
 
-    patch_list(loopstmt->breakList, next_quad_label());
-    patch_list(loopstmt->contList, N1 + 1);
+    patch_list(loopstmt->breakList, next_quad_label() + 1);
+    patch_list(loopstmt->contList, N1 + 2);
+    return loopstmt;
 }
 
 void init_library_func(){

@@ -71,12 +71,12 @@ stmts:        stmt { $$ = $1; fprintf(rulesFile, "stmts -> stmt\n");}
 
 stmt:         expr SEMICOLON      {$$ = new_stmt(); fprintf(rulesFile, "stmt -> expr SEMICOLON\n");}
               |ifstmt             {$$ = new_stmt(); fprintf(rulesFile, "stmt -> ifstmt\n");}
-              |whilestmt          {$$ = new_stmt(); fprintf(rulesFile, "stmt -> whilestmt\n");}
-              |forstmt            {$$ = new_stmt(); fprintf(rulesFile, "stmt -> forstmt\n");}
+              |whilestmt          {$$ = $1; fprintf(rulesFile, "stmt -> whilestmt\n");}
+              |forstmt            {$$ = $1; fprintf(rulesFile, "stmt -> forstmt\n");}
               |returnstmt         {$$ = new_stmt(); fprintf(rulesFile, "stmt -> returnstmt\n");}
               |BREAK SEMICOLON    {$$ = manage_break(); fprintf(rulesFile, "stmt -> BREAK SEMICOLON\n");}
               |CONTINUE SEMICOLON {$$ = manage_continue(); fprintf(rulesFile, "stmt -> CONTINUE SEMICOLON\n");}
-              |block              {$$ = new_stmt(); fprintf(rulesFile, "stmt -> block\n");}
+              |block              {$$ = $1; fprintf(rulesFile, "stmt -> block\n");}
               |funcdef            {$$ = new_stmt(); fprintf(rulesFile, "stmt -> funcdef\n");} 
               |SEMICOLON          {$$ = new_stmt(); fprintf(rulesFile, "stmt -> SEMICOLON\n");}
               ;
@@ -161,7 +161,7 @@ indexed:      indexedelem                 {$$ = $1; fprintf(rulesFile, "indexed 
 indexedelem:  LCURLY expr COLON expr RCURLY {$$ = manage_indexedelem($2, $4); fprintf(rulesFile, "indexedelem -> LCURLY expr COLON expr RCURLY\n");}
               ;
 
-block:        LCURLY {if(!block_b) increase_scope();} statements RCURLY {if(!block_b){symTab_hide();decrease_scope();} fprintf(rulesFile, "block -> LCURLY statements RCURLY\n");} 
+block:        LCURLY {if(!block_b) increase_scope();} statements RCURLY {$$ = $3;if(!block_b){symTab_hide();decrease_scope();} fprintf(rulesFile, "block -> LCURLY statements RCURLY\n");} 
               ;
 
 funcname:     ID {$$ = manage_funcname_named($1); assert($$); fprintf(rulesFile, "funcname -> ID\n");}
@@ -230,7 +230,7 @@ M_rule:       {$$ = next_quad_label();}
 forprefix:    FOR LPAREN elist SEMICOLON M_rule expr SEMICOLON {$$ = manage_forprefix($5, $6);}
               ;
 
-forstmt:      forprefix N_rule elist RPAREN N_rule loopstmt N_rule {manage_forstmt($1, $2, $5, $6, $7);}
+forstmt:      forprefix N_rule elist RPAREN N_rule loopstmt N_rule {$$ = manage_forstmt($1, $2, $5, $6, $7);}
               ;
 
 returnstmt:   RETURN expr SEMICOLON { manage_return_expr($2);  fprintf(rulesFile, "returnstmt -> RETURN expr SEMICOLON\n");}

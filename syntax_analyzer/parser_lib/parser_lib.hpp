@@ -82,7 +82,7 @@ stmt_t* manage_whilestmt(unsigned int whilestart, unsigned int whilecond, stmt_t
 
 unsigned int manage_N_rule();
 forprefix* manage_forprefix(unsigned int M_rule, expr* _expr);
-void manage_forstmt(forprefix* _forprefix, unsigned int N1, unsigned int N2, stmt_t* loopstmt, unsigned int N3);
+stmt_t* manage_forstmt(forprefix* _forprefix, unsigned int N1, unsigned int N2, stmt_t* loopstmt, unsigned int N3);
 
 //puts all the library functions in the symbol table
 void init_library_func();
