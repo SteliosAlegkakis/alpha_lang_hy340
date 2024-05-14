@@ -22,8 +22,8 @@ void print_quads() {
         if(_quad.arg2) { char* arg2_str = expr_tostring(_quad.arg2); fprintf(quadsFile, "%s ", arg2_str); free(arg2_str); }
         if(_quad.result) { char* result_str = expr_tostring(_quad.result); fprintf(quadsFile, "%s ", result_str); free(result_str); }
         if(_quad.op == _if_eq || _quad.op == _jump || _quad.op == _if_noteq || _quad.op == _if_greater || _quad.op == _if_greatereq || _quad.op == _if_less || _quad.op == _if_lesseq)
-            fprintf(quadsFile,"%u",_quad.label);
-        fprintf(quadsFile, "\n");
+            fprintf(quadsFile,"%u ",_quad.label+1);
+        fprintf(quadsFile, "[line %u]\n", _quad.line);
     }
     
 }
@@ -146,7 +146,7 @@ unsigned int next_quad_label(void){
 void patch_label(unsigned quad_No, unsigned _label){
     assert(quad_No < currQuad);
     assert(!quads[quad_No].label);
-    quads[quad_No].label = _label + 1;
+    quads[quad_No].label = _label;
 }
 
 expr* lvalue_expr(SymtabEntry* _sym){
