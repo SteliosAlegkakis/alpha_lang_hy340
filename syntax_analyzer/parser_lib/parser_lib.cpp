@@ -364,9 +364,9 @@ expr* manage_relative_operation(iopcode op, expr* arg1, expr* arg2) {
 
     expr* result = new_expr(boolexpr_e);
     result->sym = _newtemp();
-    _emit(op, arg1, arg2, NULL , next_quad_label() + 4);
+    _emit(op, arg1, arg2, NULL , next_quad_label() + 3);
     _emit(_assign, result, NULL, new_expr_const_bool(0), 0);
-    _emit(_jump, NULL, NULL, NULL, next_quad_label() + 3);
+    _emit(_jump, NULL, NULL, NULL, next_quad_label() + 2);
     _emit(_assign, result, NULL, new_expr_const_bool(1), 0);
     
     return result;
@@ -556,7 +556,7 @@ stmt_t* manage_continue(){
 
 unsigned manage_ifprefix(expr* _expr){
     assert(_expr);
-    _emit(_if_eq,_expr,new_expr_const_bool(1),NULL,next_quad_label()+3);
+    _emit(_if_eq,_expr,new_expr_const_bool(1),NULL,next_quad_label()+2);
     unsigned ifprefix = next_quad_label();
     _emit(_jump,NULL,NULL,NULL,0);
     return ifprefix;
@@ -569,13 +569,12 @@ unsigned int manage_else(){
 }
 
 void manage_if_else(unsigned int _if, unsigned int _else){
-    unsigned int tmp = _else + 1;
     patch_label(_if, _else + 1);
     patch_label(_else, next_quad_label());
 }
 
 unsigned int manage_whilecond(expr* _expr) {
-    _emit(_if_eq, _expr, new_expr_const_bool(1),0,next_quad_label()+3);
+    _emit(_if_eq, _expr, new_expr_const_bool(1),0,next_quad_label()+2);
     unsigned int whilecond = next_quad_label();
     _emit(_jump, NULL, NULL, NULL, 0);
     return whilecond;
@@ -583,10 +582,10 @@ unsigned int manage_whilecond(expr* _expr) {
 
 stmt_t* manage_whilestmt(unsigned int whilestart, unsigned int whilecond, stmt_t* _stmt) {
     assert(_stmt);
-    _emit(_jump, NULL, NULL, NULL,whilestart+1);
+    _emit(_jump, NULL, NULL, NULL,whilestart);
     patch_label(whilecond, next_quad_label());
-    patch_list(_stmt->breakList, next_quad_label() + 1);
-    patch_list(_stmt->contList, whilestart + 1);
+    patch_list(_stmt->breakList, next_quad_label());
+    patch_list(_stmt->contList, whilestart);
     return _stmt;
 }
 
@@ -610,8 +609,8 @@ stmt_t* manage_forstmt(forprefix* _forprefix, unsigned int N1, unsigned int N2, 
     patch_label(N2, _forprefix->test);
     patch_label(N3, N1 + 1);
 
-    patch_list(loopstmt->breakList, next_quad_label() + 1);
-    patch_list(loopstmt->contList, N1 + 2);
+    patch_list(loopstmt->breakList, next_quad_label());
+    patch_list(loopstmt->contList, N1 + 1);
     return loopstmt;
 }
 
