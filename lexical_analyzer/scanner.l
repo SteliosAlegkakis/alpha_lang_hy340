@@ -189,7 +189,7 @@ void check_escape_characters(char* str){
 void remove_quotes(char *str) {
     int len = strlen(str);
     
-    if (len >= 2 && str[0] == '"' && str[len-1] == '"' && quotes_removed % 2 !=0 ) {
+    if (len >= 2 && str[0] == '"' && str[len-1] == '"') {
         for (int i = 0; i < len - 1; i++) {
             str[i] = str[i + 1];
         }
