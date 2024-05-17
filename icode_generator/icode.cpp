@@ -193,7 +193,7 @@ expr* emit_if_table_item(expr* e){
     }else{
         expr* _result = new_expr(var_e);
         _result->sym = _newtemp();
-        _emit(_tablegetelem,e,e->index,_result,0);
+        _emit(_tablegetelem,_result ,e,e->index,0);
         return _result;
     }
 }

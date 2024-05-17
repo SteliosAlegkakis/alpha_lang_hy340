@@ -65,7 +65,7 @@ statements:   stmts { $$ = $1; fprintf(rulesFile, "statements -> statements stmt
               |     { $$ = new_stmt(); fprintf(rulesFile, "statements -> \n");}
               ;
 
-stmts:        stmt { $$ = $1; fprintf(rulesFile, "stmts -> stmt\n");}
+stmts:        stmt { _resettemp(); $$ = $1; fprintf(rulesFile, "stmts -> stmt\n");}
               |stmts stmt { $$ = manage_statements($1, $2); fprintf(rulesFile, "stmts -> stmts stmt\n");}
               ;
 

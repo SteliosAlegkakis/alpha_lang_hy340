@@ -9,14 +9,6 @@ int loopCounter;
 std::stack<int> loopCounterStack;
 std::stack<unsigned int> scope_offset_stack;
 
-/* 
-    (todo) -if(M)/while(S)/for(K)
-
-    (todo) -manage_bool_operetion (meriki apotimisi) 
-    (todo) -jump to the end of functions
-    (todo) -reuse temps (optional)
-*/
-
 int alpha_yyerror(const char* yaccProvidedMessage) {
 	fprintf(stderr, "\033[1;31m%s: '%s' in line: %d\033[0m\n",yaccProvidedMessage, alpha_yytext, alpha_yylineno);
 	return 0;
@@ -298,7 +290,7 @@ expr* manage_arithmetic_operation(iopcode op, expr* arg1, expr* arg2) {
     }
 
     expr* result = new_expr(arithexpr_e);
-    result->sym = _newtemp();
+    result->sym = is_temp_expr(arg1)? arg1->sym : is_temp_expr(arg2)? arg2->sym: _newtemp();
     _emit(op, arg1, arg2, result, 0);
 
     return result;
@@ -335,6 +327,8 @@ expr* manage_relative_operation(iopcode op, expr* arg1, expr* arg2) {
                     case constnum_e: return new_expr_const_bool(arg1->numConst == arg2->numConst);
                     case constbool_e: return new_expr_const_bool(arg1->boolConst == arg2->boolConst);
                     case conststring_e: return new_expr_const_bool(!strcmp(arg1->strConst, arg2->strConst));
+                    case programfunc_e: return new_expr_const_bool(arg1->sym == arg2->sym);
+                    case libraryfunc_e: return new_expr_const_bool(arg1->sym == arg2->sym);
                     case nil_e: return new_expr_const_bool(1);
                     default: ;
                 }   
@@ -344,6 +338,8 @@ expr* manage_relative_operation(iopcode op, expr* arg1, expr* arg2) {
                     case constnum_e: return new_expr_const_bool(arg1->numConst != arg2->numConst);
                     case constbool_e: return new_expr_const_bool(arg1->boolConst != arg2->boolConst);
                     case conststring_e: return new_expr_const_bool(strcmp(arg1->strConst, arg2->strConst));
+                    case programfunc_e: return new_expr_const_bool(arg1->sym != arg2->sym);
+                    case libraryfunc_e: return new_expr_const_bool(arg1->sym != arg2->sym);
                     case nil_e: return new_expr_const_bool(0);
                     default: ;
                 }
@@ -363,7 +359,7 @@ expr* manage_relative_operation(iopcode op, expr* arg1, expr* arg2) {
     }
 
     expr* result = new_expr(boolexpr_e);
-    result->sym = _newtemp();
+    result->sym = is_temp_expr(arg1)? arg1->sym: is_temp_expr(arg2)? arg2->sym: _newtemp();
     _emit(op, arg1, arg2, NULL , next_quad_label() + 3);
     _emit(_assign, result, NULL, new_expr_const_bool(0), 0);
     _emit(_jump, NULL, NULL, NULL, next_quad_label() + 2);
@@ -374,24 +370,26 @@ expr* manage_relative_operation(iopcode op, expr* arg1, expr* arg2) {
 
 expr* manage_bool_operation(iopcode op, expr* arg1, expr* arg2) {
     assert(arg1); assert(arg2);
-
-    return arg1;
+    expr* result = new_expr(boolexpr_e);
+    result->sym = is_temp_expr(arg1)? arg1->sym: is_temp_expr(arg2)? arg2->sym: _newtemp();
+    _emit(op, arg1, arg2, result, 0);
+    return result;
 }
 
 expr* manage_uminus_expr(expr* _expr) {
     assert(_expr);
     check_arith(_expr, "unary minus");
     expr* term = new_expr(arithexpr_e);
-    term->sym = _newtemp();
-    _emit(_uminus, _expr, NULL, term, 0);
+    term->sym = is_temp_expr(_expr)? _expr->sym : _newtemp();
+    _emit(_uminus, term, NULL, _expr, 0);
     return term;
 }
 
 expr* manage_not_expr(expr* _expr) {
     assert(_expr);
     expr* term = new_expr(boolexpr_e);
-    term->sym = _newtemp();
-    _emit(_not, _expr, NULL, term, 0);
+    term->sym = is_temp_expr(_expr)? _expr->sym : _newtemp();
+    _emit(_not, term, NULL, _expr, 0);
     return term;
 }
 
