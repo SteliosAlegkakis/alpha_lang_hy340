@@ -18,9 +18,9 @@ void print_quads() {
         _quad = quads[i];
         char* op_str = iopcode_tostring(_quad.op);
         fprintf(quadsFile, "%d: %s ", i+1, op_str); free(op_str);
-        if(_quad.arg1) { char* arg1_str = expr_tostring(_quad.arg1); fprintf(quadsFile, "%s ", arg1_str); free(arg1_str); }
-        if(_quad.arg2) { char* arg2_str = expr_tostring(_quad.arg2); fprintf(quadsFile, "%s ", arg2_str); free(arg2_str); }
-        if(_quad.result) { char* result_str = expr_tostring(_quad.result); fprintf(quadsFile, "%s ", result_str); free(result_str); }
+        if(_quad.arg1) { char* arg1_str = expr_tostring(_quad.arg1); _quad.arg1->type == conststring_e? fprintf(quadsFile, "\"%s\" ", arg1_str) : fprintf(quadsFile, "%s ", arg1_str); free(arg1_str); }
+        if(_quad.arg2) { char* arg2_str = expr_tostring(_quad.arg2); _quad.arg2->type == conststring_e? fprintf(quadsFile, "\"%s\" ", arg2_str) : fprintf(quadsFile, "%s ", arg2_str); free(arg2_str); }
+        if(_quad.result) { char* result_str = expr_tostring(_quad.result); _quad.result->type == conststring_e? fprintf(quadsFile, "\"%s\" ", result_str) : fprintf(quadsFile, "%s ", result_str); free(result_str); }
         if(_quad.op == _if_eq || _quad.op == _jump || _quad.op == _if_noteq || _quad.op == _if_greater || _quad.op == _if_greatereq || _quad.op == _if_less || _quad.op == _if_lesseq)
             fprintf(quadsFile,"%u ",_quad.label+1);
         fprintf(quadsFile, "[line %u]\n", _quad.line);
