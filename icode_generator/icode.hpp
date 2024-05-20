@@ -55,6 +55,7 @@ struct quad {
     expr*    result;
     expr*    arg1;
     expr*    arg2;
+    unsigned taddress;
     unsigned label;
     unsigned line;
 };
