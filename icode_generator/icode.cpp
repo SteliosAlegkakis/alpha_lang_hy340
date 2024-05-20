@@ -348,7 +348,7 @@ stmt_t* new_stmt(){
 }
 
 void make_stmt(stmt_t* s){
-    s->breakList = s->contList = s->returnList = 0;
+    s->breakList = s->contList = 0;
 }
 
 int new_list(int i){
