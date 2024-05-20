@@ -4,6 +4,7 @@
 #include <list>
 #include <vector>
 #include <stack>
+#include <string>
 
 unsigned ij_total = 0;
 std::list<incomplete_jump*> incomplete_jumps;
@@ -74,6 +75,10 @@ void make_operand (expr* e, vmarg* arg) {
         }
         default: assert(0);
     }
+}
+
+void reset_operand (vmarg* arg) {
+    arg = (vmarg*)0;
 }
 
 void make_number_operand(vmarg* arg, double val){
@@ -188,20 +193,20 @@ void generate_not(quad* q){
     
     instr.opcode = assign_v;
     make_bool_operand(&instr.arg1, 0);
-    // reset_operand(&instr.arg2);
+    reset_operand(&instr.arg2);
     make_operand(q->result, &instr.result);
     tcode_emit(&instr);
     
     instr.opcode = jump_v;
-    // reset_operand(&instr.arg1);
-    // reset_operand(&instr.arg2);
+    reset_operand(&instr.arg1);
+    reset_operand(&instr.arg2);
     instr.result.type = label_a;
     instr.result.val = next_instruction_label() + 2;
     tcode_emit(&instr);
 
     instr.opcode = assign_v;
     make_bool_operand(&instr.arg1, 1);
-    // reset_operand(&instr.arg2);
+    reset_operand(&instr.arg2);
     make_operand(q->result, &instr.result);
     tcode_emit(&instr);
     
@@ -224,20 +229,20 @@ void generate_or(quad* q){
     
     t.opcode = assign_v;
     make_bool_operand(&t.arg1, 0);
-    // reset_operand(&t.arg2);   
+    reset_operand(&t.arg2);   
     make_operand(q->result,&t.result);
     tcode_emit(&t);
     
     t.opcode = jump_v;
-    //reset_operand(&t.arg1);
-    //reset_operand(&t.arg2);
+    reset_operand(&t.arg1);
+    reset_operand(&t.arg2);
     t.result.type = label_a;
     t.result.val = next_instruction_label() + 2;
     tcode_emit(&t);
     
     t.opcode = assign_v;
     make_bool_operand(&t.arg1, 1);
-    //reset_operand(&t.arg2);
+    reset_operand(&t.arg2);
     make_operand(q->result, &t.result);
     tcode_emit(&t);
 }
@@ -259,29 +264,31 @@ void generate_and(quad* q) {
 
     t.opcode = assign_v;
     make_bool_operand(&t.arg1, 1);
-    // reset_operand(&t.arg2);   
+    reset_operand(&t.arg2);   
     make_operand(q->result,&t.result);
     tcode_emit(&t);
     
     t.opcode = jump_v;
-    //reset_operand(&t.arg1);
-    //reset_operand(&t.arg2);
+    reset_operand(&t.arg1);
+    reset_operand(&t.arg2);
     t.result.type = label_a;
     t.result.val = next_instruction_label() + 2;
     tcode_emit(&t);
     
     t.opcode = assign_v;
     make_bool_operand(&t.arg1, 0);
-    //reset_operand(&t.arg2);
+    reset_operand(&t.arg2);
     make_operand(q->result, &t.result);
     tcode_emit(&t);
 }
 
-// void generate_param(quad* q) {
-//     q->taddress = next_instruction_label();
-//     instruction t;
-//     t.opcode = 
-// }
+void generate_param(quad* q) {
+    q->taddress = next_instruction_label();
+    instruction t;
+    t.opcode = pusharg_v;
+    make_operand(q->arg1, &t.arg1);
+    tcode_emit(&t);
+}
 
 void generate_call(quad* q){
     q->taddress = next_instruction_label();
@@ -301,7 +308,7 @@ void generate_get_ret_val(quad* q){
 }
 
 void generate_func_start(quad* q){
-    SymtabEntry* f = q->arg1->sym;
+    SymtabEntry* f = q->result->sym;
     f->symbol.function->taddress = next_instruction_label();
     q->taddress = next_instruction_label();
     userfuncs_newfunc(f);
@@ -309,6 +316,7 @@ void generate_func_start(quad* q){
     instruction t;
     t.opcode = funcenter_v;
     make_operand(q->result, &t.result);
+    tcode_emit(&t);
 }
 
 void generate_return(quad* q) {
@@ -316,9 +324,24 @@ void generate_return(quad* q) {
     instruction t;
     t.opcode = assign_v;
     make_ret_val_operand(&t.result);
-    make_operand(q->result, &t.arg1);
+    make_operand(q->arg1, &t.arg1);
     tcode_emit(&t);
     
     SymtabEntry* f = funcStack.top();
-    
+    //std::to_string(f->returnList).append(std::to_string(next_instruction_label()));
+    t.opcode = jump_v;
+    reset_operand(&t.arg1);
+    reset_operand(&t.arg2);
+    t.result.type = label_a;
+    tcode_emit(&t);
+}
+
+void generate_func_end(quad* q) {
+    SymtabEntry* f = funcStack.pop();
+    //patch_list(f->returnList, next_instruction_label());
+    q->taddress = next_instruction_label();
+    instruction t;
+    t.opcode = funcexit_v;
+    make_operand(q->result, &t.result);
+    tcode_emit(&t);
 }
