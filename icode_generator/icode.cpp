@@ -25,6 +25,7 @@ void print_quads() {
             fprintf(quadsFile,"%u ",_quad.label+1);
         fprintf(quadsFile, "[line %u]\n", _quad.line);
     }
+    fclose(quadsFile);
     
 }
 

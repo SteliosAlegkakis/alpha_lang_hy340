@@ -1,7 +1,7 @@
 enum vmopcode {
     assign_v, add_v, sub_v, mul_v, div_v, mod_v, 
-    uminus_v, and_v, or_v, jeq_v, jne_v, jge_v, jgt_v, jlt_v, jle_v,
-    jmp_v, pusharg_v, funcenter_v, funcexit_v, call_v, newtable_v, 
+    uminus_v, jeq_v, jne_v, jge_v, jgt_v, jlt_v, jle_v,
+    pusharg_v, funcenter_v, funcexit_v, call_v, newtable_v, 
     tablegetelem_v, tablesetelem_v, jump_v, nop_v
 };
 
