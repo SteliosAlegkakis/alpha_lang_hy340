@@ -6,6 +6,7 @@
 #include <stack>
 #include <string>
 
+FILE* instr_file;
 unsigned ij_total = 0;
 std::list<incomplete_jump*> incomplete_jumps;
 std::vector<char*> strings;
@@ -32,6 +33,7 @@ void make_operand (expr* e, vmarg* arg) {
         case tableitem_e:
         case arithexpr_e:
         case boolexpr_e:
+        case assignexpr_e:
         case newtable_e: {
             assert(e->sym);
             arg->val = e->sym->symbol.variable->offset;
@@ -129,9 +131,9 @@ void generate(vmopcode op, quad* q){
     instruction instr;
     instr.opcode = op;
     instr.srcLine = q->line;
-    make_operand(q->result, &instr.result);
-    make_operand(q->arg1, &instr.arg1);
-    make_operand(q->arg2, &instr.arg2);
+    if(q->result) make_operand(q->result, &instr.result);
+    if(q->arg1) make_operand(q->arg1, &instr.arg1);
+    if(q->arg2) make_operand(q->arg2, &instr.arg2);
     q->taddress = next_instruction_label();
     tcode_emit(&instr);
 }
@@ -141,10 +143,14 @@ void generate_sub(quad* q) { generate(sub_v, q); }
 void generate_mul(quad* q) { generate(mul_v, q); }
 void generate_div(quad* q) { generate(div_v, q); }
 void generate_mod(quad* q) { generate(mod_v, q); }
+void generate_uminus(quad* q) { 
+    q->arg2 = new_expr_const_num(-1);
+    generate(mul_v, q);
+ }
 
 void generate_new_table(quad* q) { generate(newtable_v,q); }
-void generate_tableget_elem(quad* q){ generate(tablegetelem_v, q); }
-void generate_tables_elem(quad* q) { generate(tablesetelem_v, q); }
+void generate_table_get_elem(quad* q){ generate(tablegetelem_v, q); }
+void generate_table_set_elem(quad* q) { generate(tablesetelem_v, q); }
 
 void generate_assign(quad* q) { generate(assign_v, q); }
 
@@ -158,8 +164,8 @@ void generate_relational(vmopcode op, quad* q){
     instruction instr;
     instr.opcode = op;
     instr.srcLine = q->line;
-    make_operand(q->arg1, &instr.arg1);
-    make_operand(q->arg2, &instr.arg2);
+    if(q->arg1) make_operand(q->arg1, &instr.arg1);
+    if(q->arg2) make_operand(q->arg2, &instr.arg2);
     
     instr.result.type = label_a;
     if(q->label < next_quad_label()){
@@ -168,7 +174,7 @@ void generate_relational(vmopcode op, quad* q){
     else{
         add_incomplete_jump(curr_instr, q->label);
     }
-    
+    q->taddress = next_instruction_label();
     tcode_emit(&instr);
 }
 
@@ -285,6 +291,7 @@ void generate_and(quad* q) {
 void generate_param(quad* q) {
     q->taddress = next_instruction_label();
     instruction t;
+    t.srcLine = q->line;
     t.opcode = pusharg_v;
     make_operand(q->arg1, &t.arg1);
     tcode_emit(&t);
@@ -293,6 +300,7 @@ void generate_param(quad* q) {
 void generate_call(quad* q){
     q->taddress = next_instruction_label();
     instruction t;
+    t.srcLine = q->line;
     t.opcode = call_v;
     make_operand(q->arg1, &t.arg1);
     tcode_emit(&t);
@@ -301,6 +309,7 @@ void generate_call(quad* q){
 void generate_get_ret_val(quad* q){
     q->taddress = next_instruction_label();
     instruction t;
+    t.srcLine = q->line;
     t.opcode = assign_v;
     make_operand(q->result, &t.result);
     make_ret_val_operand(&t.arg1);
@@ -308,27 +317,39 @@ void generate_get_ret_val(quad* q){
 }
 
 void generate_func_start(quad* q){
-    SymtabEntry* f = q->result->sym;
+    SymtabEntry* f = q->arg1->sym;
     f->symbol.function->taddress = next_instruction_label();
     q->taddress = next_instruction_label();
     userfuncs_newfunc(f);
     funcStack.push(f);
     instruction t;
+    t.srcLine = q->line;
     t.opcode = funcenter_v;
-    make_operand(q->result, &t.result);
+    make_operand(q->arg1, &t.result);
     tcode_emit(&t);
+}
+
+void back_patch(std::list<unsigned int> list){
+    for (std::list<unsigned int>::iterator it = list.begin(); it != list.end(); ++it)
+        instructions[*it].result.val = next_instruction_label();
+    
+    if(!list.empty()) {
+        instructions[list.back()].result.val = next_instruction_label() + 1;
+    }
 }
 
 void generate_return(quad* q) {
     q->taddress = next_instruction_label();
     instruction t;
+    t.srcLine = q->line;
     t.opcode = assign_v;
     make_ret_val_operand(&t.result);
     make_operand(q->arg1, &t.arg1);
     tcode_emit(&t);
     
     SymtabEntry* f = funcStack.top();
-    //std::to_string(f->returnList).append(std::to_string(next_instruction_label()));
+    f->symbol.function->returnList.push_back(next_instruction_label());
+    t.srcLine = q->line;
     t.opcode = jump_v;
     reset_operand(&t.arg1);
     reset_operand(&t.arg2);
@@ -337,11 +358,117 @@ void generate_return(quad* q) {
 }
 
 void generate_func_end(quad* q) {
-    SymtabEntry* f = funcStack.pop();
-    //patch_list(f->returnList, next_instruction_label());
+    SymtabEntry* f = funcStack.top();
+    funcStack.pop();
+    back_patch(f->symbol.function->returnList);
     q->taddress = next_instruction_label();
     instruction t;
+    t.srcLine = q->line;
     t.opcode = funcexit_v;
-    make_operand(q->result, &t.result);
+    make_operand(q->arg1, &t.result);
     tcode_emit(&t);
+}
+
+char* opcode_to_string(vmopcode op) {
+    switch(op) {
+        case assign_v: return (char*)"ASSIGN";
+        case add_v: return (char*)"ADD";
+        case sub_v: return (char*)"SUB";
+        case mul_v: return (char*)"MUL";
+        case div_v: return (char*)"DIV";
+        case mod_v: return (char*)"MOD";
+        case jeq_v: return (char*)"JEQ";
+        case jne_v: return (char*)"JNE";
+        case jle_v: return (char*)"JLE";
+        case jge_v: return (char*)"JGE";
+        case jlt_v: return (char*)"JLT";
+        case jgt_v: return (char*)"JGT";
+        case pusharg_v: return (char*)"PUSHARG";
+        case funcenter_v: return (char*)"FUNCENTER";
+        case funcexit_v: return (char*)"FUNCEXIT";
+        case call_v: return (char*)"CALL";
+        case newtable_v: return (char*)"NEWTABLE";
+        case tablegetelem_v: return (char*)"TABLEGETELEM";
+        case tablesetelem_v: return (char*)"TABLESETELEM";
+        case jump_v: return (char*)"JUMP";
+        case nop_v: return (char*)"NOP";
+        default: assert(0);
+    }
+    return (char*)"";
+}
+
+void print_arg(vmarg arg) {
+    switch(arg.type) {
+        case label_a: fprintf(instr_file, "%d ", arg.val); break;
+        case global_a: fprintf(instr_file, "global(%d) ", arg.val); break;
+        case formal_a: fprintf(instr_file, "formal(%d) ", arg.val); break;
+        case local_a: fprintf(instr_file, "local(%d) ", arg.val); break;
+        case number_a: fprintf(instr_file, "%f ", numbers[arg.val]); break;
+        case string_a: fprintf(instr_file, "%s ", strings[arg.val]); break;
+        case bool_a: fprintf(instr_file, "%d ", arg.val); break;
+        case nil_a: fprintf(instr_file, "nil "); break;
+        case userfunc_a: fprintf(instr_file, "%s ", userfuncs[arg.val]->symbol.function->name); break;
+        case libfunc_a: fprintf(instr_file, "%s ", libfuncs[arg.val]); break;
+        case retval_a: fprintf(instr_file, "retval "); break;
+        default: ;
+    }
+}
+
+void print_instructions() {
+    instr_file = fopen("instructions.txt", "w");
+    for(unsigned i = 0; i < curr_instr; i++) {
+        fprintf(instr_file,"%d: ", i + 1);
+        fprintf(instr_file,"%s ", opcode_to_string(instructions[i].opcode));
+        switch(instructions[i].opcode) {
+            case assign_v:
+                print_arg(instructions[i].result);
+                print_arg(instructions[i].arg1);
+                break;
+            case pusharg_v:
+                print_arg(instructions[i].arg1);
+                break;
+            case funcenter_v:
+                print_arg(instructions[i].result);
+                break;
+            case funcexit_v:
+                print_arg(instructions[i].result);
+                break;
+            case call_v:
+                print_arg(instructions[i].arg1);
+                break;
+            case newtable_v:
+                print_arg(instructions[i].result);
+                break;
+            case jump_v:
+                print_arg(instructions[i].result);
+                break;
+            default:
+                print_arg(instructions[i].result);
+                print_arg(instructions[i].arg1);
+                print_arg(instructions[i].arg2);
+                break;
+        }
+        fprintf(instr_file," [line: %d]\n", instructions[i].srcLine);
+    }
+    fclose(instr_file);
+} 
+
+typedef void (*generate_func_t)(quad*);
+
+generate_func_t generators[] = {
+    generate_assign,            generate_add,            generate_sub,       generate_mul, 
+    generate_div,               generate_mod,            generate_uminus,    generate_and, 
+    generate_or,                generate_not,            generate_jeq,       generate_jne, 
+    generate_jle,               generate_jge,            generate_jlt,       generate_jgt, 
+    generate_call,              generate_param,          generate_return,    generate_get_ret_val, 
+    generate_func_start,        generate_func_end,       generate_new_table, generate_table_get_elem, 
+    generate_table_set_elem,    generate_jump
+};
+
+void tcode_generate(){
+    for (unsigned i = 0; i < next_quad_label(); i++) {
+        (*generators[quads[i].op])(quads + i);
+    }
+
+    patch_incomplete_jumps();
 }

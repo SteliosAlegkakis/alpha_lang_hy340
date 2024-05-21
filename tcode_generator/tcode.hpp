@@ -4,4 +4,5 @@ struct incomplete_jump{
 };
 
 void tcode_generate(void);
+void print_instructions(void);
 
