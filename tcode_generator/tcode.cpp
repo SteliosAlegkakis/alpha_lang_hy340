@@ -322,16 +322,26 @@ void generate_func_start(quad* q){
     q->taddress = next_instruction_label();
     userfuncs_newfunc(f);
     funcStack.push(f);
+    f->symbol.function->returnList.push_back(next_instruction_label());
     instruction t;
     t.srcLine = q->line;
+    t.opcode = jump_v;
+    t.result.type = label_a;
+    tcode_emit(&t);
+    reset_operand(&t.result);
     t.opcode = funcenter_v;
     make_operand(q->arg1, &t.result);
     tcode_emit(&t);
 }
 
 void back_patch(std::list<unsigned int> list){
+    //first jump must do +2 the rest +0
     for (std::list<unsigned int>::iterator it = list.begin(); it != list.end(); ++it)
         instructions[*it].result.val = next_instruction_label();
+
+    if(!list.empty()){
+        instructions[list.front()].result.val = next_instruction_label() + 2;
+    }
     
     if(!list.empty()) {
         instructions[list.back()].result.val = next_instruction_label() + 1;
