@@ -1,5 +1,6 @@
 %{
 #include "./parser_lib/parser_lib.hpp"
+#include "../tcode_generator/tcode.hpp"
 %}
 
 
@@ -253,4 +254,6 @@ int main(int argc, char** argv) {
   fprintf(rulesFile, "EOF\n");
   fclose(rulesFile);
   print_quads();
+  tcode_generate();
+  print_instructions();
 }

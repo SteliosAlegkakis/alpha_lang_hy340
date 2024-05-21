@@ -11,10 +11,10 @@ PROGRAM_NAME = ./a$(EXE_EXTENSION)
 all:
 	$(MAKE) -C ./lexical_analyzer
 	$(MAKE) -C ./syntax_analyzer
-	g++ -std=c++11 ./icode_generator/icode.cpp ./syntax_analyzer/parser.cpp ./symbol_table/symbol_table.cpp ./syntax_analyzer/parser_lib/parser_lib.cpp ./lexical_analyzer/scanner.cpp
+	g++ -std=c++11 -g ./icode_generator/icode.cpp ./syntax_analyzer/parser.cpp ./symbol_table/symbol_table.cpp ./syntax_analyzer/parser_lib/parser_lib.cpp ./lexical_analyzer/scanner.cpp ./tcode_generator/tcode.cpp
 
 clean:
-	$(RM) a$(EXE_EXTENSION) rules.txt quads.txt
+	$(RM) a$(EXE_EXTENSION) rules.txt quads.txt instructions.txt
 	$(MAKE) -C ./lexical_analyzer clean
 	$(MAKE) -C ./syntax_analyzer clean
 
