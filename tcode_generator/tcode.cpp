@@ -21,6 +21,7 @@ unsigned curr_instr = 0;
 
 extern quad* quads;
 extern unsigned total;
+unsigned int currProcessedQuad = 0;
 
 unsigned const_newstring (char* s) { strings.push_back(s); return strings.size()-1; }
 unsigned const_newnumber (double n) { numbers.push_back(n); return numbers.size()-1; }
@@ -110,11 +111,12 @@ unsigned next_instruction_label(){
 
 void patch_incomplete_jumps(){
     for (std::list<incomplete_jump*>::iterator it = incomplete_jumps.begin(); it != incomplete_jumps.end(); it++){
+        instructions[(*it)->instrNo].result.type = label_a;
         if ((*it)->iaddress == next_quad_label()){
             instructions[(*it)->instrNo].result.val = next_instruction_label();
         }
         else{
-            instructions[(*it)->instrNo].result.val = quads[(*it)->iaddress].taddress;
+            instructions[(*it)->instrNo].result.val = quads[(*it)->iaddress].taddress + 1;
         }
     }
 }
@@ -168,11 +170,11 @@ void generate_relational(vmopcode op, quad* q){
     if(q->arg2) make_operand(q->arg2, &instr.arg2);
     
     instr.result.type = label_a;
-    if(q->label < next_quad_label()){
+    if(q->label < currProcessedQuad){
         instr.result.val = quads[q->label].taddress;
     }
     else{
-        add_incomplete_jump(curr_instr, q->label);
+        add_incomplete_jump(next_instruction_label(), q->label);
     }
     q->taddress = next_instruction_label();
     tcode_emit(&instr);
@@ -335,7 +337,6 @@ void generate_func_start(quad* q){
 }
 
 void back_patch(std::list<unsigned int> list){
-    //first jump must do +2 the rest +0
     for (std::list<unsigned int>::iterator it = list.begin(); it != list.end(); ++it)
         instructions[*it].result.val = next_instruction_label();
 
@@ -453,9 +454,9 @@ void print_instructions() {
                 print_arg(instructions[i].result);
                 break;
             default:
-                print_arg(instructions[i].result);
                 print_arg(instructions[i].arg1);
                 print_arg(instructions[i].arg2);
+                print_arg(instructions[i].result);
                 break;
         }
         fprintf(instr_file," [line: %d]\n", instructions[i].srcLine);
@@ -478,6 +479,7 @@ generate_func_t generators[] = {
 void tcode_generate(){
     for (unsigned i = 0; i < next_quad_label(); i++) {
         (*generators[quads[i].op])(quads + i);
+        currProcessedQuad++;
     }
 
     patch_incomplete_jumps();
