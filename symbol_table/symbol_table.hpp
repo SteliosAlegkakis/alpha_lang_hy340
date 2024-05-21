@@ -41,6 +41,7 @@ typedef struct Function {
     unsigned int iaddress;
     unsigned int taddress;
     unsigned int totalLocals;
+    std::list<unsigned int> returnList;
 
     Function(unsigned int _scope, char* _name, unsigned int _line) {
         scope = _scope;
