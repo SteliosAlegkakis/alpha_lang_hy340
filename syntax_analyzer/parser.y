@@ -255,5 +255,6 @@ int main(int argc, char** argv) {
   fclose(rulesFile);
   print_quads();
   tcode_generate();
-  print_instructions();
+  tcode_print_instructions();
+  tcode_generate_binary((char*)"binary.abc");
 }
