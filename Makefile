@@ -14,7 +14,7 @@ all:
 	g++ -std=c++11 -g ./icode_generator/icode.cpp ./syntax_analyzer/parser.cpp ./symbol_table/symbol_table.cpp ./syntax_analyzer/parser_lib/parser_lib.cpp ./lexical_analyzer/scanner.cpp ./tcode_generator/tcode.cpp
 
 clean:
-	$(RM) a$(EXE_EXTENSION) rules.txt quads.txt instructions.txt
+	$(RM) a$(EXE_EXTENSION) rules.txt quads.txt instructions.txt *.abc
 	$(MAKE) -C ./lexical_analyzer clean
 	$(MAKE) -C ./syntax_analyzer clean
 
