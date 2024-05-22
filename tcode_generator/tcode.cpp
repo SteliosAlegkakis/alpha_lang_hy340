@@ -8,6 +8,11 @@
 #include <iostream>
 #include <fstream>
 
+struct incomplete_jump{
+    unsigned         instrNo;
+    unsigned         iaddress;
+};
+
 FILE* instr_file;
 unsigned ij_total = 0;
 std::list<incomplete_jump*> incomplete_jumps;
@@ -15,9 +20,6 @@ std::vector<char*> strings;
 std::vector<double> numbers;
 std::vector<char*> libfuncs;
 std::vector<SymtabEntry*> userfuncs;
-std::vector<unsigned> ufAddresses;
-std::vector<unsigned> ufLocals;
-std::vector<char*> ufNames;
 std::stack <SymtabEntry*> funcStack;
 
 instruction* instructions = (instruction*) 0;
@@ -31,12 +33,7 @@ unsigned int currProcessedQuad = 0;
 unsigned const_newstring (char* s) { strings.push_back(s); return strings.size()-1; }
 unsigned const_newnumber (double n) { numbers.push_back(n); return numbers.size()-1; }
 unsigned libfuncs_newused (char* s) { libfuncs.push_back(s); return libfuncs.size()-1; }
-unsigned userfuncs_newfunc (SymtabEntry* sym) { 
-    ufAddresses.push_back(sym->symbol.function->taddress);
-    ufLocals.push_back(sym->symbol.function->totalLocals);
-    ufNames.push_back(sym->symbol.function->name);
-    userfuncs.push_back(sym); return userfuncs.size()-1; 
-}
+unsigned userfuncs_newfunc (SymtabEntry* sym) { userfuncs.push_back(sym); return userfuncs.size()-1; }
 
 void make_operand (expr* e, vmarg* arg) {
     switch(e->type) {
@@ -431,7 +428,7 @@ void print_arg(vmarg arg) {
     }
 }
 
-void print_instructions() {
+void tcode_print_instructions() {
     instr_file = fopen("instructions.txt", "w");
     for(unsigned i = 0; i < curr_instr; i++) {
         fprintf(instr_file,"%d: ", i + 1);
@@ -491,14 +488,12 @@ void tcode_generate(){
     }
 
     patch_incomplete_jumps();
-    tcode_generate_binary((char*)"binary.bin");
-    read_binary((char*)"binary.bin");
 }
 
-void tcode_generate_binary(char* filename) {
+void tcode_generate_binary_vectors(char* filename) {
     std::ofstream bin;
     bin.open(filename, std::ios::binary);
-    
+
     //print magic number
     unsigned int magicNumber = 340200501;
     bin.write(reinterpret_cast<const char*>(&magicNumber), sizeof(magicNumber));
@@ -521,10 +516,43 @@ void tcode_generate_binary(char* filename) {
     //print userfuncs
     size_t userfuncsSize = userfuncs.size();
     bin.write(reinterpret_cast<const char*>(&userfuncsSize), sizeof(userfuncsSize));
+    std::vector<unsigned> ufAddresses;
+    std::vector<unsigned> ufLocals;
+    std::vector<char*> ufNames;
+    for(int i = 0; i < userfuncsSize; i++) {
+        ufAddresses.push_back(userfuncs[i]->symbol.function->taddress);
+        ufLocals.push_back(userfuncs[i]->symbol.function->totalLocals);
+        ufNames.push_back(userfuncs[i]->symbol.function->name);    
+    }
     bin.write(reinterpret_cast<const char*>(ufAddresses.data()), userfuncsSize * sizeof(unsigned int));
     bin.write(reinterpret_cast<const char*>(ufLocals.data()), userfuncsSize * sizeof(unsigned int));
     bin.write(reinterpret_cast<const char*>(ufNames.data()), userfuncsSize * sizeof(char*));
     
+    bin.close();
+}
+
+void tcode_generate_binary_instructions(char* filename) {
+    std::ofstream bin;
+    bin.open(filename, std::ios::binary | std::ios::app);
+    size_t total = curr_instr;
+    bin.write(reinterpret_cast<const char*>(&total), sizeof(total));
+    std::vector<vmopcode> opcodes;
+    std::vector<vmarg> results;
+    std::vector<vmarg> arg1s;
+    std::vector<vmarg> arg2s;
+    std::vector<unsigned> srcLines;
+    for(int i = 0; i < curr_instr; i++) {
+        opcodes.push_back(instructions[i].opcode);
+        results.push_back(instructions[i].result);
+        arg1s.push_back(instructions[i].arg1);
+        arg2s.push_back(instructions[i].arg2);
+        srcLines.push_back(instructions[i].srcLine);
+    }
+    bin.write(reinterpret_cast<const char*>(opcodes.data()), total * sizeof(vmopcode));
+    bin.write(reinterpret_cast<const char*>(results.data()), total * sizeof(vmarg));
+    bin.write(reinterpret_cast<const char*>(arg1s.data()), total * sizeof(vmarg));
+    bin.write(reinterpret_cast<const char*>(arg2s.data()), total * sizeof(vmarg));
+    bin.write(reinterpret_cast<const char*>(srcLines.data()), total * sizeof(unsigned));
     bin.close();
 }
 
@@ -560,6 +588,26 @@ void read_binary(char* filename) {
     in.read(reinterpret_cast<char*>(addresses.data()), size * sizeof(unsigned int));
     in.read(reinterpret_cast<char*>(locals.data()), size * sizeof(unsigned int));
     in.read(reinterpret_cast<char*>(names.data()), size * sizeof(char *));
+    for(int i = 0; i < size; i++) {
+        std::cout << "Function: " << names[i] << " Address: " << addresses[i] << " Locals: " << locals[i] << std::endl;
+    }
+
+    in.read(reinterpret_cast<char*>(&size), sizeof(size));
+    std::vector<vmopcode> opcodes(size);
+    std::vector<vmarg> results(size);
+    std::vector<vmarg> arg1s(size);
+    std::vector<vmarg> arg2s(size);
+    std::vector<unsigned> srcLines(size);
+    in.read(reinterpret_cast<char*>(opcodes.data()), size * sizeof(vmopcode));
+    in.read(reinterpret_cast<char*>(results.data()), size * sizeof(vmarg));
+    in.read(reinterpret_cast<char*>(arg1s.data()), size * sizeof(vmarg));
+    in.read(reinterpret_cast<char*>(arg2s.data()), size * sizeof(vmarg));
+    in.read(reinterpret_cast<char*>(srcLines.data()), size * sizeof(unsigned));
 
     in.close();
+}
+
+void tcode_generate_binary(char* filename) {
+    tcode_generate_binary_vectors(filename);
+    tcode_generate_binary_instructions(filename);
 }
