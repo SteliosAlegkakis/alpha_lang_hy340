@@ -5,6 +5,8 @@
 #include <vector>
 #include <stack>
 #include <string>
+#include <iostream>
+#include <fstream>
 
 FILE* instr_file;
 unsigned ij_total = 0;
@@ -410,17 +412,17 @@ char* opcode_to_string(vmopcode op) {
 
 void print_arg(vmarg arg) {
     switch(arg.type) {
-        case label_a: fprintf(instr_file, "%d ", arg.val); break;
-        case global_a: fprintf(instr_file, "global(%d) ", arg.val); break;
-        case formal_a: fprintf(instr_file, "formal(%d) ", arg.val); break;
+        case label_a: fprintf(instr_file, "(label_a: %d) ", arg.val); break;
+        case global_a: fprintf(instr_file, "(global_a: %d) ", arg.val); break;
+        case formal_a: fprintf(instr_file, "(formal_a: %d) ", arg.val); break;
         case local_a: fprintf(instr_file, "local(%d) ", arg.val); break;
-        case number_a: fprintf(instr_file, "%f ", numbers[arg.val]); break;
-        case string_a: fprintf(instr_file, "%s ", strings[arg.val]); break;
-        case bool_a: fprintf(instr_file, "%d ", arg.val); break;
-        case nil_a: fprintf(instr_file, "nil "); break;
-        case userfunc_a: fprintf(instr_file, "%s ", userfuncs[arg.val]->symbol.function->name); break;
-        case libfunc_a: fprintf(instr_file, "%s ", libfuncs[arg.val]); break;
-        case retval_a: fprintf(instr_file, "retval "); break;
+        case number_a: fprintf(instr_file, "(number_a: %d) ", arg.val); break;
+        case string_a: fprintf(instr_file, "(string_a %d)", arg.val); break;
+        case bool_a: fprintf(instr_file, "(bool_a: %d) ", arg.val); break;
+        case nil_a: fprintf(instr_file, "nil_a "); break;
+        case userfunc_a: fprintf(instr_file, "(userfunc_a: %d)", arg.val); break;
+        case libfunc_a: fprintf(instr_file, "(libfunc_a: %d) ", arg.val); break;
+        case retval_a: fprintf(instr_file, "(retval_a )"); break;
         default: ;
     }
 }
@@ -483,4 +485,88 @@ void tcode_generate(){
     }
 
     patch_incomplete_jumps();
+    tcode_generate_binary((char*)"binary.bin");
+}
+
+void tcode_generate_binary(char* filename) {
+    std::ofstream bin;
+    bin.open(filename, std::ios::binary);
+    
+    //print magic number
+    unsigned int magicNumber = 340200501;
+    bin.write(reinterpret_cast<const char*>(&magicNumber), sizeof(magicNumber));
+    
+    //print numbers
+    size_t numbersSize = numbers.size();
+    bin.write(reinterpret_cast<const char*>(&numbersSize), sizeof(numbersSize));
+    bin.write(reinterpret_cast<const char*>(numbers.data()), numbersSize * sizeof(double));
+    
+    //print strings
+    size_t stringSize = strings.size();
+    bin.write(reinterpret_cast<const char*>(&stringSize), sizeof(stringSize));
+    bin.write(reinterpret_cast<const char*>(strings.data()), stringSize * sizeof(char*));
+
+    //print libfuncs
+    size_t libfuncsSize = libfuncs.size();
+    bin.write(reinterpret_cast<const char*>(&libfuncsSize), sizeof(libfuncsSize));
+    bin.write(reinterpret_cast<const char*>(libfuncs.data()), libfuncsSize * sizeof(char*));
+
+    //print user functions
+    size_t userfuncsSize = userfuncs.size();
+    bin.write(reinterpret_cast<const char*>(&userfuncsSize), sizeof(userfuncsSize));
+    for(const SymtabEntry* userfunc : userfuncs) {
+        bin.write(reinterpret_cast<const char*>(&userfunc->symbol.function->taddress), sizeof(&userfunc->symbol.function->taddress));
+        bin.write(reinterpret_cast<const char*>(&userfunc->symbol.function->totalLocals), sizeof(&userfunc->symbol.function->totalLocals));
+        bin.write(reinterpret_cast<const char*>(&userfunc->symbol.function->name), sizeof(userfunc->symbol.function->name));
+    }
+
+    bin.close();
+
+    for (const auto& uf : userfuncs) {
+        std::cout<<uf->symbol.function->name<<" ";
+        std::cout<<uf->symbol.function->taddress<<" ";
+        std::cout<<uf->symbol.function->totalLocals<<" ";
+        std::cout << endl;
+    }
+    std::cout << endl;
+    
+
+    std::ifstream in;
+    int mNumber;
+    in.open(filename, std::ios::binary);
+    in.read(reinterpret_cast<char*>(&mNumber), sizeof(mNumber));
+    if (mNumber != magicNumber) {
+        std::cerr << "Error: Magic number does not match." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    size_t size;
+    in.read(reinterpret_cast<char*>(&size), sizeof(size));
+    std::vector<double> vec(size);
+    in.read(reinterpret_cast<char*>(vec.data()), size * sizeof(double));
+
+    in.read(reinterpret_cast<char*>(&size), sizeof(size));
+    std::vector<char*> vec2(size);
+    in.read(reinterpret_cast<char*>(vec2.data()), size * sizeof(char*));
+
+    in.read(reinterpret_cast<char*>(&size), sizeof(size));
+    std::vector<char*> vec3(size);
+    in.read(reinterpret_cast<char*>(vec3.data()), size * sizeof(char*));
+    
+    in.read(reinterpret_cast<char*>(&size), sizeof(size));
+    std::vector<SymtabEntry*> vec4(size);
+    for (size_t i = 0; i < size; i++) {
+        in.read(reinterpret_cast<char*>(vec4.at(i)->symbol.function->taddress), sizeof(vec4.at(i)->symbol.function->taddress));
+        in.read(reinterpret_cast<char*>(vec4.at(i)->symbol.function->totalLocals), sizeof(vec4.at(i)->symbol.function->totalLocals));
+        in.read(reinterpret_cast<char*>(vec4.at(i)->symbol.function->name), sizeof(vec4.at(i)->symbol.function->name));
+    }
+
+    in.close();
+    
+    // for (const auto& uf : vec4) {
+    //     std::cout<<uf->symbol.function->name<<" ";
+    //     // std::cout<<uf->symbol.function->taddress;
+    //     std::cout<<uf->symbol.function->totalLocals<<" ";
+    //     std::cout << endl;
+    // }
+    std::cout << endl;
 }

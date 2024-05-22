@@ -5,4 +5,5 @@ struct incomplete_jump{
 
 void tcode_generate(void);
 void print_instructions(void);
+void tcode_generate_binary(char* filename);
 
