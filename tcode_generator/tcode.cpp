@@ -15,6 +15,9 @@ std::vector<char*> strings;
 std::vector<double> numbers;
 std::vector<char*> libfuncs;
 std::vector<SymtabEntry*> userfuncs;
+std::vector<unsigned> ufAddresses;
+std::vector<unsigned> ufLocals;
+std::vector<char*> ufNames;
 std::stack <SymtabEntry*> funcStack;
 
 instruction* instructions = (instruction*) 0;
@@ -28,7 +31,12 @@ unsigned int currProcessedQuad = 0;
 unsigned const_newstring (char* s) { strings.push_back(s); return strings.size()-1; }
 unsigned const_newnumber (double n) { numbers.push_back(n); return numbers.size()-1; }
 unsigned libfuncs_newused (char* s) { libfuncs.push_back(s); return libfuncs.size()-1; }
-unsigned userfuncs_newfunc (SymtabEntry* sym) { userfuncs.push_back(sym); return userfuncs.size()-1; }
+unsigned userfuncs_newfunc (SymtabEntry* sym) { 
+    ufAddresses.push_back(sym->symbol.function->taddress);
+    ufLocals.push_back(sym->symbol.function->totalLocals);
+    ufNames.push_back(sym->symbol.function->name);
+    userfuncs.push_back(sym); return userfuncs.size()-1; 
+}
 
 void make_operand (expr* e, vmarg* arg) {
     switch(e->type) {
@@ -322,7 +330,7 @@ void generate_get_ret_val(quad* q){
 
 void generate_func_start(quad* q){
     SymtabEntry* f = q->arg1->sym;
-    f->symbol.function->taddress = next_instruction_label();
+    f->symbol.function->taddress = next_instruction_label() + 1;
     q->taddress = next_instruction_label();
     userfuncs_newfunc(f);
     funcStack.push(f);
@@ -343,11 +351,7 @@ void back_patch(std::list<unsigned int> list){
         instructions[*it].result.val = next_instruction_label();
 
     if(!list.empty()){
-        instructions[list.front()].result.val = next_instruction_label() + 2;
-    }
-    
-    if(!list.empty()) {
-        instructions[list.back()].result.val = next_instruction_label() + 1;
+        instructions[list.front()].result.val = next_instruction_label() + 1;
     }
 }
 
@@ -412,7 +416,7 @@ char* opcode_to_string(vmopcode op) {
 
 void print_arg(vmarg arg) {
     switch(arg.type) {
-        case label_a: fprintf(instr_file, "(label_a: %d) ", arg.val); break;
+        case label_a: fprintf(instr_file, "(label_a: %d) ", arg.val + 1); break;
         case global_a: fprintf(instr_file, "(global_a: %d) ", arg.val); break;
         case formal_a: fprintf(instr_file, "(formal_a: %d) ", arg.val); break;
         case local_a: fprintf(instr_file, "local(%d) ", arg.val); break;
@@ -478,6 +482,8 @@ generate_func_t generators[] = {
     generate_table_set_elem,    generate_jump
 };
 
+void read_binary(char* filename);
+
 void tcode_generate(){
     for (unsigned i = 0; i < next_quad_label(); i++) {
         (*generators[quads[i].op])(quads + i);
@@ -486,6 +492,7 @@ void tcode_generate(){
 
     patch_incomplete_jumps();
     tcode_generate_binary((char*)"binary.bin");
+    read_binary((char*)"binary.bin");
 }
 
 void tcode_generate_binary(char* filename) {
@@ -511,62 +518,48 @@ void tcode_generate_binary(char* filename) {
     bin.write(reinterpret_cast<const char*>(&libfuncsSize), sizeof(libfuncsSize));
     bin.write(reinterpret_cast<const char*>(libfuncs.data()), libfuncsSize * sizeof(char*));
 
-    //print user functions
+    //print userfuncs
     size_t userfuncsSize = userfuncs.size();
     bin.write(reinterpret_cast<const char*>(&userfuncsSize), sizeof(userfuncsSize));
-    for(const SymtabEntry* userfunc : userfuncs) {
-        bin.write(reinterpret_cast<const char*>(&userfunc->symbol.function->taddress), sizeof(&userfunc->symbol.function->taddress));
-        bin.write(reinterpret_cast<const char*>(&userfunc->symbol.function->totalLocals), sizeof(&userfunc->symbol.function->totalLocals));
-        bin.write(reinterpret_cast<const char*>(&userfunc->symbol.function->name), sizeof(userfunc->symbol.function->name));
-    }
-
-    bin.close();
-
-    for (const auto& uf : userfuncs) {
-        std::cout<<uf->symbol.function->name<<" ";
-        std::cout<<uf->symbol.function->taddress<<" ";
-        std::cout<<uf->symbol.function->totalLocals<<" ";
-        std::cout << endl;
-    }
-    std::cout << endl;
+    bin.write(reinterpret_cast<const char*>(ufAddresses.data()), userfuncsSize * sizeof(unsigned int));
+    bin.write(reinterpret_cast<const char*>(ufLocals.data()), userfuncsSize * sizeof(unsigned int));
+    bin.write(reinterpret_cast<const char*>(ufNames.data()), userfuncsSize * sizeof(char*));
     
+    bin.close();
+}
 
+void read_binary(char* filename) {
     std::ifstream in;
-    int mNumber;
+    int magicNumber;
+    int expectedMagicNumber = 340200501;
     in.open(filename, std::ios::binary);
-    in.read(reinterpret_cast<char*>(&mNumber), sizeof(mNumber));
-    if (mNumber != magicNumber) {
+    in.read(reinterpret_cast<char*>(&magicNumber), sizeof(magicNumber));
+    if (magicNumber != expectedMagicNumber) {
         std::cerr << "Error: Magic number does not match." << std::endl;
         exit(EXIT_FAILURE);
     }
+
     size_t size;
-    in.read(reinterpret_cast<char*>(&size), sizeof(size));
-    std::vector<double> vec(size);
-    in.read(reinterpret_cast<char*>(vec.data()), size * sizeof(double));
 
     in.read(reinterpret_cast<char*>(&size), sizeof(size));
-    std::vector<char*> vec2(size);
-    in.read(reinterpret_cast<char*>(vec2.data()), size * sizeof(char*));
+    std::vector<double> numbers(size);
+    in.read(reinterpret_cast<char*>(numbers.data()), size * sizeof(double));
 
     in.read(reinterpret_cast<char*>(&size), sizeof(size));
-    std::vector<char*> vec3(size);
-    in.read(reinterpret_cast<char*>(vec3.data()), size * sizeof(char*));
-    
+    std::vector<char*> strings(size);
+    in.read(reinterpret_cast<char*>(strings.data()), size * sizeof(char*));
+
     in.read(reinterpret_cast<char*>(&size), sizeof(size));
-    std::vector<SymtabEntry*> vec4(size);
-    for (size_t i = 0; i < size; i++) {
-        in.read(reinterpret_cast<char*>(vec4.at(i)->symbol.function->taddress), sizeof(vec4.at(i)->symbol.function->taddress));
-        in.read(reinterpret_cast<char*>(vec4.at(i)->symbol.function->totalLocals), sizeof(vec4.at(i)->symbol.function->totalLocals));
-        in.read(reinterpret_cast<char*>(vec4.at(i)->symbol.function->name), sizeof(vec4.at(i)->symbol.function->name));
-    }
+    std::vector<char*> libFuncs(size);
+    in.read(reinterpret_cast<char*>(libFuncs.data()), size * sizeof(char*));
+
+    in.read(reinterpret_cast<char*>(&size), sizeof(size));
+    std::vector<unsigned int> addresses(size);
+    std::vector<unsigned int> locals(size);
+    std::vector<char*> names(size);
+    in.read(reinterpret_cast<char*>(addresses.data()), size * sizeof(unsigned int));
+    in.read(reinterpret_cast<char*>(locals.data()), size * sizeof(unsigned int));
+    in.read(reinterpret_cast<char*>(names.data()), size * sizeof(char *));
 
     in.close();
-    
-    // for (const auto& uf : vec4) {
-    //     std::cout<<uf->symbol.function->name<<" ";
-    //     // std::cout<<uf->symbol.function->taddress;
-    //     std::cout<<uf->symbol.function->totalLocals<<" ";
-    //     std::cout << endl;
-    // }
-    std::cout << endl;
 }
