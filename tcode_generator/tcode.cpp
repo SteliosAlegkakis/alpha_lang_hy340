@@ -506,12 +506,20 @@ void tcode_generate_binary_vectors(char* filename) {
     //print strings
     size_t stringSize = strings.size();
     bin.write(reinterpret_cast<const char*>(&stringSize), sizeof(stringSize));
-    bin.write(reinterpret_cast<const char*>(strings.data()), stringSize * sizeof(char*));
+    for (const auto& str : strings) {
+        size_t length = std::strlen(str);
+        bin.write(reinterpret_cast<const char*>(&length), sizeof(length)); // Write string length
+        bin.write(str, length);
+    }
 
     //print libfuncs
     size_t libfuncsSize = libfuncs.size();
     bin.write(reinterpret_cast<const char*>(&libfuncsSize), sizeof(libfuncsSize));
-    bin.write(reinterpret_cast<const char*>(libfuncs.data()), libfuncsSize * sizeof(char*));
+    for (const auto& libfunc : libfuncs) {
+        size_t length = std::strlen(libfunc);
+        bin.write(reinterpret_cast<const char*>(&length), sizeof(length));
+        bin.write(libfunc, length);
+    }
 
     //print userfuncs
     size_t userfuncsSize = userfuncs.size();
@@ -526,7 +534,11 @@ void tcode_generate_binary_vectors(char* filename) {
     }
     bin.write(reinterpret_cast<const char*>(ufAddresses.data()), userfuncsSize * sizeof(unsigned int));
     bin.write(reinterpret_cast<const char*>(ufLocals.data()), userfuncsSize * sizeof(unsigned int));
-    bin.write(reinterpret_cast<const char*>(ufNames.data()), userfuncsSize * sizeof(char*));
+    for(int i = 0; i < userfuncsSize; i++) {
+        size_t length = std::strlen(ufNames[i]);
+        bin.write(reinterpret_cast<const char*>(&length), sizeof(length));
+        bin.write(ufNames[i], length);
+    }
     
     bin.close();
 }
@@ -554,57 +566,6 @@ void tcode_generate_binary_instructions(char* filename) {
     bin.write(reinterpret_cast<const char*>(arg2s.data()), total * sizeof(vmarg));
     bin.write(reinterpret_cast<const char*>(srcLines.data()), total * sizeof(unsigned));
     bin.close();
-}
-
-void read_binary(char* filename) {
-    std::ifstream in;
-    int magicNumber;
-    int expectedMagicNumber = 340200501;
-    in.open(filename, std::ios::binary);
-    in.read(reinterpret_cast<char*>(&magicNumber), sizeof(magicNumber));
-    if (magicNumber != expectedMagicNumber) {
-        std::cerr << "Error: Magic number does not match." << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    size_t size;
-
-    in.read(reinterpret_cast<char*>(&size), sizeof(size));
-    std::vector<double> numbers(size);
-    in.read(reinterpret_cast<char*>(numbers.data()), size * sizeof(double));
-
-    in.read(reinterpret_cast<char*>(&size), sizeof(size));
-    std::vector<char*> strings(size);
-    in.read(reinterpret_cast<char*>(strings.data()), size * sizeof(char*));
-
-    in.read(reinterpret_cast<char*>(&size), sizeof(size));
-    std::vector<char*> libFuncs(size);
-    in.read(reinterpret_cast<char*>(libFuncs.data()), size * sizeof(char*));
-
-    in.read(reinterpret_cast<char*>(&size), sizeof(size));
-    std::vector<unsigned int> addresses(size);
-    std::vector<unsigned int> locals(size);
-    std::vector<char*> names(size);
-    in.read(reinterpret_cast<char*>(addresses.data()), size * sizeof(unsigned int));
-    in.read(reinterpret_cast<char*>(locals.data()), size * sizeof(unsigned int));
-    in.read(reinterpret_cast<char*>(names.data()), size * sizeof(char *));
-    for(int i = 0; i < size; i++) {
-        std::cout << "Function: " << names[i] << " Address: " << addresses[i] << " Locals: " << locals[i] << std::endl;
-    }
-
-    in.read(reinterpret_cast<char*>(&size), sizeof(size));
-    std::vector<vmopcode> opcodes(size);
-    std::vector<vmarg> results(size);
-    std::vector<vmarg> arg1s(size);
-    std::vector<vmarg> arg2s(size);
-    std::vector<unsigned> srcLines(size);
-    in.read(reinterpret_cast<char*>(opcodes.data()), size * sizeof(vmopcode));
-    in.read(reinterpret_cast<char*>(results.data()), size * sizeof(vmarg));
-    in.read(reinterpret_cast<char*>(arg1s.data()), size * sizeof(vmarg));
-    in.read(reinterpret_cast<char*>(arg2s.data()), size * sizeof(vmarg));
-    in.read(reinterpret_cast<char*>(srcLines.data()), size * sizeof(unsigned));
-
-    in.close();
 }
 
 void tcode_generate_binary(char* filename) {
