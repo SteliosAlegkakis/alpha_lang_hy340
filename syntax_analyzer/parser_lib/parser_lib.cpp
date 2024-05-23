@@ -1,4 +1,5 @@
 #include "parser_lib.hpp"
+#include <math.h>
 
 FILE* rulesFile;
 int anonymousCounter = 0;
@@ -284,6 +285,14 @@ expr* manage_arithmetic_operation(iopcode op, expr* arg1, expr* arg2) {
             case _sub: result = arg1->numConst - arg2->numConst; break;
             case _mul: result = arg1->numConst * arg2->numConst; break;
             case _div: result = arg1->numConst / arg2->numConst; break;
+            case _mod: {
+                if(arg2->numConst == 0) {
+                    print_error("error, division by zero");
+                    exit(EXIT_FAILURE);
+                }
+                result = fmod(arg1->numConst, arg2->numConst); 
+                break;
+            }
             default: assert(0);
         }
         return new_expr_const_num(result);
