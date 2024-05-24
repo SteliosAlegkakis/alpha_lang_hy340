@@ -11,13 +11,15 @@ std::vector<std::vector<int>> breakList;
 std::vector<std::vector<int>> contList;
 std::stack<int> loopCounterStack;
 std::stack<unsigned int> scope_offset_stack;
+bool error = false;
 
 int alpha_yyerror(const char* yaccProvidedMessage) {
 	fprintf(stderr, "\033[1;31m%s: '%s' in line: %d\033[0m\n",yaccProvidedMessage, alpha_yytext, alpha_yylineno);
+    error = true;
 	return 0;
 }
 
-void print_error(const char* msg) { printf("\033[1;31m%s '%s' in line: %d\033[0m\n", msg, alpha_yytext, alpha_yylineno); }
+void print_error(const char* msg) { printf("\033[1;31m%s '%s' in line: %d\033[0m\n", msg, alpha_yytext, alpha_yylineno); error = true;}
 
 bool is_libfunc(char* id) {
 	if(!strcmp(id,"print")) return true;
@@ -257,10 +259,12 @@ expr* manage_call_lvalue_callsuffix(expr* lv, call* callsuffix) {
 
     lv = emit_if_table_item(lv);
     if (callsuffix->method == 1) {
+        expr* table = lv;
         expr* elist = callsuffix->elist;
         while(elist) elist = elist->next;
         elist = lv;
         lv = emit_if_table_item(member_item(lv, callsuffix->name));
+        _emit(_param, table, NULL, NULL, 0);
     }
     return make_call(lv, callsuffix->elist);
 }

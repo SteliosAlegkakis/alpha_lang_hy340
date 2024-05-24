@@ -253,6 +253,9 @@ int main(int argc, char** argv) {
   yyparse();
   fprintf(rulesFile, "EOF\n");
   fclose(rulesFile);
+  if(error) {
+    return 1;
+  }
   print_quads();
   tcode_generate();
   tcode_print_instructions();

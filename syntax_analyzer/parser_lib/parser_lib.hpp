@@ -13,6 +13,7 @@ extern std::vector<std::vector<int>> breakList;
 extern std::vector<std::vector<int>> contList;
 extern int functionCounter;
 extern bool block_b;
+extern bool error;
 
 struct forprefix {
     unsigned int test;
