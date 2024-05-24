@@ -370,10 +370,8 @@ int merge_list(int l1, int l2){
     }
 }
 
-void patch_list(int list, int label){
-    while(list){
-        int next = quads[list].label;
-        quads[list].label = label;
-        list = next;
+void patch_list(std::vector<int> list, int label){
+    for(int i = 0; i < list.size(); i++){
+        quads[list[i]].label = label;
     }
 }

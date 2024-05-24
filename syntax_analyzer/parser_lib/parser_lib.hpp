@@ -9,6 +9,8 @@ extern FILE* rulesFile;
 extern bool isFormal;
 extern int loopCounter;
 extern std::stack<int> loopCounterStack;
+extern std::vector<std::vector<int>> breakList;
+extern std::vector<std::vector<int>> contList;
 extern int functionCounter;
 extern bool block_b;
 

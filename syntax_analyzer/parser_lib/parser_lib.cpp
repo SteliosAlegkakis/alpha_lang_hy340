@@ -6,7 +6,9 @@ int anonymousCounter = 0;
 int functionCounter = 0;
 bool isFormal = false;
 bool block_b = false;
-int loopCounter;
+int loopCounter = 0;
+std::vector<std::vector<int>> breakList;
+std::vector<std::vector<int>> contList;
 std::stack<int> loopCounterStack;
 std::stack<unsigned int> scope_offset_stack;
 
@@ -547,7 +549,7 @@ stmt_t* manage_break(){
     stmt_t* _break = (stmt_t*) malloc (sizeof(stmt_t));
     if(!loopCounter) print_error("error, cannot use break outside of loop:");
     make_stmt(_break);
-    _break->breakList = new_list(next_quad_label());
+    breakList[loopCounter-1].push_back(next_quad_label());
     _emit(_jump,NULL,NULL,NULL,0);
     return _break;
 }
@@ -556,7 +558,7 @@ stmt_t* manage_continue(){
     stmt_t* _continue = (stmt_t*) malloc (sizeof(stmt_t));
     if(!loopCounter) print_error("error, cannot use continue outside of loop:");
     make_stmt(_continue);
-    _continue->contList = new_list(next_quad_label());
+    contList[loopCounter-1].push_back(next_quad_label());
     _emit(_jump,NULL,NULL,NULL,0);
     return _continue;
 }
@@ -591,8 +593,10 @@ stmt_t* manage_whilestmt(unsigned int whilestart, unsigned int whilecond, stmt_t
     assert(_stmt);
     _emit(_jump, NULL, NULL, NULL,whilestart);
     patch_label(whilecond, next_quad_label());
-    patch_list(_stmt->breakList, next_quad_label());
-    patch_list(_stmt->contList, whilestart);
+    patch_list(breakList[loopCounter], next_quad_label());
+    patch_list(contList[loopCounter], whilestart);
+    breakList.pop_back();
+    contList.pop_back();
     return _stmt;
 }
 
@@ -615,9 +619,10 @@ stmt_t* manage_forstmt(forprefix* _forprefix, unsigned int N1, unsigned int N2, 
     patch_label(N1, next_quad_label());
     patch_label(N2, _forprefix->test);
     patch_label(N3, N1 + 1);
-
-    patch_list(loopstmt->breakList, next_quad_label());
-    patch_list(loopstmt->contList, N1 + 1);
+    patch_list(breakList[loopCounter], next_quad_label());
+    patch_list(contList[loopCounter], N1 + 1);
+    breakList.pop_back();
+    contList.pop_back();
     return loopstmt;
 }
 

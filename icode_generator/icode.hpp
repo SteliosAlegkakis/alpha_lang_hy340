@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stack>
+#include <vector>
 #include <cerrno>
 #include <cstring>
 #include "../symbol_table/symbol_table.hpp"
@@ -103,4 +104,4 @@ stmt_t* new_stmt();
 void make_stmt(stmt_t* s);
 int new_list(int i);
 int merge_list(int l1, int l2);
-void patch_list(int list, int label);
+void patch_list(std::vector<int> list, int label);

@@ -204,7 +204,7 @@ ifstmt:       ifprefix stmt elseprefix stmt {manage_if_else($1,$3); fprintf(rule
               | ifprefix stmt {patch_label($1, next_quad_label()); fprintf(rulesFile, "ifstmt -> IF LPAREN expr RPAREN stmt\n");}
               ;
 
-loopstart:    {++loopCounter; block_b = true;}
+loopstart:    {++loopCounter; contList.push_back(std::vector<int>()); breakList.push_back(std::vector<int>()); block_b = true;}
               ;
 
 loopend:      {--loopCounter; block_b = false;}
@@ -213,7 +213,7 @@ loopend:      {--loopCounter; block_b = false;}
 loopstmt:     loopstart stmt loopend {$$ = $2;}
               ;
 
-whilestart:   WHILE { $$ = next_quad_label(); }
+whilestart:   WHILE { $$ = next_quad_label();}
               ;
 
 whilecond:    LPAREN expr RPAREN { $$ = manage_whilecond($2); }
