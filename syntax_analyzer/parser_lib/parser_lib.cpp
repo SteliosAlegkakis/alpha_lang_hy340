@@ -549,7 +549,7 @@ stmt_t* manage_break(){
     stmt_t* _break = (stmt_t*) malloc (sizeof(stmt_t));
     if(!loopCounter) print_error("error, cannot use break outside of loop:");
     make_stmt(_break);
-    breakList[loopCounter-1].push_back(next_quad_label());
+    if(loopCounter) breakList[loopCounter-1].push_back(next_quad_label());
     _emit(_jump,NULL,NULL,NULL,0);
     return _break;
 }
@@ -558,7 +558,7 @@ stmt_t* manage_continue(){
     stmt_t* _continue = (stmt_t*) malloc (sizeof(stmt_t));
     if(!loopCounter) print_error("error, cannot use continue outside of loop:");
     make_stmt(_continue);
-    contList[loopCounter-1].push_back(next_quad_label());
+    if(loopCounter) contList[loopCounter-1].push_back(next_quad_label());
     _emit(_jump,NULL,NULL,NULL,0);
     return _continue;
 }
