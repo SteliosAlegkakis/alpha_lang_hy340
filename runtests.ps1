@@ -3,7 +3,7 @@ param(
 )
 
 $testFilesDirectory = "./testfiles/$folder"
-$programPath = "./a.exe"
+$programPath = "./alphac.exe"
 
 # Get the list of testfiles in the directory
 $testFiles = Get-ChildItem -Path $testFilesDirectory -Filter "*.asc"
