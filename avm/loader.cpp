@@ -6,13 +6,13 @@
 #include "avm_structs.hpp"
 
 std::vector<double> numbers;
-std::vector<std::string> strings;
-std::vector<std::string> libFuncs;
+std::vector<char*> strings;
+std::vector<char*> libFuncs;
 std::vector<unsigned int> addresses;
 std::vector<unsigned int> locals;
-std::vector<std::string> names;
+std::vector<char*> names;
 std::vector<userfunc> userFuncs;
-std::vector<instruction> instructions;
+std::vector<instruction*> code;
 std::vector<vmopcode> opcodes;
 std::vector<vmarg> results;
 std::vector<vmarg> arg1s;
@@ -24,17 +24,17 @@ void construct_vectors() {
         userfunc userFunc;
         userFunc.address = addresses[i];
         userFunc.localSize = locals[i];
-        userFunc.id = strdup(names[i].c_str());
+        userFunc.id = strdup(names[i]);
         userFuncs.push_back(userFunc);
     }
     for(size_t i = 0; i < opcodes.size(); i++) {
-        instruction instr;
-        instr.opcode = opcodes[i];
-        instr.result = results[i];
-        instr.arg1 = arg1s[i];
-        instr.arg2 = arg2s[i];
-        instr.srcLine = srcLines[i];
-        instructions.push_back(instr);
+        instruction* instr;
+        instr->opcode = opcodes[i];
+        instr->result = results[i];
+        instr->arg1 = arg1s[i];
+        instr->arg2 = arg2s[i];
+        instr->srcLine = srcLines[i];
+        code.push_back(instr);
     }
 }
 
@@ -61,9 +61,10 @@ void load_binary(char* filename) {
     for (size_t i = 0; i < size; ++i) {
         size_t length;
         in.read(reinterpret_cast<char*>(&length), sizeof(length));
-        std::vector<char> buffer(length);
-        in.read(buffer.data(), length);
-        strings.emplace_back(buffer.data(), length);
+        char* buffer = new char[length+1];
+        in.read(buffer, length);
+        buffer[length] = '\0';
+        strings.push_back(buffer);
     }
 
     in.read(reinterpret_cast<char*>(&size), sizeof(size));
@@ -72,9 +73,10 @@ void load_binary(char* filename) {
     for (size_t i = 0; i < size; ++i) {
         size_t length;
         in.read(reinterpret_cast<char*>(&length), sizeof(length));
-        std::vector<char> buffer(length);
-        in.read(buffer.data(), length);
-        libFuncs.emplace_back(buffer.data(), length);
+        char* buffer = new char[length+1];
+        in.read(buffer, length);
+        buffer[length] = '\0';
+        libFuncs.push_back(buffer);
     }
 
     in.read(reinterpret_cast<char*>(&size), sizeof(size));
@@ -87,9 +89,10 @@ void load_binary(char* filename) {
     for (size_t i = 0; i < size; ++i) {
         size_t length;
         in.read(reinterpret_cast<char*>(&length), sizeof(length));
-        std::vector<char> buffer(length);
-        in.read(buffer.data(), length);
-        names.emplace_back(buffer.data(), length);
+        char* buffer = new char[length+1];
+        in.read(buffer, length);
+        buffer[length] = '\0';
+        names.push_back(buffer);
     }
 
     in.read(reinterpret_cast<char*>(&size), sizeof(size));

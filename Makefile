@@ -16,7 +16,7 @@ alphac:
 
 .PHONY: alphavm
 alphavm: ./avm/loader.cpp
-	g++ -std=c++11 ./avm/loader.cpp -o alphavm$(EXE_EXTENSION)
+	g++ -std=c++11 ./avm/loader.cpp ./avm/memory_manager.cpp ./avm/dispatcher/dispatcher.cpp ./avm/dispatcher/translator.cpp -o alphavm$(EXE_EXTENSION)
 
 all: alphac avm
 
