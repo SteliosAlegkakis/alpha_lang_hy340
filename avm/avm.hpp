@@ -25,3 +25,7 @@ double      consts_getnumber(unsigned int index);
 char*       consts_getstring(unsigned int index);
 char*       libfuncs_getused(unsigned int index);
 userfunc*   userfuncs_getfunc(unsigned int index);
+
+void avm_warning(char* format, ...);
+void avm_error(char* format, ...);
+void avm_assign(avm_memcell* lv, avm_memcell* rv);

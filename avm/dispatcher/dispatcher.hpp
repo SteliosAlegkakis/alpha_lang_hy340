@@ -1,7 +1,15 @@
 #include <iostream>
 #include "../avm.hpp"
 
+
 #define AVM_MAX_INSTRUCTIONS (unsigned) nop_v
+
+avm_memcell ax, bx, cx, retval;
+extern unsigned top, topsp;
+extern unsigned char executionFinished = 0;
+extern unsigned  pc = 0;
+extern unsigned int currLine = 0;
+extern unsigned codeSize = code.size();
 
 typedef void (*execute_func_t) (instruction*);
 
