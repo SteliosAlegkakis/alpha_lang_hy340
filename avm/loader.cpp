@@ -5,6 +5,39 @@
 #include <fstream>
 #include "avm_structs.hpp"
 
+std::vector<double> numbers;
+std::vector<std::string> strings;
+std::vector<std::string> libFuncs;
+std::vector<unsigned int> addresses;
+std::vector<unsigned int> locals;
+std::vector<std::string> names;
+std::vector<userfunc> userFuncs;
+std::vector<instruction> instructions;
+std::vector<vmopcode> opcodes;
+std::vector<vmarg> results;
+std::vector<vmarg> arg1s;
+std::vector<vmarg> arg2s;
+std::vector<unsigned> srcLines;
+
+void construct_vectors() {
+    for(size_t i = 0; i < names.size(); i++) {
+        userfunc userFunc;
+        userFunc.address = addresses[i];
+        userFunc.localSize = locals[i];
+        userFunc.id = strdup(names[i].c_str());
+        userFuncs.push_back(userFunc);
+    }
+    for(size_t i = 0; i < opcodes.size(); i++) {
+        instruction instr;
+        instr.opcode = opcodes[i];
+        instr.result = results[i];
+        instr.arg1 = arg1s[i];
+        instr.arg2 = arg2s[i];
+        instr.srcLine = srcLines[i];
+        instructions.push_back(instr);
+    }
+}
+
 void load_binary(char* filename) {
     std::ifstream in;
     int magicNumber;
@@ -19,11 +52,11 @@ void load_binary(char* filename) {
     size_t size;
 
     in.read(reinterpret_cast<char*>(&size), sizeof(size));
-    std::vector<double> numbers(size);
+    numbers.resize(size);   
     in.read(reinterpret_cast<char*>(numbers.data()), size * sizeof(double));
 
     in.read(reinterpret_cast<char*>(&size), sizeof(size));
-    std::vector<std::string> strings;
+    strings.resize(size);
     strings.clear();
     for (size_t i = 0; i < size; ++i) {
         size_t length;
@@ -34,7 +67,7 @@ void load_binary(char* filename) {
     }
 
     in.read(reinterpret_cast<char*>(&size), sizeof(size));
-    std::vector<std::string> libFuncs(size);
+    libFuncs.resize(size);
     libFuncs.clear();
     for (size_t i = 0; i < size; ++i) {
         size_t length;
@@ -45,9 +78,9 @@ void load_binary(char* filename) {
     }
 
     in.read(reinterpret_cast<char*>(&size), sizeof(size));
-    std::vector<unsigned int> addresses(size);
-    std::vector<unsigned int> locals(size);
-    std::vector<std::string> names(size);
+    addresses.resize(size);
+    locals.resize(size);
+    names.resize(size);
     in.read(reinterpret_cast<char*>(addresses.data()), size * sizeof(unsigned int));
     in.read(reinterpret_cast<char*>(locals.data()), size * sizeof(unsigned int));
     names.clear();
@@ -60,11 +93,11 @@ void load_binary(char* filename) {
     }
 
     in.read(reinterpret_cast<char*>(&size), sizeof(size));
-    std::vector<vmopcode> opcodes(size);
-    std::vector<vmarg> results(size);
-    std::vector<vmarg> arg1s(size);
-    std::vector<vmarg> arg2s(size);
-    std::vector<unsigned> srcLines(size);
+    opcodes.resize(size);
+    results.resize(size);
+    arg1s.resize(size);
+    arg2s.resize(size);
+    srcLines.resize(size);
     in.read(reinterpret_cast<char*>(opcodes.data()), size * sizeof(vmopcode));
     in.read(reinterpret_cast<char*>(results.data()), size * sizeof(vmarg));
     in.read(reinterpret_cast<char*>(arg1s.data()), size * sizeof(vmarg));
@@ -72,6 +105,8 @@ void load_binary(char* filename) {
     in.read(reinterpret_cast<char*>(srcLines.data()), size * sizeof(unsigned));
 
     in.close();
+
+    construct_vectors();
 }
 
 int main(int argc, char* argv[]) {
