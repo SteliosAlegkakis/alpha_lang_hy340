@@ -5,14 +5,15 @@
 #include <fstream>
 #include "avm_structs.hpp"
 
-std::vector<double> numbers;
-std::vector<char*> strings;
-std::vector<char*> libFuncs;
+extern std::vector<double> numbers;
+extern std::vector<char*> strings;
+extern std::vector<char*> libFuncs;
+extern std::vector<userfunc*> userFuncs;
+extern std::vector<instruction*> code;
+
 std::vector<unsigned int> addresses;
 std::vector<unsigned int> locals;
 std::vector<char*> names;
-std::vector<userfunc> userFuncs;
-std::vector<instruction*> code;
 std::vector<vmopcode> opcodes;
 std::vector<vmarg> results;
 std::vector<vmarg> arg1s;
@@ -21,14 +22,14 @@ std::vector<unsigned> srcLines;
 
 void construct_vectors() {
     for(size_t i = 0; i < names.size(); i++) {
-        userfunc userFunc;
-        userFunc.address = addresses[i];
-        userFunc.localSize = locals[i];
-        userFunc.id = strdup(names[i]);
+        userfunc* userFunc = new userfunc;
+        userFunc->address = addresses[i];
+        userFunc->localSize = locals[i];
+        userFunc->id = strdup(names[i]);
         userFuncs.push_back(userFunc);
     }
     for(size_t i = 0; i < opcodes.size(); i++) {
-        instruction* instr;
+        instruction* instr = new instruction;
         instr->opcode = opcodes[i];
         instr->result = results[i];
         instr->arg1 = arg1s[i];

@@ -1,9 +1,4 @@
-#include <iostream>
-#include "../avm.hpp"
-
-#define AVM_MAX_INSTRUCTIONS (unsigned) nop_v
-
-typedef void (*execute_func_t) (instruction*);
+#include "../avm_structs.hpp"
 
 void execute_assign (instruction* instr);
 void execute_add (instruction* instr);
@@ -30,4 +25,3 @@ void execute_tablesetelem (instruction* instr);
 
 void execute_jump (instruction* instr);
 void execute_nop (instruction* instr);
-

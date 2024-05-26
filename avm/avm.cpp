@@ -2,8 +2,20 @@
 #include "avm.hpp"
 #include <cstring>
 #include <assert.h>
+
 #define AVM_WIPEOUT(m) memset(&(m), 0, sizeof(m))
+
+std::vector<userfunc*> userFuncs;
+std::vector<double> numbers;
+std::vector<char*> strings;
+std::vector<char*> libFuncs;
+std::vector<instruction*> code;
+
 avm_memcell stack[AVM_STACKSIZE];
+
+avm_memcell ax,bx,cx;
+avm_memcell retval;
+unsigned top, topsp;
 
 void memclear_string(avm_memcell* m) {
     assert(m->data.strVal);
@@ -67,19 +79,24 @@ void avm_tabledestroy(avm_table* t) {
     free(t);
 }
 
-avm_memcell* avm_tablegetelem(avm_table* t) {
-    unsigned i;
-    for (i = 0; i < AVM_TABLE_HASHSIZE; ++i) {
-        for (avm_table_bucket* p = t->strIndexed[i]; p; p = p->next) {
-            if (p->key.type == string_m) {
-                return &p->value;
+avm_memcell* avm_tablegetelem(avm_table* t, avm_memcell* key) {
+    if(key->type == number_m) {
+        unsigned i = (unsigned)key->data.numVal % AVM_TABLE_HASHSIZE;
+        for(avm_table_bucket* b = t->numIndexed[i]; b; b = b->next) {
+            if(b->key.data.numVal == key->data.numVal) {
+                return &b->value;
             }
         }
-        for (avm_table_bucket* p = t->numIndexed[i]; p; p = p->next) {
-            if (p->key.type == number_m) {
-                return &p->value;
+    } else if(key->type == string_m) {
+        unsigned i = (unsigned)key->data.strVal[0] % AVM_TABLE_HASHSIZE;
+        for(avm_table_bucket* b = t->strIndexed[i]; b; b = b->next) {
+            if(strcmp(b->key.data.strVal, key->data.strVal) == 0) {
+                return &b->value;
             }
         }
+    } else {
+        std::cerr << "Error: Key is not a number or a string." << std::endl;
+        exit(EXIT_FAILURE);
     }
     return NULL;
 }
@@ -116,3 +133,8 @@ void avm_tablebuckets_init(avm_table_bucket** p){
     for(unsigned int i = 0; i < AVM_TABLE_HASHSIZE; ++i)
         p[i] = (avm_table_bucket*) 0;
 }
+
+double      consts_getnumber(unsigned int index) { return numbers[index]; }
+char*       consts_getstring(unsigned int index) { return strings[index]; }
+char*       libfuncs_getused(unsigned int index) { return libFuncs[index]; }
+userfunc*   userfuncs_getfunc(unsigned int index) { return userFuncs[index]; }

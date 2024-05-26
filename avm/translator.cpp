@@ -1,18 +1,14 @@
 #include <iostream>
 #include <string.h>
 #include <assert.h>
-#include "../avm.hpp"
-
-avm_memcell ax,bx,cx;
-avm_memcell ret_val;
-unsigned top, topsp;
+#include "./avm.hpp"
 
 avm_memcell* avm_translate_operand(vmarg* arg, avm_memcell* reg) {
     switch (arg->type) {
         case global_a: return &stack[AVM_STACKSIZE - 1 - arg->val];
         case local_a: return &stack[topsp - arg->val];
         case formal_a: return &stack[topsp + AVM_STACKENV_SIZE + 1 + arg->val];
-        case retval_a: return &ret_val;
+        case retval_a: return &retval;
         case number_a: {
             reg->type = number_m;
             reg->data.numVal = consts_getnumber(arg->val);
@@ -45,5 +41,6 @@ avm_memcell* avm_translate_operand(vmarg* arg, avm_memcell* reg) {
         }
         default: assert(0);
     }
+    return NULL;
 }
 

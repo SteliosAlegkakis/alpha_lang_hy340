@@ -1,6 +1,11 @@
-#include "dispatcher.hpp"
+#include "./executors/executors.hpp"
+#include <vector>
 #include <cassert>
 
+#define AVM_MAX_INSTRUCTIONS (unsigned) nop_v
+#define AVM_ENDING_PC codeSize
+
+typedef void (*execute_func_t) (instruction*);
 execute_func_t executeFuncs[] = {
     execute_assign, 
     execute_add, 
@@ -28,8 +33,8 @@ execute_func_t executeFuncs[] = {
 unsigned char executionFinished = 0;
 unsigned  pc = 0;
 unsigned int currLine = 0;
+extern std::vector<instruction*> code;
 unsigned codeSize = code.size();
-#define AVM_ENDING_PC codeSize
 
 void execute_cycle() {
     if (executionFinished) {
