@@ -112,12 +112,3 @@ void load_binary(char* filename) {
 
     construct_vectors();
 }
-
-int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl;
-        return EXIT_FAILURE;
-    }
-    load_binary(argv[1]);
-    return 0;
-}

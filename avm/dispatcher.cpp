@@ -35,11 +35,10 @@ execute_func_t executeFuncs[] = {
     execute_nop
 };
 
-unsigned char executionFinished = 0;
+extern unsigned char executionFinished;
 unsigned  pc = 0;
 unsigned int currLine = 0;
-extern std::vector<instruction*> code;
-unsigned codeSize = code.size();
+unsigned int codeSize = code.size();
 
 void execute_cycle() {
     if (executionFinished) {

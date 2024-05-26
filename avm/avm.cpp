@@ -150,12 +150,52 @@ void avm_assign(avm_memcell* lv, avm_memcell* rv) {
     avm_memcellclear(lv);
 
     memcpy(lv, rv, sizeof(avm_memcell));
-
     if (lv->type == string_m) {
         lv->data.strVal = strdup(rv->data.strVal);
     } else if (lv->type == table_m) {
         avm_tableincref_counter(lv->data.tableVal);
     }
+}
+
+avm_memcell* avm_translate_operand(vmarg* arg, avm_memcell* reg) {
+    switch (arg->type) {
+        case global_a: return &stack[AVM_STACKSIZE - 1 - arg->val];
+        case local_a: return &stack[topsp - arg->val];
+        case formal_a: return &stack[topsp + AVM_STACKENV_SIZE + 1 + arg->val];
+        case retval_a: return &retval;
+        case number_a: {
+            reg->type = number_m;
+            reg->data.numVal = consts_getnumber(arg->val);
+            return reg;
+        }
+        case string_a: {
+            reg->type = string_m;
+            reg->data.strVal = strdup(consts_getstring(arg->val));
+            return reg;
+        }
+        case bool_a: {
+            reg->type = bool_m;
+            reg->data.boolVal = arg->val;
+            return reg;
+        }
+        case nil_a: {
+            reg->type = nil_m;
+            return reg;
+        }
+        case userfunc_a: {
+            reg->type = userfunc_m;
+            reg->data.userfuncVal = arg->val;
+            reg->data.userfuncVal = userfuncs_getfunc(arg->val)->address;
+            return reg;
+        }
+        case libfunc_a: {
+            reg->type = libfunc_m;
+            reg->data.libfuncVal = strdup(libfuncs_getused(arg->val));
+            return reg;
+        }
+        default: assert(0);
+    }
+    return NULL;
 }
 
 void avm_warning(char* format, ...) {
@@ -179,3 +219,20 @@ double      consts_getnumber(unsigned int index) { return numbers[index]; }
 char*       consts_getstring(unsigned int index) { return strings[index]; }
 char*       libfuncs_getused(unsigned int index) { return libFuncs[index]; }
 userfunc*   userfuncs_getfunc(unsigned int index) { return userFuncs[index]; }
+
+extern void load_binary(char* filename);
+unsigned char executionFinished = 0;
+
+int main(int argc, char** argv) {
+
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    avm_initstack();
+    load_binary(argv[1]);
+    
+    while(!executionFinished) execute_cycle();
+    return 0;
+}
