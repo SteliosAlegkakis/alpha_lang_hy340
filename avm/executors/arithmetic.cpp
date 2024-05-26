@@ -4,8 +4,22 @@
 double add_impl(double x, double y) {return x + y;}
 double sub_impl(double x, double y) {return x - y;}
 double mul_impl(double x, double y) {return x * y;}
-double div_impl(double x, double y) {return x / y;}
-double mod_impl(double x, double y) {return ((unsigned)x) % ((unsigned)y);}
+double div_impl(double x, double y) {
+    if (y == 0) {
+        avm_error((char*)"Runtime error. division by zero!");
+        executionFinished = 1;
+        return 0;
+    }
+    return x / y;
+}
+double mod_impl(double x, double y) {
+    if (y == 0) {
+        avm_error((char*)"Runtime error. modulo by zero!");
+        executionFinished = 1;
+        return 0;
+    }
+    return ((unsigned)x) % ((unsigned)y);
+}
 
 typedef double (*arithmetic_func_t)(double x, double y);
 
