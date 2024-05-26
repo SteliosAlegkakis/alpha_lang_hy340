@@ -1,4 +1,9 @@
-#include "../avm_structs.hpp"
+#include <iostream>
+#include "../avm.hpp"
+
+#define AVM_MAX_INSTRUCTIONS (unsigned) nop_v
+
+typedef void (*execute_func_t) (instruction*);
 
 void execute_assign (instruction* instr);
 void execute_add (instruction* instr);
