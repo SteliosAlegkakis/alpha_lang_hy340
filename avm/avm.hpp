@@ -6,6 +6,16 @@ extern avm_memcell ax, bx, cx;
 extern avm_memcell retval;
 extern unsigned top, topsp;
 extern std::vector<instruction*> code;
+char* typeStrings[] = {
+    "number",
+    "string",
+    "bool",
+    "table",
+    "userfunc",
+    "libfunc",
+    "nil",
+    "undef"
+};
 
 void avm_memcellclear(avm_memcell* m);
 avm_memcell* avm_translate_operand(vmarg* arg, avm_memcell* reg);
@@ -28,5 +38,6 @@ userfunc*   userfuncs_getfunc(unsigned int index);
 
 void avm_warning(char* format, ...);
 void avm_error(char* format, ...);
+char* avm_tostring(avm_memcell* m);
 
 void execute_cycle(void);

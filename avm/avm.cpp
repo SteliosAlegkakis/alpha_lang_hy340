@@ -215,6 +215,11 @@ void avm_error(char* format, ...) {
     exit(EXIT_FAILURE);
 }
 
+char* avm_tostring(avm_memcell* m) {
+  assert(m->type >= 0 && m->type <= undef_m);
+  return (*tostringFuncs[m->type])(m);
+}
+
 double      consts_getnumber(unsigned int index) { return numbers[index]; }
 char*       consts_getstring(unsigned int index) { return strings[index]; }
 char*       libfuncs_getused(unsigned int index) { return libFuncs[index]; }
