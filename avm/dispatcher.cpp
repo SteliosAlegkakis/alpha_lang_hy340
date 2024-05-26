@@ -4,6 +4,11 @@
 
 #define AVM_MAX_INSTRUCTIONS (unsigned) nop_v
 #define AVM_ENDING_PC codeSize
+#define execute_add execute_arithmetic
+#define execute_sub execute_arithmetic
+#define execute_mul execute_arithmetic
+#define execute_div execute_arithmetic
+#define execute_mod execute_arithmetic
 
 typedef void (*execute_func_t) (instruction*);
 execute_func_t executeFuncs[] = {

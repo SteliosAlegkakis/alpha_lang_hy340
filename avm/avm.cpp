@@ -2,6 +2,8 @@
 #include "avm.hpp"
 #include <cstring>
 #include <assert.h>
+#include <stdarg.h>
+#include <_mingw_stdarg.h>
 
 #define AVM_WIPEOUT(m) memset(&(m), 0, sizeof(m))
 
@@ -132,6 +134,45 @@ void avm_tabledecref_counter(avm_table* t){
 void avm_tablebuckets_init(avm_table_bucket** p){
     for(unsigned int i = 0; i < AVM_TABLE_HASHSIZE; ++i)
         p[i] = (avm_table_bucket*) 0;
+}
+
+void avm_assign(avm_memcell* lv, avm_memcell* rv) {
+    if (lv == rv) {
+        return;
+    }
+    if (lv->type == table_m && rv->type == table_m && lv->data.tableVal == rv->data.tableVal) {
+        return;
+    }
+    if (rv->type == undef_m) {
+        avm_warning((char*)"assigning from 'undef' content!");
+    }
+    
+    avm_memcellclear(lv);
+
+    memcpy(lv, rv, sizeof(avm_memcell));
+
+    if (lv->type == string_m) {
+        lv->data.strVal = strdup(rv->data.strVal);
+    } else if (lv->type == table_m) {
+        avm_tableincref_counter(lv->data.tableVal);
+    }
+}
+
+void avm_warning(char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
+    fprintf(stderr, "\n");
+}
+
+void avm_error(char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
+    fprintf(stderr, "\n");
+    exit(EXIT_FAILURE);
 }
 
 double      consts_getnumber(unsigned int index) { return numbers[index]; }
