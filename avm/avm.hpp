@@ -15,7 +15,7 @@ extern unsigned int codeSize;
 extern unsigned char executionFinished;
 extern unsigned currLine;
 
-extern char* typeStrings[];
+extern const char* typeStrings[];
 
 void avm_memcellclear(avm_memcell* m);
 avm_memcell* avm_translate_operand(vmarg* arg, avm_memcell* reg);

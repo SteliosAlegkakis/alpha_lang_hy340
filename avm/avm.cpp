@@ -24,6 +24,17 @@ unsigned  pc = 0;
 unsigned int codeSize;
 unsigned currLine = 0;
 
+const char* typeStrings[] = {
+    "number",
+    "string",
+    "bool",
+    "table",
+    "userfunc",
+    "libfunc",
+    "nil",
+    "undef"
+};
+
 void memclear_string(avm_memcell* m) {
     assert(m->data.strVal);
     free(m->data.strVal);
@@ -203,15 +214,53 @@ void avm_error(char* format, ...) {
     exit(EXIT_FAILURE);
 }
 
-char* typeStrings[] = {
-    "number",
-    "string",
-    "bool",
-    "table",
-    "userfunc",
-    "libfunc",
-    "nil",
-    "undef"
+typedef char* (*tostring_func_t)(avm_memcell*);
+
+char* number_tostring(avm_memcell* m) {
+    char* str = (char*)malloc(100);
+    sprintf(str, "%.2f", m->data.numVal);
+    return str;
+}
+
+char* string_tostring(avm_memcell* m) {
+    return strdup(m->data.strVal);
+}
+
+char* bool_tostring(avm_memcell* m) {
+    return strdup(m->data.boolVal ? "true" : "false");
+}
+
+char* table_tostring(avm_memcell* m) {
+    return strdup("table");
+}
+
+char* userfunc_tostring(avm_memcell* m) {
+    char* str = (char*)malloc(100);
+    sprintf(str, "userfunc %d", m->data.userfuncVal);
+    return str;
+}
+
+char* libfunc_tostring(avm_memcell* m) {
+    return strdup(m->data.libfuncVal);
+}
+
+char* nil_tostring(avm_memcell* m) {
+    return strdup("nil");
+}
+
+char* undef_tostring(avm_memcell* m) {
+    return strdup("undef");
+}
+
+tostring_func_t tostringFuncs[] = {
+    number_tostring,
+    string_tostring,
+    bool_tostring,
+    table_tostring,
+    userfunc_tostring,
+    libfunc_tostring,
+    nil_tostring,
+    undef_tostring
 };
 
 char* avm_tostring(avm_memcell* m) {

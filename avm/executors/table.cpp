@@ -28,7 +28,7 @@ void execute_tablegetelem (instruction* instr) {
     lv->type = nil_m;
 
     if(t->type != table_m) {
-        avm_error("illegal use of type %s as table!", typeStrings[t->type]);
+        avm_error((char*)"illegal use of type %s as table!", typeStrings[t->type]);
     } else {
         avm_memcell* content = avm_tablegetelem(t->data.tableVal, i);
         if(content) {
@@ -36,7 +36,7 @@ void execute_tablegetelem (instruction* instr) {
         } else {
             char* ts = avm_tostring(t);
             char* is = avm_tostring(i);
-            avm_warning("%s[%s] not found!", ts, is);
+            avm_warning((char*)"%s[%s] not found!", ts, is);
             free(ts);
             free(is);
         }
@@ -53,7 +53,7 @@ void execute_tablesetelem (instruction* instr) {
     assert(i && c);
 
     if(t->type != table_m) {
-        avm_error("illegal use of type %s as table!", typeStrings[t->type]);
+        avm_error((char*)"illegal use of type %s as table!", typeStrings[t->type]);
     } else {
         avm_tablesetelem(t->data.tableVal, i, c);
     }
