@@ -35,6 +35,8 @@ const char* typeStrings[] = {
     "undef"
 };
 
+unsigned totalActuals = 0;
+
 void memclear_string(avm_memcell* m) {
     assert(m->data.strVal);
     free(m->data.strVal);
@@ -152,6 +154,84 @@ void avm_tablebuckets_init(avm_table_bucket** p){
         p[i] = (avm_table_bucket*) 0;
 }
 
+void avm_dec_top (void) {
+    if (!top) {
+        avm_error((char*)"stack overflow");
+        executionFinished = 1;
+    } else {
+        --top;
+    }
+}
+
+void avm_push_envvalue (unsigned val) {
+    stack[top].type = number_m;
+    stack[top].data.numVal = val;
+    avm_dec_top();
+}
+
+unsigned avm_get_envvalue (unsigned i) {
+    assert(stack[i].type == number_m);
+    unsigned val = (unsigned) stack[i].data.numVal;
+    assert(stack[i].data.numVal == ((double) val));
+    return val;
+}
+
+void avm_callsaveenvironment (void) {
+    avm_push_envvalue(totalActuals);
+    assert(code[pc]->opcode == call_v);
+    avm_push_envvalue(pc + 1);
+    avm_push_envvalue(top + totalActuals + 2);
+    avm_push_envvalue(topsp);
+}
+
+void avm_push_table_arg(avm_table* t) {
+    stack[top].type = table_m;
+    avm_tableincref_counter(stack[top].data.tableVal = t);
+    ++totalActuals;
+    avm_dec_top();
+}
+
+void avm_call_functor(avm_table* t) {
+    cx.type = string_m;
+    cx.data.strVal = (char*)"()";
+    avm_memcell* f = avm_tablegetelem(t, &cx);
+    if(!f)
+        avm_error((char*)"in calling table: no '()' element found!");
+    else if(f->type == table_m) {
+        avm_call_functor(f->data.tableVal);
+    } else if(f->type == userfunc_m) {
+        avm_push_table_arg(t);
+        avm_callsaveenvironment();
+        pc = f->data.userfuncVal;
+        assert(pc < AVM_ENDING_PC);
+        assert(code[pc]->opcode == funcenter_v);
+    }
+    else {
+        avm_error((char*)"in calling table: illegal '()' element value!");
+    }
+
+}
+
+typedef void (*library_func_t) (void);
+
+extern library_func_t avm_getlibraryfunc (char* id);
+
+extern void execute_funcexit (instruction* instr);
+
+void avm_calllibfunc (char* id) {
+    library_func_t f = avm_getlibraryfunc(id);
+    if(!f) {
+        avm_error((char*)"unsupported lib func '%s' called!", id);
+    } else {
+        topsp = top;
+        totalActuals = 0;
+        (*f)();
+        if(!executionFinished)
+            execute_funcexit((instruction*) 0);
+    }
+
+}
+
 avm_memcell* avm_translate_operand(vmarg* arg, avm_memcell* reg) {
     switch (arg->type) {
         case global_a: return &stack[AVM_STACKSIZE - 1 - arg->val];
@@ -211,7 +291,7 @@ void avm_error(char* format, ...) {
     vfprintf(stderr, format, args);
     va_end(args);
     fprintf(stderr, " line: %d\n\033[0m", currLine);
-    exit(EXIT_FAILURE);
+    executionFinished = 1;
 }
 
 typedef char* (*tostring_func_t)(avm_memcell*);
@@ -272,6 +352,15 @@ double      consts_getnumber(unsigned int index) { return numbers[index]; }
 char*       consts_getstring(unsigned int index) { return strings[index]; }
 char*       libfuncs_getused(unsigned int index) { return libFuncs[index]; }
 userfunc*   userfuncs_getfunc(unsigned int index) { return userFuncs[index]; }
+
+userfunc* avm_getfuncinfo(unsigned address) {
+    for(unsigned i = 0; i < userFuncs.size(); ++i) {
+        if(userFuncs[i]->address == address) {
+            return userFuncs[i];
+        }
+    }
+    return NULL;
+}
 
 extern void load_binary(char* filename);
 extern void execute_cycle();
