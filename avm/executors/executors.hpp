@@ -1,7 +1,11 @@
 #include <iostream>
 #include "../avm.hpp"
 
-#define AVM_MAX_INSTRUCTIONS (unsigned) nop_v
+#define execute_add execute_arithmetic
+#define execute_sub execute_arithmetic
+#define execute_mul execute_arithmetic
+#define execute_div execute_arithmetic
+#define execute_mod execute_arithmetic
 
 typedef void (*execute_func_t) (instruction*);
 

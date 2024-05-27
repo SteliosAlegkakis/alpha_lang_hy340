@@ -19,6 +19,11 @@ avm_memcell ax,bx,cx;
 avm_memcell retval;
 unsigned top, topsp;
 
+unsigned char executionFinished = 0;
+unsigned  pc = 0;
+unsigned int codeSize;
+unsigned currLine = 0;
+
 void memclear_string(avm_memcell* m) {
     assert(m->data.strVal);
     free(m->data.strVal);
@@ -136,27 +141,6 @@ void avm_tablebuckets_init(avm_table_bucket** p){
         p[i] = (avm_table_bucket*) 0;
 }
 
-void avm_assign(avm_memcell* lv, avm_memcell* rv) {
-    if (lv == rv) {
-        return;
-    }
-    if (lv->type == table_m && rv->type == table_m && lv->data.tableVal == rv->data.tableVal) {
-        return;
-    }
-    if (rv->type == undef_m) {
-        avm_warning((char*)"assigning from 'undef' content!");
-    }
-    
-    avm_memcellclear(lv);
-
-    memcpy(lv, rv, sizeof(avm_memcell));
-    if (lv->type == string_m) {
-        lv->data.strVal = strdup(rv->data.strVal);
-    } else if (lv->type == table_m) {
-        avm_tableincref_counter(lv->data.tableVal);
-    }
-}
-
 avm_memcell* avm_translate_operand(vmarg* arg, avm_memcell* reg) {
     switch (arg->type) {
         case global_a: return &stack[AVM_STACKSIZE - 1 - arg->val];
@@ -201,17 +185,21 @@ avm_memcell* avm_translate_operand(vmarg* arg, avm_memcell* reg) {
 void avm_warning(char* format, ...) {
     va_list args;
     va_start(args, format);
+    fprintf(stderr, "\033[1;33m");
+    fprintf(stderr, "Warning: ");
     vfprintf(stderr, format, args);
     va_end(args);
-    fprintf(stderr, "\n");
+    fprintf(stderr, " line: %d\n\033[0m", currLine);
 }
 
 void avm_error(char* format, ...) {
     va_list args;
     va_start(args, format);
+    fprintf(stderr, "\033[1;31m");
+    fprintf(stderr, "Error: ");
     vfprintf(stderr, format, args);
     va_end(args);
-    fprintf(stderr, "\n");
+    fprintf(stderr, " line: %d\n\033[0m", currLine);
     exit(EXIT_FAILURE);
 }
 
@@ -221,7 +209,7 @@ char*       libfuncs_getused(unsigned int index) { return libFuncs[index]; }
 userfunc*   userfuncs_getfunc(unsigned int index) { return userFuncs[index]; }
 
 extern void load_binary(char* filename);
-unsigned char executionFinished = 0;
+extern void execute_cycle();
 
 int main(int argc, char** argv) {
 
@@ -232,7 +220,8 @@ int main(int argc, char** argv) {
 
     avm_initstack();
     load_binary(argv[1]);
-    
+    codeSize = code.size();
+
     while(!executionFinished) execute_cycle();
     return 0;
 }

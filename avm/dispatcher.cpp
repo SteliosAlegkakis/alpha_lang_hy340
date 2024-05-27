@@ -2,14 +2,6 @@
 #include <vector>
 #include <cassert>
 
-#define AVM_MAX_INSTRUCTIONS (unsigned) nop_v
-#define AVM_ENDING_PC codeSize
-#define execute_add execute_arithmetic
-#define execute_sub execute_arithmetic
-#define execute_mul execute_arithmetic
-#define execute_div execute_arithmetic
-#define execute_mod execute_arithmetic
-
 typedef void (*execute_func_t) (instruction*);
 execute_func_t executeFuncs[] = {
     execute_assign, 
@@ -34,11 +26,6 @@ execute_func_t executeFuncs[] = {
     execute_jump,
     execute_nop
 };
-
-extern unsigned char executionFinished;
-unsigned  pc = 0;
-unsigned int currLine = 0;
-unsigned int codeSize = code.size();
 
 void execute_cycle() {
     if (executionFinished) {
