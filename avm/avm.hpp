@@ -15,6 +15,8 @@ extern unsigned int codeSize;
 extern unsigned char executionFinished;
 extern unsigned currLine;
 
+extern char* typeStrings[];
+
 void avm_memcellclear(avm_memcell* m);
 avm_memcell* avm_translate_operand(vmarg* arg, avm_memcell* reg);
 
@@ -26,6 +28,7 @@ void avm_tableincref_counter(avm_table* t);
 void avm_tabledecref_counter(avm_table* t);
 void avm_tablebuckets_init(avm_table_bucket** p);
 void avm_tablebuckets_destroy(avm_table_bucket** p);
+void avm_assign(avm_memcell* lv, avm_memcell* rv);
 
 double      consts_getnumber(unsigned int index);
 char*       consts_getstring(unsigned int index);
@@ -34,3 +37,4 @@ userfunc*   userfuncs_getfunc(unsigned int index);
 
 void avm_warning(char* format, ...);
 void avm_error(char* format, ...);
+char* avm_tostring(avm_memcell* m);
