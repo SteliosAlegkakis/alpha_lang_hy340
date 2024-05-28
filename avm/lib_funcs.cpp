@@ -1,7 +1,14 @@
 #include "avm.hpp"
 #include <cstring>
 
-void libfunc_print (void) {}
+void libfunc_print (void) {
+    unsigned n = avm_totalactuals();
+    for(unsigned i = 0; i < n; i++) {
+        char* s = avm_tostring(avm_getactual(i));
+        puts(s);
+        free(s);
+    }
+}
 void libfunc_typeof (void) {}
 void libfunc_totalarguments (void) {}
 void libfunc_argument (void) {}
