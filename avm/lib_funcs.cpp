@@ -8,6 +8,7 @@ void libfunc_print (void) {
         puts(s);
         free(s);
     }
+    avm_memcellclear(&retval);
 }
 void libfunc_typeof (void) {}
 void libfunc_totalarguments (void) {}

@@ -53,12 +53,13 @@ memclear_func_t memclearFuncs[] = {
     0, memclear_string, 0, memclear_table, 0, 0, 0, 0
 };
 
+extern unsigned int totalGlobals;
 static void avm_initstack(void) {
     for (unsigned i = 0; i < AVM_STACKSIZE; ++i) {
         AVM_WIPEOUT(stack[i]);
         stack[i].type = undef_m;
     }
-    top = topsp = AVM_STACKSIZE - 1;
+    top = topsp = AVM_STACKSIZE - 1 - totalGlobals -1;
 }
 
 void avm_tablebuckets_destroy(avm_table_bucket** p) {
@@ -382,8 +383,8 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    avm_initstack();
     load_binary(argv[1]);
+    avm_initstack();
     codeSize = code.size();
 
     while(!executionFinished) execute_cycle();

@@ -10,7 +10,7 @@ void avm_assign(avm_memcell* lv, avm_memcell* rv) {
         return;
     }
     if (rv->type == undef_m) {
-        avm_warning((char*)"assigning from 'undef' content!");
+        if(lv != &retval) avm_warning((char*)"assigning from 'undef' content!");
     }
     
     avm_memcellclear(lv);

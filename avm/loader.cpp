@@ -10,6 +10,7 @@ extern std::vector<char*> strings;
 extern std::vector<char*> libFuncs;
 extern std::vector<userfunc*> userFuncs;
 extern std::vector<instruction*> code;
+unsigned int totalGlobals = 0;
 
 std::vector<unsigned int> addresses;
 std::vector<unsigned int> locals;
@@ -49,6 +50,8 @@ void load_binary(char* filename) {
         std::cerr << "Error: Magic number does not match." << std::endl;
         exit(EXIT_FAILURE);
     }
+
+    in.read(reinterpret_cast<char*>(&totalGlobals), sizeof(totalGlobals));
 
     size_t size;
 
