@@ -3,7 +3,7 @@
 #include <string.h>
 
 void execute_pusharg (instruction* instr) {
-    avm_memcell* arg = avm_translate_operand(&instr->result, &ax);
+    avm_memcell* arg = avm_translate_operand(&instr->arg1, &ax);
     assert(arg);
     avm_assign(&stack[top], arg);
     ++totalActuals;
@@ -23,16 +23,17 @@ void execute_funcenter (instruction* instr) {
 
 void execute_funcexit (instruction* instr) {
     unsigned oldTop = top;
-    top = avm_get_envvalue(topsp + AVM_NUMACTUALS_OFFSET);
-    totalActuals = avm_get_envvalue(topsp + AVM_NUMACTUALS_OFFSET);
+
+    top = avm_get_envvalue(topsp + AVM_SAVEDTOP_OFFSET);
     pc = avm_get_envvalue(topsp + AVM_SAVEDPC_OFFSET);
-    topsp = avm_get_envvalue(topsp + AVM_SAVEDTOP_OFFSET);
+    topsp = avm_get_envvalue(topsp + AVM_SAVEDTOPSP_OFFSET);
+
     while(++oldTop <= top)
         avm_memcellclear(&stack[oldTop]);
 }
 
 void execute_call (instruction* instr) {
-    avm_memcell* func = avm_translate_operand(&instr->result, &ax);
+    avm_memcell* func = avm_translate_operand(&instr->arg1, &ax);
     assert(func);
     avm_callsaveenvironment();
     switch(func->type) {
