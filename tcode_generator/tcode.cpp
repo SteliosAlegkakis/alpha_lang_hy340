@@ -490,6 +490,7 @@ void tcode_generate(){
     patch_incomplete_jumps();
 }
 
+extern unsigned int totalGlobals;
 void tcode_generate_binary_vectors(char* filename) {
     std::ofstream bin;
     bin.open(filename, std::ios::binary);
@@ -498,6 +499,9 @@ void tcode_generate_binary_vectors(char* filename) {
     unsigned int magicNumber = 340200501;
     bin.write(reinterpret_cast<const char*>(&magicNumber), sizeof(magicNumber));
     
+    //print total globals
+    bin.write(reinterpret_cast<const char*>(&totalGlobals), sizeof(totalGlobals));
+
     //print numbers
     size_t numbersSize = numbers.size();
     bin.write(reinterpret_cast<const char*>(&numbersSize), sizeof(numbersSize));
