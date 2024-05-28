@@ -46,6 +46,8 @@ void avm_call_functor(avm_table* t);
 typedef void (*library_func_t) (void);
 library_func_t avm_getlibraryfunc (char* id);
 void avm_calllibfunc (char* id);
+unsigned avm_totalactuals(void);
+avm_memcell* avm_getactual(unsigned i);
 
 double      consts_getnumber(unsigned int index);
 char*       consts_getstring(unsigned int index);

@@ -58,6 +58,7 @@ static void avm_initstack(void) {
         AVM_WIPEOUT(stack[i]);
         stack[i].type = undef_m;
     }
+    top = topsp = AVM_STACKSIZE - 1;
 }
 
 void avm_tablebuckets_destroy(avm_table_bucket** p) {
@@ -210,6 +211,15 @@ void avm_call_functor(avm_table* t) {
         avm_error((char*)"in calling table: illegal '()' element value!");
     }
 
+}
+
+unsigned avm_totalactuals(void) {
+    return avm_get_envvalue(topsp + AVM_NUMACTUALS_OFFSET);
+}
+
+avm_memcell* avm_getactual(unsigned i) {
+    assert(i < avm_totalactuals());
+    return &stack[topsp + AVM_STACKENV_SIZE + 1 + i];
 }
 
 typedef void (*library_func_t) (void);
