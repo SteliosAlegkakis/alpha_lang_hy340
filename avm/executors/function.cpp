@@ -35,11 +35,11 @@ void execute_funcexit (instruction* instr) {
 void execute_call (instruction* instr) {
     avm_memcell* func = avm_translate_operand(&instr->arg1, &ax);
     assert(func);
-    avm_callsaveenvironment();
-    switch(func->type) {
 
+    avm_callsaveenvironment();
+
+    switch(func->type) {
         case userfunc_m: {
-            avm_callsaveenvironment();
             pc = func->data.userfuncVal;
             assert(pc < AVM_ENDING_PC);
             assert(code[pc]->opcode == funcenter_v);
@@ -52,7 +52,6 @@ void execute_call (instruction* instr) {
 
         default: {
             avm_error((char*)"call: cannot bind %s to function!", typeStrings[func->type]);
-            executionFinished = 1;
         }
     }
 }
