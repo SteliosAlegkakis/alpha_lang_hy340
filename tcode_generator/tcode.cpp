@@ -123,7 +123,7 @@ void patch_incomplete_jumps(){
             instructions[(*it)->instrNo].result.val = next_instruction_label();
         }
         else{
-            instructions[(*it)->instrNo].result.val = quads[(*it)->iaddress].taddress + 1;
+            instructions[(*it)->instrNo].result.val = quads[(*it)->iaddress].taddress;
         }
     }
 }
