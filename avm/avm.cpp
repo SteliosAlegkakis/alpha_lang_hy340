@@ -124,20 +124,21 @@ avm_memcell* avm_tablegetelem(avm_table* t, avm_memcell* key) {
 }
 
 void avm_tablesetelem(avm_table* t, avm_memcell* key, avm_memcell* value) {
+    avm_table_bucket* p = new avm_table_bucket;
     unsigned i = 0;
     if (key->type == number_m) {
         i = (unsigned)key->data.numVal % AVM_TABLE_HASHSIZE;
+        p->next = t->numIndexed[i];
+        t->numIndexed[i] = p;
     } else if (key->type == string_m) {
         i = (unsigned)key->data.strVal[0] % AVM_TABLE_HASHSIZE;
+        p->next = t->strIndexed[i];
+        t->strIndexed[i] = p;
     } else {
-        std::cerr << "Error: Key is not a number or a string." << std::endl;
-        exit(EXIT_FAILURE);
+        avm_error((char*)"Error: Key is not a number or a string.");
     }
-    avm_table_bucket* p = new avm_table_bucket;
     p->key = *key;
     p->value = *value;
-    p->next = t->numIndexed[i];
-    t->numIndexed[i] = p;
     ++t->total;
 }
 
