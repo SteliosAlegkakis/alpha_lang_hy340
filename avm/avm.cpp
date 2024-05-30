@@ -59,7 +59,7 @@ static void avm_initstack(void) {
         AVM_WIPEOUT(stack[i]);
         stack[i].type = undef_m;
     }
-    top = topsp = AVM_STACKSIZE - 1 - totalGlobals -1;
+    top = topsp = AVM_STACKSIZE - 1 - totalGlobals;
 }
 
 void avm_tablebuckets_destroy(avm_table_bucket** p) {

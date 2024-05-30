@@ -108,11 +108,14 @@ void _resettemp(void) {
     tmpcounter = 0;
 }
 
+extern int totalGlobals;
 SymtabEntry* _newtemp(void) {
     char* name = _newtempname();
     SymtabEntry* sym = symTab_lookup(name, get_current_scope());
-    if (sym == NULL)
+    if (sym == NULL) {
+        if(get_current_scope() == 0) totalGlobals++; 
         return new SymtabEntry(get_current_scope(), name, alpha_yylineno, variable, local, var_s, curr_scopespace(), curr_scope_offset());
+    }
     return sym;
 }
 

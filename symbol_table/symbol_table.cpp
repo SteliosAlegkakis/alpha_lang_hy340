@@ -30,8 +30,10 @@ const char* unionType_toString(int union_type) {
 
 void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum symbolType symboltype, enum symbol_t symbol_t, scopespace_t space, unsigned int offset) {  
     if(uniontype == variable) {
-        if(currentScope == 0) symboltype = global;
-        totalGlobals++;
+        if(currentScope == 0) {
+            symboltype = global;
+            totalGlobals++;
+        }
     }
     SymtabEntry* entry = new SymtabEntry(currentScope, name, line, uniontype, symboltype, symbol_t, space, offset);
     symbolTable.insert({name,entry});
