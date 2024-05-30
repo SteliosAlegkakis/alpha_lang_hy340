@@ -200,16 +200,16 @@ void generate_not(quad* q){
     instruction instr;
     
     instr.opcode = jeq_v;
-    make_operand(q->arg1, &instr.arg1);
+    make_operand(q->result, &instr.arg1);
     make_bool_operand(&instr.arg2, 0);
     instr.result.type = label_a;
     instr.result.val = next_instruction_label() + 3;
     tcode_emit(&instr);
     
     instr.opcode = assign_v;
-    make_bool_operand(&instr.arg1, 0);
+    make_bool_operand(&instr.result, 0);
     reset_operand(&instr.arg2);
-    make_operand(q->result, &instr.result);
+    make_operand(q->arg1, &instr.arg1);
     tcode_emit(&instr);
     
     instr.opcode = jump_v;
@@ -220,9 +220,9 @@ void generate_not(quad* q){
     tcode_emit(&instr);
 
     instr.opcode = assign_v;
-    make_bool_operand(&instr.arg1, 1);
+    make_bool_operand(&instr.result, 1);
     reset_operand(&instr.arg2);
-    make_operand(q->result, &instr.result);
+    make_operand(q->arg1, &instr.arg1);
     tcode_emit(&instr);
     
 }
@@ -243,9 +243,9 @@ void generate_or(quad* q){
     tcode_emit(&t);
     
     t.opcode = assign_v;
-    make_bool_operand(&t.arg1, 0);
+    make_bool_operand(&t.result, 0);
     reset_operand(&t.arg2);   
-    make_operand(q->result,&t.result);
+    make_operand(q->result,&t.arg1);
     tcode_emit(&t);
     
     t.opcode = jump_v;
@@ -256,9 +256,9 @@ void generate_or(quad* q){
     tcode_emit(&t);
     
     t.opcode = assign_v;
-    make_bool_operand(&t.arg1, 1);
+    make_bool_operand(&t.result, 1);
     reset_operand(&t.arg2);
-    make_operand(q->result, &t.result);
+    make_operand(q->result, &t.arg1);
     tcode_emit(&t);
 }
 
@@ -278,9 +278,9 @@ void generate_and(quad* q) {
     tcode_emit(&t);
 
     t.opcode = assign_v;
-    make_bool_operand(&t.arg1, 1);
+    make_bool_operand(&t.result, 1);
     reset_operand(&t.arg2);   
-    make_operand(q->result,&t.result);
+    make_operand(q->result,&t.arg1);
     tcode_emit(&t);
     
     t.opcode = jump_v;
@@ -291,9 +291,9 @@ void generate_and(quad* q) {
     tcode_emit(&t);
     
     t.opcode = assign_v;
-    make_bool_operand(&t.arg1, 0);
+    make_bool_operand(&t.result, 0);
     reset_operand(&t.arg2);
-    make_operand(q->result, &t.result);
+    make_operand(q->result, &t.arg1);
     tcode_emit(&t);
 }
 
