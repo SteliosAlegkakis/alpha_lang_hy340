@@ -10,8 +10,27 @@ void libfunc_print (void) {
     }
     avm_memcellclear(&retval);
 }
-void libfunc_typeof (void) {}
-void libfunc_totalarguments (void) {}
+void libfunc_typeof (void) {
+    unsigned n = avm_totalactuals();
+    if(n != 1) {
+        avm_error("one argument (not %d) expected in 'typeof'!", n);
+    } else {
+        avm_memcellclear(&retval);
+        retval.type = string_m;
+        retval.data.strVal = strdup(typeStrings[avm_getactual(0)->type]);
+    }
+}
+void libfunc_totalarguments (void) {
+    unsigned p_topsp = avm_get_envvalue(topsp + AVM_NUMACTUALS_OFFSET);
+    avm_memcellclear(&retval);
+    if(!p_topsp) {
+        avm_error("'totalarguments' called outside a function!");
+        retval.type = nil_m;
+    } else {
+        retval.type = number_m;
+        retval.data.numVal = avm_get_envvalue(p_topsp + AVM_NUMACTUALS_OFFSET);
+    }
+}
 void libfunc_argument (void) {}
 void libfunc_input (void) {}
 void libfunc_objectmemberkeys (void) {}
