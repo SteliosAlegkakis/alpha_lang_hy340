@@ -73,10 +73,14 @@ expr* manage_lvalue_id(char *name) {
         else {
             if(!is_libfunc(name)){
                 symTab_insert(name, alpha_yylineno, variable, local, var_s, curr_scopespace(), curr_scope_offset());
+                in_curr_scope_offset();
                 assert(symTab_lookup(name, get_current_scope()));
                 return lvalue_expr(symTab_lookup(name, get_current_scope()));
             }
         }
+    }
+    else if(symTab_lookup(name, get_current_scope())) {
+        return lvalue_expr(symTab_lookup(name, get_current_scope()));
     }
     else if(!symTab_lookup(name)) {
         symTab_insert(name, alpha_yylineno, variable, local, var_s, curr_scopespace(), curr_scope_offset());
@@ -123,11 +127,15 @@ void manage_idlist_id(char* name) {
             print_error("error, redifinition of formal argument:");
         else if (is_libfunc(name))
             print_error("error, cannot override library functions:");
-        else
+        else {
             symTab_insert(name, alpha_yylineno, variable, formal, var_s, curr_scopespace(), curr_scope_offset());
+            in_curr_scope_offset();
+        }
     }
-    else if(!symTab_lookup(name, get_current_scope()))
+    else if(!symTab_lookup(name, get_current_scope())) {
         symTab_insert(name, alpha_yylineno, variable, local, var_s, curr_scopespace(), curr_scope_offset());
+        in_curr_scope_offset();
+    }
 }
 
 void manage_idlist_comma_id(char* name) {
@@ -136,11 +144,15 @@ void manage_idlist_comma_id(char* name) {
             print_error("error, redifinition of formal argument:");
         else if (is_libfunc(name))
             print_error("error, cannot override library functions:");
-    	else
+    	else {
             symTab_insert(name, alpha_yylineno, variable, formal,var_s, curr_scopespace(), curr_scope_offset());
+            in_curr_scope_offset();
+        }
     }
-    else if(!symTab_lookup(name, get_current_scope()))
+    else if(!symTab_lookup(name, get_current_scope())) {
         symTab_insert(name, alpha_yylineno, variable, local, var_s, curr_scopespace(), curr_scope_offset());
+        in_curr_scope_offset();
+    }
 }
 
 char* manage_funcname_named(char* name) {
