@@ -543,7 +543,7 @@ expr* manage_primary_funcdef(SymtabEntry* funcdef) {
 
 void manage_return_expr(expr* _expr){
     if(!functionCounter) print_error("error, cannot use return outside of function");
-    _emit(_ret,_expr,NULL,NULL,0);
+    _emit(_ret,NULL,NULL,_expr,0);
 	return;
 
 }

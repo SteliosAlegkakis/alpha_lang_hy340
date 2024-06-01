@@ -320,8 +320,8 @@ void generate_get_ret_val(quad* q){
     instruction t;
     t.srcLine = q->line;
     t.opcode = assign_v;
-    make_operand(q->result, &t.result);
-    make_ret_val_operand(&t.arg1);
+    make_operand(q->result, &t.arg1);
+    make_ret_val_operand(&t.result);
     tcode_emit(&t);
 }
 
@@ -355,11 +355,13 @@ void back_patch(std::list<unsigned int> list){
 void generate_return(quad* q) {
     q->taddress = next_instruction_label();
     instruction t;
-    t.srcLine = q->line;
-    t.opcode = assign_v;
-    make_ret_val_operand(&t.result);
-    make_operand(q->arg1, &t.arg1);
-    tcode_emit(&t);
+    if(q->result) {
+        t.srcLine = q->line;
+        t.opcode = assign_v;
+        make_operand(q->result, &t.result);
+        make_ret_val_operand(&t.arg1);
+        tcode_emit(&t);
+    }
     
     SymtabEntry* f = funcStack.top();
     f->symbol.function->returnList.push_back(next_instruction_label());
