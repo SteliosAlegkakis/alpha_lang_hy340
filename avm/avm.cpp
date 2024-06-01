@@ -323,7 +323,33 @@ char* bool_tostring(avm_memcell* m) {
 }
 
 char* table_tostring(avm_memcell* m) {
-    return strdup("table");
+    if (m->type == table_m) {
+        avm_table* table = m->data.tableVal;
+        unsigned indexOld = 212;
+        std::cout << "[";
+        for (unsigned i = 0; i < AVM_TABLE_HASHSIZE; i++) {
+            avm_table_bucket* bucket = table->strIndexed[i];
+            while (bucket) {
+                if (indexOld == i) break;
+                indexOld = i;
+                avm_memcell* key = &bucket->key;
+                avm_memcell* value = &bucket->value;
+                std::cout << " {" << avm_tostring(key) << ":" << avm_tostring(value) << "},";
+                bucket = bucket->next;
+            }
+            avm_table_bucket* bucket2 = table->numIndexed[i];
+            while (bucket2) {
+                if(indexOld == i) break;
+                indexOld = i;
+                avm_memcell* key = &bucket2->key;
+                avm_memcell* value = &bucket2->value;
+                std::cout << " " << avm_tostring(value) << ",";
+                bucket2 = bucket2->next;
+            }
+        }
+        std::cout << "]";
+    }
+    return strdup("");
 }
 
 char* userfunc_tostring(avm_memcell* m) {
