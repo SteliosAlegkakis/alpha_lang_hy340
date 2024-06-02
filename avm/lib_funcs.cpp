@@ -27,7 +27,7 @@ void libfunc_typeof (void) {
 void libfunc_totalarguments (void) {
     unsigned p_topsp = avm_get_envvalue(topsp + AVM_SAVEDTOPSP_OFFSET);
     avm_memcellclear(&retval);
-    if(p_topsp == top + AVM_NUMACTUALS_OFFSET) {
+    if(p_topsp == top + AVM_NUMACTUALS_OFFSET + avm_totalactuals()) {
         printf("not in a function call! p_topsp: %d top: %d\n", p_topsp, top);
         retval.type = nil_m;
     } else {
@@ -37,16 +37,15 @@ void libfunc_totalarguments (void) {
     }
 }
 
-void libfunc_argument (void) {//fix it when calling out of function
+void libfunc_argument (void) {
     unsigned p_topsp = avm_get_envvalue(topsp + AVM_SAVEDTOPSP_OFFSET);
-    avm_memcellclear(&retval);
-    if(p_topsp == top + AVM_NUMACTUALS_OFFSET) {
-        retval.type = nil_m;
-        return;
-    } 
     unsigned n = avm_totalactuals();
-    
-    if(n != 1) {
+    avm_memcellclear(&retval);
+
+    if(p_topsp == top + AVM_NUMACTUALS_OFFSET + avm_totalactuals()) {
+        retval.type = nil_m;
+    }
+    else if(n != 1) {
         avm_error((char*)"one argument (not %d) expected in 'argument'!", n);
     } else {
         unsigned i = avm_getactual(0)->data.numVal;
