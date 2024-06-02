@@ -28,10 +28,8 @@ void libfunc_totalarguments (void) {
     unsigned p_topsp = avm_get_envvalue(topsp + AVM_SAVEDTOPSP_OFFSET);
     avm_memcellclear(&retval);
     if(p_topsp == top + AVM_NUMACTUALS_OFFSET + avm_totalactuals()) {
-        printf("not in a function call! p_topsp: %d top: %d\n", p_topsp, top);
         retval.type = nil_m;
     } else {
-        printf("in function call! p_topsp: %d top: %d\n", p_topsp, top);
         retval.type = number_m;
         retval.data.numVal = avm_get_envvalue(p_topsp + AVM_NUMACTUALS_OFFSET);
     }
