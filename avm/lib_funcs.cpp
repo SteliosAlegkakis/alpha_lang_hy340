@@ -62,7 +62,56 @@ void libfunc_argument (void) {
     }
 }
 
-void libfunc_input (void) {}
+void libfunc_input (void) {
+    if(avm_totalactuals()) {
+        avm_warning((char*)"0 arguments expected in 'input' %d found!", avm_totalactuals());
+    }
+
+    size_t size = 32;
+    size_t len = 0;
+    char* input = (char*)malloc(size * sizeof(char));
+
+    int ch;
+    while((ch = getchar()) != '\n' && ch != EOF) {
+        if(len >= size) {
+            size *= 2;
+            input = (char*)realloc(input, size * sizeof(char));
+        }
+        input[len++] = (char)ch;
+    }
+    input[len] = '\0';
+    
+
+    if(atof(input)) {
+        retval.type = number_m;
+        retval.data.numVal = atof(input);
+    } else if(strcmp(input, "true") == 0) {
+        retval.type = bool_m;
+        retval.data.boolVal = 1;
+    } else if(strcmp(input, "false") == 0) {
+        retval.type = bool_m;
+        retval.data.boolVal = 0;
+    } else if(strcmp(input, "nil") == 0) {
+        retval.type = nil_m;
+    } else {
+        bool quotes = false;
+        if(input[0] == '\"' && input[strlen(input) - 1] == '\"') {
+            input++;
+            input[strlen(input) - 1] = '\0';
+            quotes = true;
+        }
+        retval.type = string_m;
+        retval.data.strVal = strdup(input);
+        if(quotes) {
+            input--;
+            input[strlen(input) + 1] = '\0';
+            input[0] = '\"';
+            input[strlen(input)] = '\"';
+        }
+    }
+
+    free(input);
+}
 
 void libfunc_objectmemberkeys (void) {}
 
