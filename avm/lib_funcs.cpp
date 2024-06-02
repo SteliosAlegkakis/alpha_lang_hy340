@@ -3,8 +3,7 @@
 #include <math.h>
 
 void libfunc_print (void) {
-    unsigned n = avm_totalactuals();
-    for(unsigned i = 0; i < n; i++) {
+    for(unsigned i = 0; i < avm_totalactuals(); i++) {
         char* s = avm_tostring(avm_getactual(i));
         printf("%s",s);
         free(s);
@@ -14,19 +13,25 @@ void libfunc_print (void) {
 }
 
 void libfunc_typeof (void) {
-    unsigned n = avm_totalactuals();
-    if(n != 1) {
-        avm_error((char*)"one argument (not %d) expected in 'typeof'!", n);
-    } else {
-        avm_memcellclear(&retval);
-        retval.type = string_m;
-        retval.data.strVal = strdup(typeStrings[avm_getactual(0)->type]);
+    if(avm_totalactuals() < 1) {
+        avm_error((char*)"1 argument expected in 'typeof' %d found!", avm_totalactuals());
+    } else if(avm_totalactuals() > 1) {
+        avm_warning((char*)"1 argument expected in 'typeof' %d found!", avm_totalactuals());
     }
+    
+    avm_memcellclear(&retval);
+    retval.type = string_m;
+    retval.data.strVal = strdup(typeStrings[avm_getactual(0)->type]);
 }
 
 void libfunc_totalarguments (void) {
+    if(avm_totalactuals()) {
+        avm_warning((char*)"0 arguments expected in 'totalarguments' %d found!", avm_totalactuals());
+    } 
+
     unsigned p_topsp = avm_get_envvalue(topsp + AVM_SAVEDTOPSP_OFFSET);
     avm_memcellclear(&retval);
+
     if(p_topsp == top + AVM_NUMACTUALS_OFFSET + avm_totalactuals()) {
         retval.type = nil_m;
     } else {
@@ -36,19 +41,21 @@ void libfunc_totalarguments (void) {
 }
 
 void libfunc_argument (void) {
+    if(avm_totalactuals() < 1) {
+        avm_error((char*)"1 argument expected in 'argument' %d found!", avm_totalactuals());
+    } else if(avm_totalactuals() > 1) {
+        avm_warning((char*)"1 argument expected in 'argument' %d found!", avm_totalactuals());
+    }
+
     unsigned p_topsp = avm_get_envvalue(topsp + AVM_SAVEDTOPSP_OFFSET);
-    unsigned n = avm_totalactuals();
     avm_memcellclear(&retval);
 
     if(p_topsp == top + AVM_NUMACTUALS_OFFSET + avm_totalactuals()) {
         retval.type = nil_m;
-    }
-    else if(n != 1) {
-        avm_error((char*)"one argument (not %d) expected in 'argument'!", n);
     } else {
         unsigned i = avm_getactual(0)->data.numVal;
         if(i < 0 || i >= avm_get_envvalue(p_topsp + AVM_NUMACTUALS_OFFSET)) {
-            avm_error((char*)"invalid argument index in 'argument'!");
+            avm_error((char*)"invalid argument index (%d) in 'argument'!", i);
         } else {
             avm_assign(&retval, &stack[p_topsp + AVM_NUMACTUALS_OFFSET + i + 1]);
         }
@@ -64,22 +71,32 @@ void libfunc_objecttotalmembers (void) {}
 void libfunc_objectcopy (void) {}
 
 void libfunc_strtonum (void) {
-    unsigned total = avm_totalactuals();
-    if(total != 1) avm_error((char*)"one argument (not %d) expected in 'strtonum'!", total);
+    if(avm_totalactuals() < 1) {
+        avm_error((char*)"1 argument expected in 'strtonum' %d found!", avm_totalactuals());
+    } else if(avm_totalactuals() > 1) {
+        avm_warning((char*)"1 argument expected in 'strtonum' %d found!", avm_totalactuals());
+    }
+
     avm_memcell* arg = avm_getactual(0);
-    if(arg->type != string_m) avm_error((char*)"strtonum: argument is not a string!");
+    if(arg->type != string_m) avm_error((char*)"argument is not a string in 'strtonum'!");
     avm_memcellclear(&retval);
-    retval.type = number_m;
-    retval.data.numVal = atof(arg->data.strVal);
+    if(atof(arg->data.strVal)) { 
+        retval.type = number_m;
+        retval.data.numVal = atof(arg->data.strVal);
+    }
+    else retval.type = nil_m;
+
 }
 
 void libfunc_sqrt (void) {
-    unsigned total = avm_totalactuals();
-    if(total != 1){
-        avm_error((char*)"one argument (not %d) expected in 'typeof'!", total);
+    if(avm_totalactuals() < 1){
+        avm_warning((char*)"1 argument expected in 'typeof' %d found!", avm_totalactuals());
+    } else if(avm_totalactuals() > 1) {
+        avm_warning((char*)"1 argument expected in 'typeof' %d found!", avm_totalactuals());
     }
+
     avm_memcell* arg = avm_getactual(0);
-    if(arg->type != number_m) avm_error((char*)"sqrt: argument is not a number!");
+    if(arg->type != number_m) avm_error((char*)"argument is not a number in 'sqrt'!");
     avm_memcellclear(&retval);
     if(arg->data.numVal < 0) retval.type = nil_m;
     else{
@@ -89,20 +106,28 @@ void libfunc_sqrt (void) {
 }
 
 void libfunc_cos (void) {
-    unsigned total = avm_totalactuals();
-    if(total != 1) avm_error((char*)"one argument (not %d) expected in 'cos'!", total);
+    if(avm_totalactuals() < 1) {
+        avm_warning((char*)"1 argument expected in 'cos' %d found!", avm_totalactuals());
+    } else if(avm_totalactuals() > 1) {
+        avm_warning((char*)"1 argument expected in 'cos' %d found!", avm_totalactuals());
+    }
+
     avm_memcell* arg = avm_getactual(0);
-    if(arg->type != number_m) avm_error((char*)"cos: argument is not a number!");
+    if(arg->type != number_m) avm_error((char*)"argument is not a number in 'cos'!");
     avm_memcellclear(&retval);
     retval.type = number_m;
     retval.data.numVal = cos(arg->data.numVal);
 }
 
 void libfunc_sin (void) {
-    unsigned total = avm_totalactuals();
-    if(total != 1) avm_error((char*)"one argument (not %d) expected in 'sin'!", total);
+    if(avm_totalactuals() < 1) { 
+        avm_warning((char*)"1 argument expected in 'sin' %d found!", avm_totalactuals());
+    } else if (avm_totalactuals() > 1) {
+        avm_warning((char*)"1 argument expected in 'sin' %d found!", avm_totalactuals());
+    }
+
     avm_memcell* arg = avm_getactual(0);
-    if(arg->type != number_m) avm_error((char*)"sin: argument is not a number!");
+    if(arg->type != number_m) avm_error((char*)"argument is not a number in 'sin'!");
     avm_memcellclear(&retval);
     retval.type = number_m;
     retval.data.numVal = sin(arg->data.numVal);

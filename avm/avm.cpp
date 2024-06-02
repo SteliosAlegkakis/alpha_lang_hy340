@@ -289,7 +289,7 @@ void avm_warning(char* format, ...) {
     va_list args;
     va_start(args, format);
     fprintf(stderr, "\033[1;33m");
-    fprintf(stderr, "Warning: ");
+    fprintf(stderr, "\nWarning: ");
     vfprintf(stderr, format, args);
     va_end(args);
     fprintf(stderr, " line: %d\n\033[0m", currLine);
@@ -299,8 +299,7 @@ void avm_error(char* format, ...) {
     va_list args;
     va_start(args, format);
     fprintf(stderr, "\033[1;31m");
-    printf("instruction: %d\n", pc);
-    fprintf(stderr, "Error: ");
+    fprintf(stderr, "\nError: ");
     vfprintf(stderr, format, args);
     va_end(args);
     fprintf(stderr, " line: %d\n\033[0m", currLine);
