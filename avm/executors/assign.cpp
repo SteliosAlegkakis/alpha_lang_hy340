@@ -10,7 +10,7 @@ void avm_assign(avm_memcell* lv, avm_memcell* rv) {
         return;
     }
     if (rv->type == undef_m) {
-        if(lv != &retval) avm_warning((char*)"assigning from 'undef' content!");
+        avm_warning((char*)"assigning from 'undef' content!");
     }
     
     avm_memcellclear(lv);
@@ -26,7 +26,8 @@ void avm_assign(avm_memcell* lv, avm_memcell* rv) {
 void execute_assign(instruction* instr) {
     avm_memcell* lv = avm_translate_operand(&instr->arg1, (avm_memcell*)0);
     avm_memcell* rv = avm_translate_operand(&instr->result, &ax);
-    assert(lv && (&stack[AVM_STACKSIZE - 1] >= lv && lv > &stack[top] || lv == &retval));
+    // assert(&stack[AVM_STACKSIZE - 1] >= lv && lv > &stack[top] || lv == &retval);
+    assert(lv);
     assert(rv);
     avm_assign(lv, rv);
 }

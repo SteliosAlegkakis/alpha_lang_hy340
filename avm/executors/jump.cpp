@@ -37,9 +37,13 @@ void execute_jeq (instruction* instr) {
 
     unsigned char result = 0;
 
-    if(rv1->type == undef_m || rv2->type == undef_m) {
-        avm_error((char*)"undef involved in '=='!");
-    } else if(rv1->type == nil_m || rv2->type == nil_m) {
+    if(rv2->type == undef_m) {
+        avm_error((char*)"arg2 is undef in '=='!");
+    } 
+    else if (rv1->type == undef_m) {
+        avm_error((char*)"arg1 is undef in '=='!");
+    }
+    else if(rv1->type == nil_m || rv2->type == nil_m) {
         result = rv1->type == nil_m && rv2->type == nil_m;
     } else if(rv1->type == bool_m || rv2->type == bool_m) {
         result = (avm_tobool(rv1) == avm_tobool(rv2));

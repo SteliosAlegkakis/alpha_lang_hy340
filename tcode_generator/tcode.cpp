@@ -153,7 +153,7 @@ void generate_mul(quad* q) { generate(mul_v, q); }
 void generate_div(quad* q) { generate(div_v, q); }
 void generate_mod(quad* q) { generate(mod_v, q); }
 void generate_uminus(quad* q) { 
-    q->arg2 = new_expr_const_num(-1);
+    q->arg1 = new_expr_const_num(-1);
     generate(mul_v, q);
  }
 

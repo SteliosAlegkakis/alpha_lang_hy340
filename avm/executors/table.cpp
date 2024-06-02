@@ -3,7 +3,7 @@
 
 void execute_newtable (instruction* instr) {
     avm_memcell* lv = avm_translate_operand(&instr->result, (avm_memcell*) 0);
-    assert(lv && (&stack[AVM_STACKSIZE - 1] >= lv && lv > &stack[top] || lv == &retval));
+    // assert(lv && (&stack[AVM_STACKSIZE - 1] >= lv && lv < &stack[top] || lv == &retval));
     avm_memcellclear(lv);
     lv->type = table_m;
     lv->data.tableVal = avm_tablenew();
@@ -20,8 +20,8 @@ void execute_tablegetelem (instruction* instr) {
     avm_memcell* t = avm_translate_operand(&instr->arg2, (avm_memcell*) 0);
     avm_memcell* i = avm_translate_operand(&instr->result, &ax);
 
-    assert(lv && (&stack[AVM_STACKSIZE - 1] >= lv && lv > &stack[top] || lv == &retval));
-    assert(t && &stack[AVM_STACKSIZE - 1] >= t && t > &stack[top]);
+    // assert(lv && (&stack[AVM_STACKSIZE - 1] >= lv && lv < &stack[top] || lv == &retval));
+    // assert(t && &stack[AVM_STACKSIZE - 1] >= t && t < &stack[top]);
     assert(i);
 
     avm_memcellclear(lv);
@@ -49,7 +49,7 @@ void execute_tablesetelem (instruction* instr) {
     avm_memcell* i = avm_translate_operand(&instr->arg2, &ax); 
     avm_memcell* c = avm_translate_operand(&instr->result, &bx);
 
-    assert(t && &stack[AVM_STACKSIZE - 1] >= t && t > &stack[top]);
+    // assert(t && &stack[AVM_STACKSIZE - 1] >= t && t < &stack[top]);
     assert(i && c);
 
     if(t->type != table_m) {

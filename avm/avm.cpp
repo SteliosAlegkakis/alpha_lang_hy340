@@ -299,6 +299,7 @@ void avm_error(char* format, ...) {
     va_list args;
     va_start(args, format);
     fprintf(stderr, "\033[1;31m");
+    printf("instruction: %d\n", pc);
     fprintf(stderr, "Error: ");
     vfprintf(stderr, format, args);
     va_end(args);

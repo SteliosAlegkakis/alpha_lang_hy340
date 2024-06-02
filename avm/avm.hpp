@@ -23,6 +23,8 @@ extern const char* typeStrings[];
 
 extern unsigned totalActuals;
 
+extern unsigned totalGlobals;
+
 void avm_memcellclear(avm_memcell* m);
 avm_memcell* avm_translate_operand(vmarg* arg, avm_memcell* reg);
 

@@ -386,7 +386,8 @@ expr* manage_relative_operation(iopcode op, expr* arg1, expr* arg2) {
     }
 
     expr* result = new_expr(boolexpr_e);
-    result->sym = is_temp_expr(arg1)? arg1->sym: is_temp_expr(arg2)? arg2->sym: _newtemp();
+    // result->sym = is_temp_expr(arg1)? arg1->sym: is_temp_expr(arg2)? arg2->sym: _newtemp();
+    result->sym = _newtemp();
     _emit(op, arg1, arg2, NULL , next_quad_label() + 3);
     _emit(_assign, result, NULL, new_expr_const_bool(0), 0);
     _emit(_jump, NULL, NULL, NULL, next_quad_label() + 2);
@@ -398,7 +399,8 @@ expr* manage_relative_operation(iopcode op, expr* arg1, expr* arg2) {
 expr* manage_bool_operation(iopcode op, expr* arg1, expr* arg2) {
     assert(arg1); assert(arg2);
     expr* result = new_expr(boolexpr_e);
-    result->sym = is_temp_expr(arg1)? arg1->sym: is_temp_expr(arg2)? arg2->sym: _newtemp();
+    // result->sym = is_temp_expr(arg1)? arg1->sym: is_temp_expr(arg2)? arg2->sym: _newtemp();
+    result->sym = _newtemp();
     _emit(op, arg1, arg2, result, 0);
     return result;
 }
@@ -408,7 +410,7 @@ expr* manage_uminus_expr(expr* _expr) {
     check_arith(_expr, "unary minus");
     expr* term = new_expr(arithexpr_e);
     term->sym = is_temp_expr(_expr)? _expr->sym : _newtemp();
-    _emit(_uminus, term, NULL, _expr, 0);
+    _emit(_uminus, NULL, _expr, term, 0);
     return term;
 }
 
