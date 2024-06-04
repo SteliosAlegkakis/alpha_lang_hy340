@@ -1,4 +1,3 @@
-#include "../avm/avm_structs.hpp"
 #include "../icode_generator/icode.hpp"
 #include "tcode.hpp"
 #include <list>
