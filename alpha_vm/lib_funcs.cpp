@@ -115,7 +115,8 @@ void libfunc_input (void) {
 
 void libfunc_objectmemberkeys (void) {}
 
-void libfunc_objecttotalmembers (void) {if(avm_totalactuals() < 1) {
+void libfunc_objecttotalmembers (void) {
+    if(avm_totalactuals() < 1) {
         avm_error((char*)"1 argument expected in 'objecttotalmembers' %d found!", avm_totalactuals());
     } else if(avm_totalactuals() > 1) {
         avm_warning((char*)"1 argument expected in 'objecttotalmembers' %d found!", avm_totalactuals());
@@ -124,8 +125,9 @@ void libfunc_objecttotalmembers (void) {if(avm_totalactuals() < 1) {
     avm_memcell* arg = avm_getactual(0);
     if(arg->type != table_m) avm_error((char*)"argument is not a table in 'objecttotalmembers'!");
     avm_memcellclear(&retval);
-    retval.type = table_m;
-    retval.data.numVal = arg->data.tableVal->total;}
+    retval.type = number_m;
+    retval.data.numVal = arg->data.tableVal->total;
+}
 
 void libfunc_objectcopy (void) {}
 

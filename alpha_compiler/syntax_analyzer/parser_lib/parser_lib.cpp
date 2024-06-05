@@ -648,7 +648,7 @@ void init_library_func(){
     symTab_insert((char*)"print" , 0, function, libfunc, libraryfunc_s, curr_scopespace(), 0);
     symTab_insert((char*)"input" ,0 , function, libfunc, libraryfunc_s, curr_scopespace(), 0);
     symTab_insert((char*)"objectmemberkeys", 0, function, libfunc, libraryfunc_s, curr_scopespace(), 0);
-    symTab_insert((char*)"objectotalmembers",0 , function, libfunc, libraryfunc_s, curr_scopespace(), 0);
+    symTab_insert((char*)"objecttotalmembers",0 , function, libfunc, libraryfunc_s, curr_scopespace(), 0);
     symTab_insert((char*)"objectcopy", 0, function, libfunc, libraryfunc_s, curr_scopespace(), 0);
     symTab_insert((char*)"totalarguments", 0, function, libfunc, libraryfunc_s,curr_scopespace(), 0);
     symTab_insert((char*)"argument", 0, function, libfunc, libraryfunc_s, curr_scopespace(), 0);
