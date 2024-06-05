@@ -2,11 +2,11 @@ param(
     [string]$folder
 )
 
-$testFilesDirectory = "./testfiles/$folder"
+$testFilesDirectory = $folder
 $programPath = "./alphac.exe"
 
 # Get the list of testfiles in the directory
-$testFiles = Get-ChildItem -Path $testFilesDirectory -Filter "*.asc"
+$testFiles = Get-ChildItem -Path $testFilesDirectory -Filter "*.a"
 
 # Loop through each testfile and run the program
 foreach ($testFile in $testFiles) {

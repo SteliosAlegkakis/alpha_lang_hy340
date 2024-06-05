@@ -10,20 +10,20 @@ PROGRAM_NAME = ./alphac$(EXE_EXTENSION)
 
 .PHONY: alphac
 alphac:
-	$(MAKE) -C ./alphac/lexical_analyzer
-	$(MAKE) -C ./alphac/syntax_analyzer
-	g++ -std=c++11 ./alphac/icode_generator/icode.cpp ./alphac/syntax_analyzer/parser.cpp ./alphac/symbol_table/symbol_table.cpp ./alphac/syntax_analyzer/parser_lib/parser_lib.cpp ./alphac/lexical_analyzer/scanner.cpp ./alphac/tcode_generator/tcode.cpp -o alphac$(EXE_EXTENSION)
+	$(MAKE) -C ./alpha_compiler/lexical_analyzer
+	$(MAKE) -C ./alpha_compiler/syntax_analyzer
+	g++ -std=c++11 ./alpha_compiler/icode_generator/icode.cpp ./alpha_compiler/syntax_analyzer/parser.cpp ./alpha_compiler/symbol_table/symbol_table.cpp ./alpha_compiler/syntax_analyzer/parser_lib/parser_lib.cpp ./alpha_compiler/lexical_analyzer/scanner.cpp ./alpha_compiler/tcode_generator/tcode.cpp -o alphac$(EXE_EXTENSION)
 
 .PHONY: alphavm
 alphavm:
-	g++ -std=c++11 ./alphavm/loader.cpp ./alphavm/avm.cpp ./alphavm/dispatcher.cpp ./alphavm/lib_funcs.cpp ./alphavm/executors/assign.cpp ./alphavm/executors/arithmetic.cpp ./alphavm/executors/function.cpp ./alphavm/executors/table.cpp ./alphavm/executors/jump.cpp  -o alphavm$(EXE_EXTENSION)
+	g++ -std=c++11 ./alpha_vm/loader.cpp ./alpha_vm/avm.cpp ./alpha_vm/dispatcher.cpp ./alpha_vm/lib_funcs.cpp ./alpha_vm/executors/assign.cpp ./alpha_vm/executors/arithmetic.cpp ./alpha_vm/executors/function.cpp ./alpha_vm/executors/table.cpp ./alpha_vm/executors/jump.cpp  -o alphavm$(EXE_EXTENSION)
 
 all: alphac alphavm
 
 clean:
 	$(RM) alphac$(EXE_EXTENSION) alphavm$(EXE_EXTENSION) *.txt *.abc
-	$(MAKE) -C ./alphac/lexical_analyzer clean
-	$(MAKE) -C ./alphac/syntax_analyzer clean
+	$(MAKE) -C ./alpha_compiler/lexical_analyzer clean
+	$(MAKE) -C ./alpha_compiler/syntax_analyzer clean
 
 test:
 	for testFile in ./testfiles/$(folder)/*.asc; do \
