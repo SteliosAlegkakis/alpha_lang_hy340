@@ -113,7 +113,48 @@ void libfunc_input (void) {
     free(input);
 }
 
-void libfunc_objectmemberkeys (void) {}
+void libfunc_objectmemberkeys (void) {
+    if(avm_totalactuals() < 1) {
+        avm_error((char*)"1 argument expected in 'objectmemberkeys' %d found!", avm_totalactuals());
+    } else if(avm_totalactuals() > 1) {
+        avm_warning((char*)"1 argument expected in 'objectmemberkeys' %d found!", avm_totalactuals());
+    }
+    int i , j=0;
+    avm_table* t = avm_getactual(0)->data.tableVal;
+    avm_table* table_new = avm_tablenew();
+    unsigned size = t->total;
+    avm_memcell newkey;
+    for(i = 0; i < AVM_TABLE_HASHSIZE; i++) {
+        avm_table_bucket* b = t->strIndexed[i];
+        while(b != NULL) {
+            newkey.data.numVal = j;
+            avm_table_bucket* new_bucket = (avm_table_bucket*)malloc(sizeof(avm_table_bucket));
+            new_bucket->key = newkey;
+            new_bucket->value = b->key;
+            new_bucket->next = table_new->strIndexed[i];
+            table_new->strIndexed[i] = new_bucket;
+            table_new->total++;
+            j++;         
+            b = b->next;
+        }
+        b = t->strIndexed[i];
+        while(b!=NULL) {
+            newkey.data.numVal = j;
+            avm_table_bucket* new_bucket = (avm_table_bucket*)malloc(sizeof(avm_table_bucket));
+            new_bucket->key = newkey;
+            new_bucket->value = b->key;
+            new_bucket->next = table_new->numIndexed[j];
+            table_new->numIndexed[j] = new_bucket;
+            table_new->total++;
+            j++;
+            b = b->next;
+        }   
+    }
+    retval.type = table_m;
+    retval.data.tableVal = table_new;
+    avm_tableincref_counter(retval.data.tableVal);
+}
+
 
 void libfunc_objecttotalmembers (void) {
     if(avm_totalactuals() < 1) {
@@ -129,7 +170,26 @@ void libfunc_objecttotalmembers (void) {
     retval.data.numVal = arg->data.tableVal->total;
 }
 
-void libfunc_objectcopy (void) {}
+void libfunc_objectcopy (void) {
+    avm_table* t = avm_getactual(0)->data.tableVal;
+    avm_table* table_new = avm_tablenew();
+    int i;
+    for(i = 0; i < AVM_TABLE_HASHSIZE; i++) {
+        avm_table_bucket* b = t->strIndexed[i];
+        while(b != NULL) {
+            avm_tablesetelem(table_new, &b->key, avm_tablegetelem(t, &b->key));
+            b = b->next;
+        }
+        b = t->numIndexed[i];
+        while(b != NULL) {
+            avm_tablesetelem(table_new, &b->key, avm_tablegetelem(t, &b->key));
+            b = b->next;
+        }
+    }
+    retval.type = table_m;
+    retval.data.tableVal = table_new;
+    avm_tableincref_counter(retval.data.tableVal);
+}
 
 void libfunc_strtonum (void) {
     if(avm_totalactuals() < 1) {

@@ -1,0 +1,1225 @@
+lvalue -> ID
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+elist -> elist COMMA expr
+elist -> elist COMMA expr
+elist -> elist COMMA expr
+elist -> elist COMMA expr
+elist -> elist COMMA expr
+elist -> elist COMMA expr
+elist -> elist COMMA expr
+elist -> elist COMMA expr
+objectdef -> LSQUARE elist RSQUARE
+primary -> objectdef
+term -> primary
+expr -> term
+assignment -> lvalue ASSIGN expr
+expr -> assignment
+stmt -> expr SEMICOLON
+stmts -> stmt
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+funcname -> 
+funcprefix -> FUNCTION funcname
+idlist -> 
+funcargs -> LPAREN idlist RPAREN
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmt
+statements -> statements stmts
+block -> LCURLY statements RCURLY
+funcbody -> block
+primary -> LPAREN funcdef RPAREN
+term -> primary
+expr -> term
+indexedelem -> LCURLY expr COLON expr RCURLY
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+funcname -> 
+funcprefix -> FUNCTION funcname
+idlist -> 
+funcargs -> LPAREN idlist RPAREN
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmt
+statements -> statements stmts
+block -> LCURLY statements RCURLY
+funcbody -> block
+primary -> LPAREN funcdef RPAREN
+term -> primary
+expr -> term
+indexedelem -> LCURLY expr COLON expr RCURLY
+indexed -> indexedelem
+indexed -> indexed COMMA indexedelem
+objectdef -> LSQUARE indexed RSQUARE
+primary -> objectdef
+term -> primary
+expr -> term
+assignment -> lvalue ASSIGN expr
+expr -> assignment
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+funcname -> ID
+funcprefix -> FUNCTION funcname
+idlist -> 
+funcargs -> LPAREN idlist RPAREN
+lvalue -> ID
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+assignment -> lvalue ASSIGN expr
+expr -> assignment
+elist -> expr
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+expr -> expr LESSER expr
+lvalue -> ID
+term -> lvalue PLUS_PLUS
+expr -> term
+elist -> expr
+lvalue -> ID
+lvalue -> ID
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+member -> lvalue LSQUARE expr RSQUARE
+lvalue -> member
+primary -> lvalue
+term -> primary
+expr -> term
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmt
+statements -> statements stmts
+block -> LCURLY statements RCURLY
+stmt -> block
+stmt -> forstmt
+stmts -> stmt
+lvalue -> ID
+member -> lvalue PERIOD ID
+lvalue -> member
+elist -> 
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+member -> lvalue PERIOD ID
+lvalue -> member
+elist -> 
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+statements -> statements stmts
+block -> LCURLY statements RCURLY
+funcbody -> block
+stmt -> funcdef
+stmts -> stmts stmt
+lvalue -> ID
+elist -> 
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+assignment -> lvalue ASSIGN expr
+expr -> assignment
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+assignment -> lvalue ASSIGN expr
+expr -> assignment
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+term -> SUB expr
+expr -> term
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+expr -> expr ADD expr
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+expr -> expr SUB expr
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+expr -> expr MUL expr
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+expr -> expr DIV expr
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+expr -> expr MODULO expr
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+term -> SUB expr
+expr -> term
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+funcname -> ID
+funcprefix -> FUNCTION funcname
+idlist -> 
+funcargs -> LPAREN idlist RPAREN
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+returnstmt -> RETURN expr SEMICOLON
+stmt -> returnstmt
+stmts -> stmt
+statements -> statements stmts
+block -> LCURLY statements RCURLY
+funcbody -> block
+stmt -> funcdef
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+elist -> 
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+funcname -> ID
+funcprefix -> FUNCTION funcname
+idlist -> 
+funcargs -> LPAREN idlist RPAREN
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmt
+returnstmt -> RETURN SEMICOLON
+stmt -> returnstmt
+stmts -> stmts stmt
+statements -> statements stmts
+block -> LCURLY statements RCURLY
+funcbody -> block
+stmt -> funcdef
+stmts -> stmts stmt
+lvalue -> ID
+elist -> 
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+assignment -> lvalue ASSIGN expr
+expr -> assignment
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+expr -> expr LESSER expr
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmt
+lvalue -> DCOLON ID
+term -> lvalue PLUS_PLUS
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+stmt -> CONTINUE SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+statements -> statements stmts
+block -> LCURLY statements RCURLY
+stmt -> block
+whilestmt -> WHILE LPAREN expr RPAREN stmt
+stmt -> whilestmt
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmt
+stmt -> BREAK SEMICOLON
+stmts -> stmts stmt
+statements -> statements stmts
+block -> LCURLY statements RCURLY
+stmt -> block
+whilestmt -> WHILE LPAREN expr RPAREN stmt
+stmt -> whilestmt
+stmts -> stmts stmt
+funcname -> ID
+funcprefix -> FUNCTION funcname
+idlist -> 
+funcargs -> LPAREN idlist RPAREN
+lvalue -> ID
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+assignment -> lvalue ASSIGN expr
+expr -> assignment
+stmt -> expr SEMICOLON
+stmts -> stmt
+lvalue -> LOCAL ID
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+assignment -> lvalue ASSIGN expr
+expr -> assignment
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+expr -> expr ADD expr
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+elist -> 
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+returnstmt -> RETURN SEMICOLON
+stmt -> returnstmt
+stmts -> stmts stmt
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+statements -> statements stmts
+block -> LCURLY statements RCURLY
+funcbody -> block
+stmt -> funcdef
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+elist -> 
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+elist -> 
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+term -> SUB expr
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+funcname -> 
+funcprefix -> FUNCTION funcname
+idlist -> ID
+funcargs -> LPAREN idlist RPAREN
+lvalue -> ID
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmt
+statements -> statements stmts
+block -> LCURLY statements RCURLY
+funcbody -> block
+primary -> LPAREN funcdef RPAREN
+term -> primary
+expr -> term
+indexedelem -> LCURLY expr COLON expr RCURLY
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+funcname -> 
+funcprefix -> FUNCTION funcname
+idlist -> 
+funcargs -> LPAREN idlist RPAREN
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmt
+statements -> statements stmts
+block -> LCURLY statements RCURLY
+funcbody -> block
+primary -> LPAREN funcdef RPAREN
+term -> primary
+expr -> term
+indexedelem -> LCURLY expr COLON expr RCURLY
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+indexedelem -> LCURLY expr COLON expr RCURLY
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+indexedelem -> LCURLY expr COLON expr RCURLY
+indexed -> indexedelem
+indexed -> indexed COMMA indexedelem
+indexed -> indexed COMMA indexedelem
+indexed -> indexed COMMA indexedelem
+objectdef -> LSQUARE indexed RSQUARE
+primary -> objectdef
+term -> primary
+expr -> term
+assignment -> lvalue ASSIGN expr
+expr -> assignment
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+elist -> 
+methodcall -> DPERIOD ID LPAREN elist RPAREN
+callsuffix -> methodcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+funcname -> ID
+funcprefix -> FUNCTION funcname
+idlist -> ID
+idlist -> idlist COMMA ID
+funcargs -> LPAREN idlist RPAREN
+lvalue -> ID
+lvalue -> ID
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+assignment -> lvalue ASSIGN expr
+expr -> assignment
+stmt -> expr SEMICOLON
+stmts -> stmt
+lvalue -> ID
+lvalue -> ID
+lvalue -> ID
+elist -> 
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+expr -> expr SUB expr
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+assignment -> lvalue ASSIGN expr
+expr -> assignment
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+statements -> statements stmts
+block -> LCURLY statements RCURLY
+funcbody -> block
+stmt -> funcdef
+stmts -> stmts stmt
+lvalue -> ID
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+const -> TRUE
+primary -> const
+term -> primary
+expr -> term
+const -> FALSE
+primary -> const
+term -> primary
+expr -> term
+expr -> expr OR expr
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+ifstmt -> IF LPAREN expr RPAREN stmt
+stmt -> ifstmt
+stmts -> stmts stmt
+const -> TRUE
+primary -> const
+term -> primary
+expr -> term
+const -> FALSE
+primary -> const
+term -> primary
+expr -> term
+expr -> expr AND expr
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+ifstmt -> IF LPAREN expr RPAREN stmt
+stmt -> ifstmt
+stmts -> stmts stmt
+const -> TRUE
+primary -> const
+term -> primary
+expr -> term
+term -> NOT expr
+expr -> term
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+ifstmt -> IF LPAREN expr RPAREN stmt
+stmt -> ifstmt
+stmts -> stmts stmt
+const -> FALSE
+primary -> const
+term -> primary
+expr -> term
+term -> NOT expr
+expr -> term
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+ifstmt -> IF LPAREN expr RPAREN stmt
+stmt -> ifstmt
+stmts -> stmts stmt
+lvalue -> ID
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+indexedelem -> LCURLY expr COLON expr RCURLY
+const -> STRING
+primary -> const
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+const -> INTEGER
+primary -> const
+term -> primary
+expr -> term
+elist -> expr
+elist -> elist COMMA expr
+elist -> elist COMMA expr
+objectdef -> LSQUARE elist RSQUARE
+primary -> objectdef
+term -> primary
+expr -> term
+indexedelem -> LCURLY expr COLON expr RCURLY
+indexed -> indexedelem
+indexed -> indexed COMMA indexedelem
+objectdef -> LSQUARE indexed RSQUARE
+primary -> objectdef
+term -> primary
+expr -> term
+assignment -> lvalue ASSIGN expr
+expr -> assignment
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+lvalue -> ID
+lvalue -> ID
+primary -> lvalue
+term -> primary
+expr -> term
+elist -> expr
+normcall -> LPAREN elist RPAREN
+callsuffix -> normcall
+call -> lvalue callsuffix
+primary -> call
+term -> primary
+expr -> term
+stmt -> expr SEMICOLON
+stmts -> stmts stmt
+statements -> statements stmts
+program -> statements
+EOF

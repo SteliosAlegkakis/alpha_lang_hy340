@@ -3,7 +3,7 @@
 #include <cstring>
 #include <assert.h>
 #include <stdarg.h>
-#include <_mingw_stdarg.h>
+//#include <_mingw_stdarg.h>
 
 #define AVM_WIPEOUT(m) memset(&(m), 0, sizeof(m))
 
