@@ -37,7 +37,7 @@ void symTab_insert(char* name, unsigned int line, enum unionType uniontype, enum
     }
     SymtabEntry* entry = new SymtabEntry(currentScope, name, line, uniontype, symboltype, symbol_t, space, offset);
     symbolTable.insert({name,entry});
-    printf("name: '%s' line: %d scope: %d symbol type: '%s'\n", name, line, currentScope, symbolType_toString(symboltype));
+    // printf("name: '%s' line: %d scope: %d symbol type: '%s'\n", name, line, currentScope, symbolType_toString(symboltype));
 }
 
 SymtabEntry* symTab_lookup(char* name) {
@@ -51,7 +51,7 @@ SymtabEntry* symTab_lookup(char* name) {
 SymtabEntry* symTab_lookup(char* name, unsigned int scope) {
 
     auto entrys = symbolTable.equal_range(name);
-    // assert(entrys.first != symbolTable.end() && entrys.second != symbolTable.end());
+    
     for(auto entry = entrys.first; entry != entrys.second; ++entry){
 
         if(entry->second->uniontype == function && entry->second->isActive) { 

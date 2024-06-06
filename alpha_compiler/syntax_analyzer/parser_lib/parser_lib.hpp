@@ -5,7 +5,6 @@ extern int alpha_yylineno;
 extern char* alpha_yytext;
 extern FILE* alpha_yyin;
 
-extern FILE* rulesFile;
 extern bool isFormal;
 extern int loopCounter;
 extern std::stack<int> loopCounterStack;
