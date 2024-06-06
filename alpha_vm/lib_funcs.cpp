@@ -15,6 +15,7 @@ void libfunc_print (void) {
 void libfunc_typeof (void) {
     if(avm_totalactuals() < 1) {
         avm_error((char*)"1 argument expected in 'typeof' %d found!", avm_totalactuals());
+        return;
     } else if(avm_totalactuals() > 1) {
         avm_warning((char*)"1 argument expected in 'typeof' %d found!", avm_totalactuals());
     }
@@ -43,6 +44,7 @@ void libfunc_totalarguments (void) {
 void libfunc_argument (void) {
     if(avm_totalactuals() < 1) {
         avm_error((char*)"1 argument expected in 'argument' %d found!", avm_totalactuals());
+        return;
     } else if(avm_totalactuals() > 1) {
         avm_warning((char*)"1 argument expected in 'argument' %d found!", avm_totalactuals());
     }
@@ -56,6 +58,7 @@ void libfunc_argument (void) {
         unsigned i = avm_getactual(0)->data.numVal;
         if(i < 0 || i >= avm_get_envvalue(p_topsp + AVM_NUMACTUALS_OFFSET)) {
             avm_error((char*)"invalid argument index (%d) in 'argument'!", i);
+            return;
         } else {
             avm_assign(&retval, &stack[p_topsp + AVM_NUMACTUALS_OFFSET + i + 1]);
         }
@@ -114,8 +117,13 @@ void libfunc_input (void) {
 }
 
 void libfunc_objectmemberkeys (void) {
+    if(avm_getactual(0)->type != table_m) {
+        avm_error((char*)"argument is not a table in 'objectmemberkeys'!");
+        return;
+    }
     if(avm_totalactuals() < 1) {
         avm_error((char*)"1 argument expected in 'objectmemberkeys' %d found!", avm_totalactuals());
+        return;
     } else if(avm_totalactuals() > 1) {
         avm_warning((char*)"1 argument expected in 'objectmemberkeys' %d found!", avm_totalactuals());
     }
@@ -157,20 +165,32 @@ void libfunc_objectmemberkeys (void) {
 
 
 void libfunc_objecttotalmembers (void) {
+     if(avm_getactual(0)->type != table_m) {
+        avm_error((char*)"argument is not a table in 'objecttotalmembers'!");
+        return;
+    }
     if(avm_totalactuals() < 1) {
         avm_error((char*)"1 argument expected in 'objecttotalmembers' %d found!", avm_totalactuals());
+        return;
     } else if(avm_totalactuals() > 1) {
         avm_warning((char*)"1 argument expected in 'objecttotalmembers' %d found!", avm_totalactuals());
     }
 
     avm_memcell* arg = avm_getactual(0);
-    if(arg->type != table_m) avm_error((char*)"argument is not a table in 'objecttotalmembers'!");
+    if(arg->type != table_m){
+        avm_error((char*)"argument is not a table in 'objecttotalmembers'!");
+        return;
+    }
     avm_memcellclear(&retval);
     retval.type = number_m;
     retval.data.numVal = arg->data.tableVal->total;
 }
 
 void libfunc_objectcopy (void) {
+    if(avm_getactual(0)->type != table_m) {
+        avm_error((char*)"argument is not a table in 'objectcopy'!");
+        return;
+    }
     avm_table* t = avm_getactual(0)->data.tableVal;
     avm_table* table_new = avm_tablenew();
     int i;
@@ -194,6 +214,7 @@ void libfunc_objectcopy (void) {
 void libfunc_strtonum (void) {
     if(avm_totalactuals() < 1) {
         avm_error((char*)"1 argument expected in 'strtonum' %d found!", avm_totalactuals());
+        return;
     } else if(avm_totalactuals() > 1) {
         avm_warning((char*)"1 argument expected in 'strtonum' %d found!", avm_totalactuals());
     }
@@ -211,13 +232,14 @@ void libfunc_strtonum (void) {
 
 void libfunc_sqrt (void) {
     if(avm_totalactuals() < 1){
-        avm_warning((char*)"1 argument expected in 'typeof' %d found!", avm_totalactuals());
+        avm_error((char*)"1 argument expected in 'typeof' %d found!", avm_totalactuals());
+        return;
     } else if(avm_totalactuals() > 1) {
         avm_warning((char*)"1 argument expected in 'typeof' %d found!", avm_totalactuals());
     }
 
     avm_memcell* arg = avm_getactual(0);
-    if(arg->type != number_m) avm_error((char*)"argument is not a number in 'sqrt'!");
+    if(arg->type != number_m) {avm_error((char*)"argument is not a number in 'sqrt'!"); return;}
     avm_memcellclear(&retval);
     if(arg->data.numVal < 0) retval.type = nil_m;
     else{
@@ -228,13 +250,17 @@ void libfunc_sqrt (void) {
 
 void libfunc_cos (void) {
     if(avm_totalactuals() < 1) {
-        avm_warning((char*)"1 argument expected in 'cos' %d found!", avm_totalactuals());
+        avm_error((char*)"1 argument expected in 'cos' %d found!", avm_totalactuals());
+        return;
     } else if(avm_totalactuals() > 1) {
         avm_warning((char*)"1 argument expected in 'cos' %d found!", avm_totalactuals());
     }
 
     avm_memcell* arg = avm_getactual(0);
-    if(arg->type != number_m) avm_error((char*)"argument is not a number in 'cos'!");
+    if(arg->type != number_m) {
+        avm_error((char*)"argument is not a number in 'cos'!"); 
+        return ;
+    }
     avm_memcellclear(&retval);
     retval.type = number_m;
     retval.data.numVal = cos(arg->data.numVal);
@@ -242,13 +268,17 @@ void libfunc_cos (void) {
 
 void libfunc_sin (void) {
     if(avm_totalactuals() < 1) { 
-        avm_warning((char*)"1 argument expected in 'sin' %d found!", avm_totalactuals());
+        avm_error((char*)"1 argument expected in 'sin' %d found!", avm_totalactuals());
+        return;
     } else if (avm_totalactuals() > 1) {
         avm_warning((char*)"1 argument expected in 'sin' %d found!", avm_totalactuals());
     }
 
     avm_memcell* arg = avm_getactual(0);
-    if(arg->type != number_m) avm_error((char*)"argument is not a number in 'sin'!");
+    if(arg->type != number_m) {
+        avm_error((char*)"argument is not a number in 'sin'!");
+        return;
+    }
     avm_memcellclear(&retval);
     retval.type = number_m;
     retval.data.numVal = sin(arg->data.numVal);
