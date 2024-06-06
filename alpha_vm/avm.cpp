@@ -219,8 +219,10 @@ void avm_call_functor(avm_table* t) {
     cx.type = string_m;
     cx.data.strVal = (char*)"()";
     avm_memcell* f = avm_tablegetelem(t, &cx);
-    if(!f)
+    if(!f){
         avm_error((char*)"in calling table: no '()' element found!");
+        return;
+    }
     else if(f->type == table_m) {
         avm_call_functor(f->data.tableVal);
     } else if(f->type == userfunc_m) {
@@ -232,6 +234,7 @@ void avm_call_functor(avm_table* t) {
     }
     else {
         avm_error((char*)"in calling table: illegal '()' element value!");
+        return;
     }
 
 }
@@ -255,6 +258,7 @@ void avm_calllibfunc (char* id) {
     library_func_t f = avm_getlibraryfunc(id);
     if(!f) {
         avm_error((char*)"unsupported lib func '%s' called!", id);
+        return;
     } else {
         topsp = top;
         totalActuals = 0;
