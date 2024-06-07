@@ -12,6 +12,14 @@ std::vector<std::vector<int>> contList;
 std::stack<int> loopCounterStack;
 std::stack<unsigned int> scope_offset_stack;
 bool error = false;
+std::vector<char*> formals;
+
+bool formals_contains(char* name) {
+    for(auto it = formals.begin(); it != formals.end(); ++it) {
+        if(!strcmp(*it, name)) return true;
+    }
+    return false;
+}
 
 int alpha_yyerror(const char* yaccProvidedMessage) {
 	fprintf(stderr, "\033[1;31m%s: '%s' in line: %d\033[0m\n",yaccProvidedMessage, alpha_yytext, alpha_yylineno);
@@ -123,13 +131,14 @@ expr* manage_lvalue_global_id(char* name) {
 
 void manage_idlist_id(char* name) {
 	if(isFormal){
-        if(symTab_lookup(name, get_current_scope()))
+        if(formals_contains(name))
             print_error("error, redifinition of formal argument:");
         else if (is_libfunc(name))
             print_error("error, cannot override library functions:");
         else {
             symTab_insert(name, alpha_yylineno, variable, formal, var_s, curr_scopespace(), curr_scope_offset());
             in_curr_scope_offset();
+            formals.push_back(name);
         }
     }
     else if(!symTab_lookup(name, get_current_scope())) {
@@ -140,13 +149,14 @@ void manage_idlist_id(char* name) {
 
 void manage_idlist_comma_id(char* name) {
 	if(isFormal){
-        if(symTab_lookup(name, get_current_scope()))
+        if(formals_contains(name))
             print_error("error, redifinition of formal argument:");
         else if (is_libfunc(name))
             print_error("error, cannot override library functions:");
     	else {
             symTab_insert(name, alpha_yylineno, variable, formal,var_s, curr_scopespace(), curr_scope_offset());
             in_curr_scope_offset();
+            formals.push_back(name);
         }
     }
     else if(!symTab_lookup(name, get_current_scope())) {
@@ -186,6 +196,7 @@ SymtabEntry* manage_funcprefix(char* functionName) {
     scope_offset_stack.push(curr_scope_offset());
     enter_scopespace();
     reset_formal_arg_offset();
+    formals.clear();
     return function;
 }
 
@@ -267,7 +278,6 @@ expr* manage_call_funcdef(SymtabEntry* funcdef ,expr* elist){
 
 expr* manage_call_lvalue_callsuffix(expr* lv, call* callsuffix) {
     assert(lv); assert(callsuffix);
-    if(!(lv->sym == NULL)) lv->sym->uniontype = variable;
 
     lv = emit_if_table_item(lv);
     if (callsuffix->method == 1) {
