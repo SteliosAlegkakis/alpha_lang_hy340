@@ -133,19 +133,19 @@ void libfunc_objectmemberkeys (void) {
     unsigned size = t->total;
     avm_memcell newkey;
     for(i = 0; i < AVM_TABLE_HASHSIZE; i++) {
-        avm_table_bucket* b = t->strIndexed[i];
-        while(b != NULL) {
+        avm_table_bucket* b = t->strIndexed[i]; 
+        while(b!=NULL) {
             newkey.data.numVal = j;
             avm_table_bucket* new_bucket = (avm_table_bucket*)malloc(sizeof(avm_table_bucket));
             new_bucket->key = newkey;
             new_bucket->value = b->key;
-            new_bucket->next = table_new->strIndexed[i];
-            table_new->strIndexed[i] = new_bucket;
+            new_bucket->next = table_new->numIndexed[j];
+            table_new->numIndexed[j] = new_bucket;
             table_new->total++;
-            j++;         
+            j++;
             b = b->next;
         }
-        b = t->strIndexed[i];
+        b = t->numIndexed[i];
         while(b!=NULL) {
             newkey.data.numVal = j;
             avm_table_bucket* new_bucket = (avm_table_bucket*)malloc(sizeof(avm_table_bucket));

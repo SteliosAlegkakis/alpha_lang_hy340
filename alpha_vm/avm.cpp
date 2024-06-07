@@ -168,7 +168,7 @@ void avm_tableincref_counter(avm_table* t){
 }
 
 void avm_tabledecref_counter(avm_table* t){
-    assert(t->refCounter > 0);
+    //assert(t->refCounter > 0);
     if(!--t->refCounter)
         avm_tabledestroy(t);
 }
@@ -328,7 +328,7 @@ void avm_error(char* format, ...) {
     vfprintf(stderr, format, args);
     va_end(args);
     fprintf(stderr, " line: %d\n\033[0m", currLine);
-    executionFinished = 1;
+    exit(EXIT_FAILURE);
 }
 
 typedef char* (*tostring_func_t)(avm_memcell*);
