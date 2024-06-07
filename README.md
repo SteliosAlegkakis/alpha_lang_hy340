@@ -26,12 +26,12 @@ To execute an alpha binary file
 
 <h3>Compiler flags</h3>
 
- * ``-g`` generates two files, the file quads.txt and instructions.txt containing the intermediate code and the final quads respectively for debugging purposes.
+ * ``-g`` generates two files, the file quads.txt and instructions.txt containing the intermediate code and the final instructions respectively for debugging purposes.
  ```
  usage
  ./alphac -g alpha_source.asc
  ```
-  * ``-o`` by default the compilers gives to the executable binary file the name a.abc. However, you can change that using the -o flag.
+  * ``-o`` by default the compiler gives to the executable binary file the name a.abc. However, you can change that using the -o flag.
  ```
  usage
  ./alphac alpha_source.asc -o executable_name
