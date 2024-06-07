@@ -7,7 +7,7 @@
 <p>GNU <a href="https://www.gnu.org/software/bison/">Bison</a> and <a href="https://gothub.frontendfriendly.xyz/westes/flex/blob/master/README.md/">Flex</a> are required to build the alpha compiler so make sure to download these first.</p>
 
 ```
-git clone "https://https://github.com/SteliosAlegkakis/alpha_lang_hy340.git"
+git clone "https://github.com/SteliosAlegkakis/alpha_lang_hy340.git"
 cd alpha_lang_hy340
 make all
 ```
