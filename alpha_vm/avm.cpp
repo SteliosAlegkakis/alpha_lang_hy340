@@ -3,7 +3,6 @@
 #include <cstring>
 #include <assert.h>
 #include <stdarg.h>
-//#include <_mingw_stdarg.h>
 
 #define AVM_WIPEOUT(m) memset(&(m), 0, sizeof(m))
 
@@ -194,7 +193,9 @@ void avm_push_envvalue (unsigned val) {
 }
 
 unsigned avm_get_envvalue (unsigned i) {
-    assert(stack[i].type == number_m);
+    if(!(stack[i].type == number_m)) {
+        avm_error((char*)"asked argument which is not pushed in the arguments list!");
+    }
     unsigned val = (unsigned) stack[i].data.numVal;
     assert(stack[i].data.numVal == ((double) val));
     return val;
